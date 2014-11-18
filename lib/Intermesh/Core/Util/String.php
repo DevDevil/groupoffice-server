@@ -238,6 +238,60 @@ END;
 
 		return $html;
 	}
+	
+	
+	/**
+	 * Change HTML links to Group-Office links. For example mailto: links will call
+	 * the Group-Office e-mail module if installed.
+	 *
+	 *
+	 * @param	string $text Plain text string
+	 * @access public
+	 * @return string HTML formatted string
+	 */
+
+	public static function convertLinks($html)
+	{
+		$baseUrl = '';
+		if(preg_match('/base href="([^"]+)"/', $html, $matches)){
+			if(isset($matches[1]))
+			{
+				$baseUrl = $matches[1];
+			}
+		}
+
+		
+//		Don't strip new lines or it will mess up <pre> tags
+//		$html = str_replace("\r", '', $html);
+//		$html = str_replace("\n",' ', $html);
+//		
+		//strip line breaks inside html tags
+		$html = preg_replace_callback('/<[^>]+>/sm',function($matches){
+			$replacement = str_replace("\r", '', $matches[0]);
+			return str_replace("\n",'  ', $replacement);
+		}, $html);
+
+		$regexp="/<a[^>]*href=\s*([\"']?)(http|https|ftp|bf2)(:\/\/)(.+?)>/i";
+		$html = preg_replace($regexp, "<a target=$1_blank$1 href=$1$2$3$4>", $html);
+		
+		if(!empty($baseUrl)){
+			$regexp="/<a[^>]*href=\s*('|\")(?![a-z]+:)/i";
+			$html = preg_replace($regexp, "<a target=$1_blank$1 href=$1".$baseUrl, $html);
+		}
+		
+		
+		$html = preg_replace("/\b(https?:\/\/[\pL0-9\.&\-\/@#;`~=%?:_\+,\)\(]+)\b/ui", '<a href="$1" target="_blank">$1</a>', $html);
+			
+
+		//$regexp="/<a.+?href=([\"']?)".str_replace('/','\\/', \GO::config()->full_url)."(.+?)>/i";
+		//$html = preg_replace($regexp, "<a target=$1main$1 class=$1blue$1 href=$1".\GO::config()->host."$2$3>", $html);
+
+		//Following line breaks links on mobile phones
+		//$html =str_replace(\GO::config()->full_url, \GO::config()->host, $html);
+		
+		return $html;
+	}
+
 
 	/**
 	 * Replace string in html. It will leave strings inside html tags alone.

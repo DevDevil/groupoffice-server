@@ -140,6 +140,11 @@ class Message extends Model {
 	 */
 	public $xPriority = self::XPRIORITY_NORMAL;
 	
+	/**
+	 * Array of thread UIDs,
+	 * @var array 
+	 */
+	public $thread;
 	
 //	public $contentTransferEncoding;
 	
@@ -155,10 +160,11 @@ class Message extends Model {
 	private $_structure;
 
 
-	public function __construct(Mailbox $mailbox) {
+	public function __construct(Mailbox $mailbox, $uid) {
 		parent::__construct();
 
 		$this->mailbox = $mailbox;
+		$this->uid = (int) $uid;
 	}
 	
 	
@@ -168,15 +174,15 @@ class Message extends Model {
 	 * @param array $response
 	 * @return Message
 	 */
-	public static function createFromImapResponse(Mailbox $mailbox, array $response) {
-		
-		$message = new Message($mailbox);		
-		
+	public static function createFromImapResponse(Mailbox $mailbox, $propsStr, $headerStr) {		
 
 		$attr = array_merge(
-				self::_parseFetchResponse($response[0]), 
-				self::_parseHeaders($response[1]));
+				self::_parseFetchResponse($propsStr), 
+				self::_parseHeaders($headerStr));
 		
+		$message = new Message($mailbox, $attr['uid']);
+		
+		unset($attr['uid']);
 		
 		foreach($attr as $prop => $value){
 			
@@ -206,6 +212,8 @@ class Message extends Model {
 	
 	
 	private static function _parseFetchResponse($response){
+		
+//		echo $response;
 		
 		$attr = [];
 				
@@ -313,13 +321,16 @@ class Message extends Model {
 	 * 
 	 * @return string
 	 */
-	public function getBody($asHtml = true){
+	public function getBody($asHtml = true, $sanitize = true){
 		
-		$parts  = $this->getStructure()->findParts('text',$asHtml ? 'html' : 'plain');
+		
+		$props = ['type' => 'text', 'subtype' => $asHtml ? 'html' : 'plain'];
+		
+		$parts  = $this->getStructure()->findParts($props);
 			
 		
 		if(empty($parts) && $asHtml){
-			$parts  = $this->getStructure()->findParts('text','plain');
+			$parts  = $this->getStructure()->findParts(['type' => 'text', 'subtype' => 'plain']);
 		}
 		
 		if(empty($parts)){
@@ -332,6 +343,11 @@ class Message extends Model {
 		
 		if($part->subtype == 'plain' && $asHtml){
 			$data = nl2br($data);
+		}
+		
+		if($sanitize){
+			$data = String::convertLinks($data);
+			$data = String::sanitizeHtml($data);
 		}
 		
 		return $data;	
@@ -347,12 +363,9 @@ class Message extends Model {
 		
 		$attachments = [];
 		
-		//var_dump($this->getStructure()->parts);
-		
 		if($this->getStructure()->parts[0]->subtype=='alternative'){
 			return [];
-		}
-		
+		}		
 		
 		if(count($this->getStructure()->parts) == 1 && $this->getStructure()->parts[0]->type == 'multipart'){
 			$parts = $this->getStructure()->parts[0]->parts;
@@ -362,14 +375,38 @@ class Message extends Model {
 		}
 		
 		foreach($parts as $part){			
-			
-//			echo $part->partNumber.' -> '.$part->type."\n";
-			
 			if($part->partNumber != "1" && $part->type != "multipart"){
 				$attachments[] = $part;
-			}			
+			}
 		}
 		
 		return $attachments;
 	}	
+	
+	/**
+	 * True if message is answered
+	 * 
+	 * @return boolean
+	 */
+	public function getAnswered(){
+		return in_array('\\Answered', $this->flags);
+	}
+	
+	/**
+	 * True if message is forwarded
+	 * 
+	 * @return boolean
+	 */
+	public function getForwarded(){
+		return in_array('$Forwarded', $this->flags);
+	}
+	
+	/**
+	 * True if message is viewed
+	 * 
+	 * @return boolean
+	 */
+	public function getSeen(){
+		return in_array('\Seen', $this->flags);
+	}
 }

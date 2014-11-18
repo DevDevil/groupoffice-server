@@ -79,6 +79,10 @@ class SinglePart extends AbstractPart{
 			
 			$this->{$atts[$i]} = $this->_parseValue($struct[$i]);
 		}
+		
+		if(isset($this->id)) {
+			$this->id = trim($this->id, '<> ');
+		}
 	}
 	
 	/**
@@ -101,6 +105,10 @@ class SinglePart extends AbstractPart{
 		
 		return false;
 	}
+	
+//	public function getUrl(){
+//		
+//	}
 	
 	
 	private function _parseValue($v){
@@ -170,7 +178,7 @@ class SinglePart extends AbstractPart{
 	}	
 	
 	
-	public function toArray(array $attributes = ['filename', 'encoding','size','partNumber']) {
+	public function toArray(array $attributes = ['filename', 'encoding','size','partNumber', 'id']) {
 		return parent::toArray($attributes);
 	}
 	

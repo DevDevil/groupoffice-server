@@ -134,11 +134,9 @@ class Mailbox extends Model {
 		$connection->sendCommand($cmd);
 		
 		$response = $connection->getResponse();
-		
-
-		
+				
 		if($connection->lastCommandSuccessful){
-			return self::createFromImapListResponse($connection, explode(' ',$response[0][0]));
+			return self::createFromImapListResponse($connection, $response[0][0]);
 		}else
 		{
 			return false;
@@ -155,13 +153,15 @@ class Mailbox extends Model {
 	 * @param array $lineParts
 	 * @return Mailbox
 	 */
-	public static function createFromImapListResponse(Connection $connection, array $lineParts){
+	public static function createFromImapListResponse(Connection $connection, $responseLine){
 		
 		//eg. "* LIST (\HasNoChildren) "/" Trash"
 		
+		$lineParts = explode(' ', $responseLine);
+		
 		$mailbox = new Mailbox($connection);
 
-		$mailbox->name = array_pop($lineParts);
+		$mailbox->name = trim(array_pop($lineParts),' "');
 		$mailbox->delimiter = trim(array_pop($lineParts),'"\'');
 		
 		while($part = array_pop($lineParts)) {			
@@ -205,8 +205,10 @@ class Mailbox extends Model {
 			$parts = explode(' ', $response[0][0]);
 		
 			$status = ['mailbox' => $parts[1]];
+			
+//			var_dump($parts);
 
-			for($i = 2, $c = count($parts); $i < $c; $i++){
+			for($i = 3, $c = count($parts); $i < $c; $i++){
 
 				$name = trim($parts[$i], ' ()');
 
@@ -284,13 +286,190 @@ class Mailbox extends Model {
 		$this->connection->sendCommand($cmd);
 		
 		$response = $this->connection->getResponse();	
-		
+//		var_dump($response);
 		$mailboxes = [];
 		while($responseLine = array_shift($response)){
-			$mailboxes[] = self::createFromImapListResponse($this->connection, explode(' ',$responseLine[0]));
+			$mailboxes[] = self::createFromImapListResponse($this->connection, $responseLine[0]);
 		}
 		
 		return $mailboxes;
+	}
+	
+	
+	public function threadSort(){
+		
+		//REFERENCES of ORDERED SUBJECT
+		
+		//A4 UID THREAD REFERENCES UTF-8 ALL\r\n'",
+        // * THREAD ((3)(9)(13 14)(15))(2)(1)((4)(5)(7))(6)(8)(10)(11)(12)(16 (17 19)(18))\r\n'",
+        //A4 OK Thread completed.\r\n'",
+		
+		
+		if(!$this->selected) {
+			$this->select();
+		}
+		
+		$command = 'UID THREAD REFERENCES UTF-8 ALL';
+		
+		
+		$this->connection->sendCommand($command);
+		
+		$response = $this->connection->getResponse();
+		
+		
+		$str = substr($response[0][0], 9); //Take off THREAD
+		
+		return $this->_parseThreadResponse($str);
+		
+	}
+	
+	private $_threadUidIndex = [];
+	
+			
+	/**
+	 * Parses: 
+		
+		(11)(12)(16(17 19)(18))(20)
+			
+		Into:
+			
+	 * array(4) {
+			[11]=>
+			array(0) {
+			}
+			[12]=>
+			array(0) {
+			}
+			[16]=>
+			array(2) {
+			  [17]=>
+			  array(2) {
+				[19]=>
+				array(1) {
+				  [22]=>
+				  array(0) {
+				  }
+				}
+				[21]=>
+				array(0) {
+				}
+			  }
+			  [18]=>
+			  array(0) {
+			  }
+			}
+			[20]=>
+			array(0) {
+			}
+		  }
+	 * 
+	 * @param type $str
+	 * @param $highestLevelUid Every thread group has the higherst level UID as group ID. And index of every uid to this group is set in _threadIndex
+	 * @return type
+	 */
+	private function _parseThreadResponse($str, $highestLevelUid = false){
+		
+		
+		$str = str_replace(array(' )', ' ) ', ')', ' (', ' ( ', '( '), array(')', ')', ')', '(', '(', '('), $str);
+//		var_dump($str);
+//		$str = substr($str, 8); //Take off THREAD
+		
+		$tokens = str_split($str);
+		
+		$threads = [];
+		
+		$level = 0;
+		
+		
+		$closeLevels = 0;
+		
+		while($token = array_shift($tokens)) {
+//			echo $token."\n";
+			
+			switch($token){	
+				
+				
+				case ' ':
+						$closeLevels++;
+					
+				
+				case '(':					
+					$level++;
+					
+//					echo "New level $level\n";
+			
+					
+					if($level==1){
+						$threadUid = "";
+						while(($token = array_shift($tokens)) !== false && (is_numeric($token) /*|| $token ==' '*/)) {
+							$threadUid .= $token;
+						}
+						
+//						var_dump($threadUid);
+						
+						if(!empty($threadUid)){
+						
+							$threads[$threadUid]=[];
+							
+							
+							
+							$this->_threadUidIndex[$threadUid] = $highestLevelUid ? $highestLevelUid : $threadUid;
+						
+//						echo "New thread: ".$threadUid."\n";
+						}else
+						{
+							//(11)(12)(16(17(19 22 23)(21))(18))(20)((24)(25))
+							
+							//this happens with 24 and 25. They are grouped without a parent.							
+									
+							$level--;
+						}
+						
+						array_unshift($tokens, $token);
+						
+						$subStr = "";						
+					}else
+					{						
+						$subStr .= $token;
+					}
+					
+					break;
+				
+				case ')':
+					
+					$level -= $closeLevels;
+					
+					$closeLevels = 0;
+					
+					$level--;		
+					
+//					echo "New level $level\n";					
+					
+					if(isset($subStr)){
+						if($level==0){
+							$subStr .= $token;
+
+							$threads[$threadUid] = $this->_parseThreadResponse($subStr, $highestLevelUid ? $highestLevelUid : $threadUid);
+						}else
+						{
+							$subStr .= $token;
+						}
+					}
+					
+					break;
+			
+				
+				default:
+					
+//					echo "Add to sub\n";
+					
+					$subStr .= $token;
+					break;
+			}
+		}
+		
+		return $threads;
+		
 	}
 	
 	/**
@@ -298,22 +477,68 @@ class Mailbox extends Model {
 	 * 
 	 * @return Message[]
 	 */
-	public function getMessages($sort = 'DATE', $reverse = true, $limit = 10, $offset = 0, $filter='ALL'){
+	public function getMessages($sort = 'DATE', $reverse = true, $threaded = false, $limit = 10, $offset = 0, array $returnAttributes=["uid","flags","date","from","subject","to","contentType","xPriority"], $filter='ALL'){
 		$uids = $this->serverSideSort($sort, $reverse, $filter);
+//		var_dump($uids);
+		if(!$uids){
+			return false;
+		}
+		
 		
 		if($limit>0){
-			$uids = array_slice($uids, $offset, $limit);
-		}
+			
+			if(!$threaded) {
+				$uids = array_slice($uids, $offset, $limit);
+			}else
+			{
+				$threads = $this->threadSort();
+				
+//				var_dump($threads);
+//				var_dump($this->_threadUidIndex);
+				//A single UID of each unique thread
+				$threadUids = [];				
+				$count = 0;
+				$max = $offset+$limit; //stop if we have enough.
+				foreach($uids as $uid){
+					$threadUid = $this->_threadUidIndex[$uid];
+					if(!isset($threadUids[$threadUid])){
+						$threadUids[$threadUid] = $uid;
+						$count++;
+						
+						if($count == $max){
+							break;
+						}
+					}				
+				}
+				$uids = array_slice(array_values($threadUids), 0, $limit);				
+				
+				
+			}
+		}		
 		
-		$headers = $this->getMessageHeaders($uids);
-		
+		$responses = $this->getMessageHeaders($uids, $returnAttributes);
+
 		$messages = [];
 		
-		foreach($headers as $response){			
-			$messages[] = Message::createFromImapResponse($this, $response);
+		while($response = array_shift($responses)){			
+			$messages[] = Message::createFromImapResponse($this, $response[0], $response[1]);
 		}
 		
-		return $messages;
+		
+		//even though the uid list is sorted UID FETCH does not return it sorted.
+		$uidIndex = array_flip($uids);
+		$sorted = [];		
+		while($message = array_shift($messages)){
+			
+			if(isset($threads)){
+				$message->thread = $threads[$this->_threadUidIndex[$message->uid]];
+			}
+			
+			$sorted[$uidIndex[$message->uid]] = $message;
+		}		
+		ksort($sorted);
+		
+		return $sorted;
 	}
 	
 	/**
@@ -322,17 +547,22 @@ class Mailbox extends Model {
 	 * @param int $uid
 	 * @return Message
 	 */
-	public function getMessage($uid){
+	public function getMessage($uid, array $returnAttributes = []){		
 		
+		$uid = (int) $uid;
 		
 		if(!$this->selected) {
 			$this->select();
 		}
 		
-		$headers = $this->getMessageHeaders([$uid]);	
-		
-		
-		return Message::createFromImapResponse($this, $headers[0]);
+		if(count($returnAttributes)) {
+			$responses = $this->getMessageHeaders([$uid], $returnAttributes);
+
+			return Message::createFromImapResponse($this, $responses[0][0], $responses[0][1]);
+		}else
+		{
+			return new Message($this, $uid);
+		}
 	}
 	
 	/**
@@ -371,10 +601,6 @@ class Mailbox extends Model {
 		
 		$command = 'UID SORT ('.$sort.') UTF-8 '.$filter;
 		
-		if(!emptY($filter)){			
-			$command .= ' '.$filter;
-		}
-		
 		$this->connection->sendCommand($command);
 		
 		$response = $this->connection->getResponse();
@@ -385,13 +611,10 @@ class Mailbox extends Model {
 
 		
 		$uids = [];
-		
-		//remove OK line.
-		array_pop($response[0]);
-		
+
 		while($line = array_shift($response[0])) {
 			
-			$vals = explode(" ", trim(str_replace('SORT', '', $line)));		
+			$vals = explode(" ", trim(str_replace('* SORT', '', $line)));		
 			$uids = array_merge($uids, $vals);
 			
 		}
@@ -403,23 +626,67 @@ class Mailbox extends Model {
 		return $uids;
 	}
 	
-	private function getMessageHeaders($uids) {
+
+	
+	private function _buildFetchProps(array $returnAttributes){
+//		$returnAttributes = array_map([$this, '_decamelCasify'], $returnAttributes);
+				
+		$props = '';
+		
+		$availableFields = [
+			'FLAGS', 
+			'INTERNALDATE',
+			'SIZE'
+			];
+		
+		foreach($availableFields as $field) {
+			if(in_array($field, $returnAttributes)){
+				$props .= $field.' ';
+			}
+		}
+		
+		$props = str_replace('SIZE', 'RFC822.SIZE', trim($props));
+		
+		$availableBodyProps = ["SUBJECT", "FROM", "DATE", "CONTENT-TYPE", "X-PRIORITY", "TO", "CC", "BCC", "REPLY-TO", "DISPOSITION-NOTIFICATION-TO", "MESSAGE-ID"];
+		
+		$bodyProps = "";
+		
+		foreach($availableBodyProps as $field) {
+			if(in_array($field, $returnAttributes)){
+				$bodyProps .= $field.' ';
+			}
+		}
+		
+		if(!empty($bodyProps)){
+			$props .= ' BODY.PEEK[HEADER.FIELDS ('.trim($bodyProps).')]';
+		}
+		
+		
+		return $props;
+	}
+	
+	private function getMessageHeaders($uids, array $returnAttributes = ["FLAGS","SIZE","DATE","FROM","SUBJECT","TO","CC","BCC","REPLY-TO","CONTENT_TYPE","MESSAGE-ID","X-PRIORITY","DISPOSITION-NOTIFICATION-TO"]) {
 
 		if(empty($uids)){
 			return [];
 		}
-
-		$sorted_string = implode(',', $uids);
 		
-		$command = 'UID FETCH '.$sorted_string.' (FLAGS INTERNALDATE RFC822.SIZE BODY.PEEK[HEADER.FIELDS (SUBJECT FROM DATE CONTENT-TYPE X-PRIORITY TO CC BCC REPLY-TO DISPOSITION-NOTIFICATION-TO MESSAGE-ID)])';
+		$sortedString = implode(',', $uids);		
+		
+		$command = 'UID FETCH '.$sortedString.' ('.$this->_buildFetchProps($returnAttributes).')';
 
 		$this->connection->sendCommand($command);
 		$res = $this->connection->getResponse();
 		
-		return $res;
+		if(!$this->connection->lastCommandSuccessful){
+			throw new \Exception($this->connection->lastCommandStatus);
+		}
 		
-	}
-	
+		
+		
+		
+		return $res;		
+	}	
 	
 	
 	/**

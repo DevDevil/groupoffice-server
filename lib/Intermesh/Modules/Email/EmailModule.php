@@ -4,8 +4,8 @@ namespace Intermesh\Modules\Email;
 
 use Intermesh\Core\AbstractModule;
 use Intermesh\Modules\Email\Controller\AccountController;
+use Intermesh\Modules\Email\Controller\AttachmentController;
 use Intermesh\Modules\Email\Controller\MailboxController;
-use Intermesh\Modules\Email\Controller\TestController;
 use Intermesh\Modules\Email\Controller\MessageController;
 
 
@@ -14,7 +14,6 @@ class EmailModule extends AbstractModule {
 	public static function getRoutes() {
 		return [
 			'email' => [
-				'controller' => TestController::className(),
 				'children' => [
 					'accounts' => [
 						'routeParams' => ['accountId'],
@@ -27,7 +26,13 @@ class EmailModule extends AbstractModule {
 								'children' => [
 									'messages' =>[
 										'routeParams' => ['uid'],
-										'controller' => MessageController::className()
+										'controller' => MessageController::className(),
+										'children' => [
+											'attachments' =>[
+												'routeParams' => ['partNumber'],
+												'controller' => AttachmentController::className()
+											]
+										]
 									]
 								]
 							]
@@ -35,7 +40,7 @@ class EmailModule extends AbstractModule {
 					]
 				]
 				
-			],
+			]
 		];
 	}
 }

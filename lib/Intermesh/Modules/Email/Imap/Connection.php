@@ -37,6 +37,17 @@ class Connection {
 	 * @var boolean 
 	 */
 	public $lastCommandSuccessful = false;
+	
+	/**
+	 * Set to the last reponse line.
+	 * 
+	 * eg. 
+	 * 
+	 * A3 OK Status completed
+	 * 
+	 * @var string 
+	 */
+	public $lastCommandStatus;
 
 	/**
 	 * Constructor
@@ -166,7 +177,7 @@ class Connection {
 		}
 
 		$response = $this->getResponse();
-//		var_dump($response);
+		
 		//returns A1 OK lastly on success
 		$this->authenticated = $this->lastCommandSuccessful;
 		
@@ -235,6 +246,8 @@ class Connection {
 		$command = 'A' . $this->commandNumber() . ' ' . $command . "\r\n";
 
 		App::debug('> ' . $command, 'imap');
+		
+//		var_dump($command);
 
 		if (!fputs($handle, $command)) {
 			throw new \Exception("Lost connection to " . $this->server);
@@ -253,6 +266,8 @@ class Connection {
 
 		App::debug('< ' . $line, 'imap');	
 		
+		
+//		var_dump($line);
 		return $line;
 	}
 
@@ -265,49 +280,79 @@ class Connection {
 	public function getResponse(Streamer $streamer = null) {
 
 		$response = [];	
+		
+		$responses = [];
+		
+		$lastCommandTag = 'A' . $this->commandCount;
+		$lastCommandTagLength = strlen($lastCommandTag);
 
+		$commandEnd = false;
+		
 		do {
-			$chunk = trim($this->readLine());
-
-			if(substr($chunk, 0, 1) === '*'){
+			
+			$chunk = $this->readLine();
+			
+			
+			if(substr($chunk, 0, 1) == '*'){
+				//untagged response
 				
 				if(isset($data)){
-					$response[] = $data;
+					$response[] = trim($data);
+					
+					$responses[] = $response;
+					$response = [];
+				}				
+				
+				//check for literal {<SIZE>}
+				$trimmedChunk = trim($chunk);
+				if(substr($trimmedChunk,-1,1) == '}'){
+					
+					$response[] = trim($chunk);
+					
+					$startpos = strrpos($trimmedChunk, '{');
+
+					if($startpos){
+						$size = substr($trimmedChunk, $startpos+1, -1);						
+						$response[] = $this->getLiteralDataResponse($size, $streamer);
+					}					
+					
+				}else
+				{
+					$data = $chunk;
 				}
 				
-				$data = [substr($chunk, 2)];
+			}elseif(($commandEnd = substr($chunk, 0, $lastCommandTagLength) === $lastCommandTag)){
+				
+				if(isset($data)){
+					$response[] = trim($data);
+				}
+				
+					
+				$responses[] = $response;
+				$response = [];
+				
+//				echo 'A' . $this->commandCount . ' OK';
+				if(stripos($chunk, 'A' . $this->commandCount . ' OK') !== false){
+					$this->lastCommandSuccessful = true;
+				}else
+				{
+					$this->lastCommandSuccessful = false;
+				}
+				
+				$this->lastCommandStatus = $chunk;
+				
 			}else
 			{
-				$data[] = $chunk;
-			}			
-			
-			//check for literal {<SIZE>}
-			if(substr($chunk,-1,1) == '}'){
-				$startpos = strrpos($chunk, '{');
-
-				if($startpos){
-					$size = substr($chunk, $startpos+1, -1);						
-					$data[] = $this->getLiteralDataResponse($size, $streamer);
+				if(!isset($data)){
+					$data = "";
 				}
+				$data .= $chunk;
 			}
 			
-		} while (substr($chunk, 0, strlen('A' . $this->commandCount)) !== 'A' . $this->commandCount);
-		
-		if(isset($data)){
-			$response[] = $data;
-		}
-		
-		if(stripos($chunk, 'A' . $this->commandCount . ' OK') !== false){
-			$this->lastCommandSuccessful = true;
-			
-			//remove response line
-//			array_pop($response);
-		}else
-		{
-			$this->lastCommandSuccessful = false;
-		}
+		} while ($commandEnd === false);
 
-		return $response;
+
+		return $responses;
 	}
 	
 

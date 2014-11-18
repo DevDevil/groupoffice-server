@@ -184,14 +184,29 @@ class Structure {
 	}
 	
 	/**
+	 * Get part by number
+	 * 
+	 * @param string $partNumber
+	 * @return AbstractPart|boolean
+	 */
+	public function getPart($partNumber){
+		$parts = $this->findParts(['partNumber' => $partNumber]);
+		
+		if(!isset($parts[0])){
+			return false;
+		}  else {
+			return $parts[0];
+		}
+	}
+	
+	/**
 	 * Find parts by type
 	 * 
-	 * @param string $type
-	 * @param string $subtype
+	 * @param array $props Key value of part properties that must match
 	 * @param array $parts
 	 * @return SinglePart[]
 	 */
-	public function findParts($type='text', $subtype='html', $parts = null) {	
+	public function findParts(array $props, $parts = null) {	
 		
 		$results  = [];
 		
@@ -201,13 +216,21 @@ class Structure {
 		
 		foreach($parts as $part){
 			
+			$match = true;
+			foreach($props as $name => $value){
+				if(!isset($part->$name) || $part->$name != $value){
+					$match = false;
+					break;
+				}
+			}
 			
-			if($part->type == $type && $part->subtype == $subtype){
+			
+			if($match){
 				$results[] = $part;
 			}
 			
 			if($part instanceof MultiPart){
-				$results = array_merge($results, $this->findParts($type, $subtype, $part->parts));				
+				$results = array_merge($results, $this->findParts($props, $part->parts));				
 			}
 		}
 		return $results;
