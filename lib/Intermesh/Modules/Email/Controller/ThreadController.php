@@ -8,43 +8,8 @@ use Intermesh\Modules\Email\Imap\Mailbox;
 use Intermesh\Modules\Email\Imap\Message;
 use Intermesh\Modules\Email\Model\Account;
 
-class MessageController extends AbstractCrudController {
+class ThreadController extends AbstractCrudController {
 
-	/**
-	 * Fetch accounts
-	 *
-	 * @param string $orderColumn Order by this column
-	 * @param string $orderDirection Sort in this direction 'ASC' or 'DESC'
-	 * @param int $limit Limit the returned records
-	 * @param int $offset Start the select on this offset
-	 * @param string $searchQuery Search on this query.
-	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
-	 * @return array JSON Model data
-	 */
-	protected function actionStore($accountId, $mailboxName, $threaded = true, $orderColumn = 'DATE', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = ['uid', 'subject', 'from', 'to', "answered", "forwarded", "seen", 'xPriority', 'date','thread']) {
-
-		$account = Account::findByPk($accountId);
-
-		if (!$account) {
-			throw new NotFound();
-		}
-
-		$mailbox = $account->findMailbox($mailboxName);
-
-//		$mailbox->threadSort();
-		
-
-
-		$response['results'] = [];
-
-		$messages = $mailbox->getMessages($orderColumn, $orderDirection == 'DESC',$threaded, $limit, $offset, $this->_returnAttributesToImapProps($returnAttributes), "ALL");
-
-		while ($message = array_shift($messages)) {
-			$response['results'][] = $message->toArray($returnAttributes);
-		}
-		
-		return $this->renderJson($response);
-	}
 
 	private function _decamelCasify($str) {
 		return strtoupper(preg_replace('/([a-z])([A-Z])/', '$1_$2', $str));
@@ -67,7 +32,11 @@ class MessageController extends AbstractCrudController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($accountId, $mailboxName, $uid, $returnAttributes = ["uid", "answered", "forwarded", "seen", "size", "date", "from", "subject", "to", "cc", "bcc", "replyTo", "contentType", "messageId", "xPriority", "dispositionNotificationTo", "body", "quote", "attachments"]) {
+	protected function actionRead($accountId, $mailboxName, $uids, $returnAttributes = ["uid", "answered", "forwarded", "seen", "size", "date", "from", "subject", "to", "cc", "bcc", "replyTo", "contentType", "messageId", "xPriority", "dispositionNotificationTo", "body", "quote", "attachments"]) {
+		
+		$uids = explode(',', $uids);
+		
+		$response['results']=[];
 
 		$account = Account::findByPk($accountId);
 
@@ -76,13 +45,18 @@ class MessageController extends AbstractCrudController {
 		}
 
 		$mailbox = Mailbox::findByName($account->getConnection(), $mailboxName);
-
-		$message = $mailbox->getMessage($uid, $this->_returnAttributesToImapProps($returnAttributes));
-
-		$data = $this->renderModel($message, $returnAttributes);
-		$data = $this->_setAttachmentUrls($message, $data);
 		
-		return $data;
+		foreach($uids as $uid){
+
+			$message = $mailbox->getMessage($uid, $this->_returnAttributesToImapProps($returnAttributes));
+
+			$data = $this->renderModel($message, $returnAttributes);
+			$data = $this->_setAttachmentUrls($message, $data);
+			
+			$response['results'][]=$data['data'];
+		}
+		
+		return $this->renderJson($response);
 	}
 	
 	private function _setAttachmentUrls(Message $message, $json){

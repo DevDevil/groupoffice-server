@@ -367,7 +367,7 @@ class Mailbox extends Model {
 	 * @param $highestLevelUid Every thread group has the higherst level UID as group ID. And index of every uid to this group is set in _threadIndex
 	 * @return type
 	 */
-	private function _parseThreadResponse($str, $highestLevelUid = false){
+	private function _parseThreadResponse($str, $recursive=false, $highestLevelUid = false){
 		
 		
 		$str = str_replace(array(' )', ' ) ', ')', ' (', ' ( ', '( '), array(')', ')', ')', '(', '(', '('), $str);
@@ -414,7 +414,7 @@ class Mailbox extends Model {
 							
 							
 							$this->_threadUidIndex[$threadUid] = $highestLevelUid ? $highestLevelUid : $threadUid;
-						
+//							$this->_threadUidIndex[$threadUid]
 //						echo "New thread: ".$threadUid."\n";
 						}else
 						{
@@ -448,8 +448,21 @@ class Mailbox extends Model {
 					if(isset($subStr)){
 						if($level==0){
 							$subStr .= $token;
+							
+							if(!$recursive) {
+								preg_match_all('/\d+/', $subStr, $matches);
 
-							$threads[$threadUid] = $this->_parseThreadResponse($subStr, $highestLevelUid ? $highestLevelUid : $threadUid);
+								$threads[$threadUid] = array_merge([$threadUid], $matches[0]);
+								foreach($threads[$threadUid] as $uid){
+									$this->_threadUidIndex[$uid] = $threadUid;
+								}
+								
+								rsort($threads[$threadUid]);
+								
+							}else{
+								$threads[$threadUid] = $this->_parseThreadResponse($subStr, $highestLevelUid ? $highestLevelUid : $threadUid);
+							}	
+
 						}else
 						{
 							$subStr .= $token;
@@ -483,6 +496,9 @@ class Mailbox extends Model {
 		if(!$uids){
 			return false;
 		}
+		
+		//even though the uid list is sorted UID FETCH does not return it sorted.
+		$uidIndex = array_flip($uids);
 		
 		
 		if($limit>0){
@@ -525,8 +541,7 @@ class Mailbox extends Model {
 		}
 		
 		
-		//even though the uid list is sorted UID FETCH does not return it sorted.
-		$uidIndex = array_flip($uids);
+		
 		$sorted = [];		
 		while($message = array_shift($messages)){
 			
@@ -540,6 +555,17 @@ class Mailbox extends Model {
 		
 		return $sorted;
 	}
+	
+//	private function sortUids($uidIndex, $uidsToSort){
+//		
+//		usort($uidsToSort, function($a, $b) use($uidIndex){
+//			return $uidIndex[$b] - $uidIndex[$a];
+//		});
+//		
+//		return $uidsToSort;
+//		
+//	}
+	
 	
 	/**
 	 * Fetch a single message
