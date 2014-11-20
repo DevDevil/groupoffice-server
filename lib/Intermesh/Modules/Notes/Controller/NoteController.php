@@ -7,11 +7,11 @@ use Intermesh\Core\Data\Store;
 use Intermesh\Core\Db\Query;
 use Intermesh\Core\Exception\Forbidden;
 use Intermesh\Core\Exception\NotFound;
+use Intermesh\Modules\Auth\Model\User;
+use Intermesh\Modules\Modules\Model\Module;
 use Intermesh\Modules\Notes\Model\Note;
-use Intermesh\Modules\Notes\Model\NoteImage;
-use Intermesh\Modules\Upload\Controller\ThumbControllerTrait;
 
-/**
+/*
  * The controller for the notes module
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
@@ -19,132 +19,177 @@ use Intermesh\Modules\Upload\Controller\ThumbControllerTrait;
  * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
  */
 class NoteController extends AbstractCrudController{	
-
-//	use ThumbControllerTrait;
-	
-	public function actionAvailableColors(){
-		
-		$response = array('success'=>true, 'results'=>array());
-		
-		$colors = Note::$availableColors;
-		
-		foreach ($colors as $color){
-			$response['results'][] = $color;
-		}
-		
-		echo $this->view->render('json', $response);
-	}
-	
-	public function actionSaveSort(){
-		
-		if(isset(App::request()->post['sortOrder'])){
-			
-			$sortOrder = App::request()->post['sortOrder'];
-			
-			$index = count($sortOrder);
-			
-			foreach (App::request()->post['sortOrder'] as $key){
-				$note = Note::findByPk($key);
-				
-				if($note){
-					$note->sortOrder = $index;
-					$note->save();
-				}
-				$index++;
-			}
-			
-			$response = array('success'=>true);
-			
-			echo $this->view->render('json', $response);	
-		}
-	}
-	
-	public function actionStore($orderColumn='sortOrder', $orderDirection='ASC', $limit=10, $offset=0, $returnAttributes=['*','listItems','images']){
-		
-		$findParams = Query::newInstance()
-						->orderBy([$orderColumn => $orderDirection])
-						->limit($limit)
-						->offset($offset);		
-		
-		$notes = Note::findPermitted($findParams);
-		
-		$store = new Store($notes);
-		$store->setReturnAttributes($returnAttributes);
-			
-		echo $this->view->render('store', $store);		
-	}
-	
-	
-	public function actionCreate($returnAttributes=['*','listItems','images']){
-		
-		$note = new Note();
-		
-		if(isset(App::request()->post['note'])){
-			$note->setAttributes(App::request()->post['note']['attributes']);
-			$note->save();
-		}
-		
-		echo $this->view->render('form', array('note'=>$note,'returnAttributes'=>$returnAttributes));
-		
-	}
-	
-	public function actionUpdate($id, $returnAttributes=['*','listItems','images']){
-
-		$note = Note::findByPk($id);
-		
-		if(!$note)
-			throw new NotFound();			
-		
-		$editAccess = $note->checkPermission('editAccess');
-		
-		if(isset(App::request()->post['note'])){
-			
-			if (!$editAccess) {
-				throw new Forbidden();
-			}
-			
-			$note->setAttributes(App::request()->post['note']['attributes']);
-			$note->save();
-		} else {
-			if (!$note->checkPermission('readAccess')) {
-				throw new Forbidden();
-			}
-		}
-		
-		echo $this->view->render('form', array('note'=>$note,'returnAttributes'=>$returnAttributes));
-		
-	}
 	
 	/**
-	 * Delete a note
+	 * Fetch notes
+	 *
+	 * @param string $orderColumn Order by this column
+	 * @param string $orderDirection Sort in this direction 'ASC' or 'DESC'
+	 * @param int $limit Limit the returned records
+	 * @param int $offset Start the select on this offset
+	 * @param string $searchQuery Search on this query.
+	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
+	 * @return array JSON Model data
+	 */
+	public function actionStore($orderColumn = 'title', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = [], $where = null) {
+
+		$query = Query::newInstance()
+				->orderBy([$orderColumn => $orderDirection])
+				->limit($limit)
+				->offset($offset);
+
+		if (!empty($searchQuery)) {
+			$query->search($searchQuery, ['title']);
+		}
+
+		if (!empty($where)) {
+
+			$where = json_decode($where, true);
+
+			if (count($where)) {
+				$query
+						->groupBy(['t.id'])
+						->whereSafe($where);
+			}
+		}
+
+		$notes = Note::findPermitted($query);
+
+
+		$store = new Store($notes);
+		$store->setReturnAttributes($returnAttributes);
+
+		return $this->renderStore($store);
+	}
+	
+	protected function actionNew($returnAttributes=[]){
+		$note = new Note();
+		return $this->renderModel($note, $returnAttributes);
+	}
+	
+	
+	/**
+	 * GET a list of notes or fetch a single note
+	 *
+	 * The attributes of this note should be posted as JSON in a role object
+	 *
+	 * <p>Example for POST and return data:</p>
+	 * <code>
+	 * {"data":{"attributes":{"name":"test",...}}}
+	 * </code>
 	 * 
-	 * @param int $id
+	 * @param int $noteId The ID of the role
+	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
+	 * @return JSON Model data
+	 */
+	protected function actionRead($noteId, $returnAttributes = []){
+		
+		if($noteId == "current"){
+			$note = User::current()->note;
+		}else
+		{
+			$note = Note::findByPk($noteId);
+		}
+
+		if (!$note) {
+			throw new NotFound();
+		}
+
+
+		if (!$note->checkPermission('readAccess')) {
+			throw new Forbidden();
+		}
+
+		return $this->renderModel($note, $returnAttributes);
+
+	}
+
+	
+	/**
+	 * Create a new field. Use GET to fetch the default attributes or POST to add a new field.
+	 *
+	 * The attributes of this field should be posted as JSON in a field object
+	 *
+	 * <p>Example for POST and return data:</p>
+	 * <code>
+	 * {"field":{"attributes":{"fieldname":"test",...}}}
+	 * </code>
+	 * 
+	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
+	 * @return JSON Model data
+	 */
+	public function actionCreate($returnAttributes = []) {
+		
+		
+		if (!Module::find(['name' => 'notes'])->single()->checkPermission('createAccess')) {
+			throw new Forbidden();
+		}
+
+		$note = new Note();
+		$note->setAttributes(App::request()->payload['data']['attributes']);
+		$note->save();
+		
+
+		return $this->renderModel($note, $returnAttributes);
+	}
+
+	/**
+	 * Update a field. Use GET to fetch the default attributes or POST to add a new field.
+	 *
+	 * The attributes of this field should be posted as JSON in a field object
+	 *
+	 * <p>Example for POST and return data:</p>
+	 * <code>
+	 * {"field":{"attributes":{"fieldname":"test",...}}}
+	 * </code>
+	 * 
+	 * @param int $noteId The ID of the field
+	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
+	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionDelete($id){
-		$note = Note::findByPk($id);
+	public function actionUpdate($noteId, $returnAttributes = []) {
+
+		if($noteId == "current"){
+			$note = User::current()->note;
+		}else
+		{
+			$note = Note::findByPk($noteId);
+		}
+
+		if (!$note) {
+			throw new NotFound();
+		}
 		
-		if(!$note){
-			throw new NotFound();			
+		if (!$note->checkPermission('editAccess')) {
+			throw new Forbidden();
+		}
+
+		$note->setAttributes(App::request()->payload['data']['attributes']);
+		$note->save();
+		
+		return $this->renderModel($note, $returnAttributes);
+	}
+
+	/**
+	 * Delete a field
+	 *
+	 * @param int $noteId
+	 * @throws NotFound
+	 */
+	public function actionDelete($noteId) {
+		$note = Note::findByPk($noteId);
+
+		if (!$note) {
+			throw new NotFound();
 		}
 		
 		if (!$note->checkPermission('deleteAccess')) {
 			throw new Forbidden();
 		}
-		
+
 		$note->delete();
-		
-		echo $this->view->render('delete', array('note'=>$note));
+
+		return $this->renderModel($note);
 	}
-	
-	
-//	protected function thumbGetFile() {
-//		//TODO permissions!
-//		return NoteImage::getImagesFolder()->createFile($_GET['src']);
-//	}
-//	
-//	protected function thumbUseCache() {
-//		return true;
-//	}
-//	
 }
