@@ -286,6 +286,18 @@ class File extends FileSystemObject {
 			flush();
 		}
 	}
+	
+	/**
+	 * open file pointer
+	 * 
+	 * See php fopen function
+	 * 
+	 * @param string $mode
+	 * @return resource
+	 */
+	public function open($mode){
+		return fopen($this->getPath(), $mode);
+	}
 
 	/**
 	 * Move a file to another folder.

@@ -171,7 +171,7 @@ class ContactController extends AbstractCrudController {
 	public function actionCreate($returnAttributes = []) {
 		
 		
-		if (!Module::find(['name' => 'contact'])->single()->checkPermission('createAccess')) {
+		if (!Module::find(['name' => 'contacts'])->single()->checkPermission('createAccess')) {
 			throw new Forbidden();
 		}
 

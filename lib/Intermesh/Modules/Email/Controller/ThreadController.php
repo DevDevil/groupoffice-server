@@ -1,29 +1,45 @@
 <?php
 namespace Intermesh\Modules\Email\Controller;
 
-use Intermesh\Core\App;
 use Intermesh\Core\Controller\AbstractCrudController;
-use Intermesh\Core\Exception\NotFound;
-use Intermesh\Modules\Email\Imap\Mailbox;
-use Intermesh\Modules\Email\Imap\Message;
-use Intermesh\Modules\Email\Model\Account;
+use Intermesh\Core\Data\Store;
+use Intermesh\Core\Db\Query;
+use Intermesh\Modules\Email\Model\Message;
 
 class ThreadController extends AbstractCrudController {
 
 
-	private function _decamelCasify($str) {
-		return strtoupper(preg_replace('/([a-z])([A-Z])/', '$1_$2', $str));
+
+	/**
+	 * Fetch accounts
+	 *
+	 * @param string $orderColumn Order by this column
+	 * @param string $orderDirection Sort in this direction 'ASC' or 'DESC'
+	 * @param int $limit Limit the returned records
+	 * @param int $offset Start the select on this offset
+	 * @param string $searchQuery Search on this query.
+	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
+	 * @return array JSON Model data
+	 */
+	protected function actionStore($accountId, $orderColumn = 'date', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = ['threadId', 'subject','fromEmail','fromPersonal','excerpt','date', 'seen','answered','hasAttachments','forwarded']) {
+
+		$folder = \Intermesh\Modules\Email\Model\Folder::find(['accountId' => $accountId, 'name' => 'INBOX'])->single();
+		
+		$accounts = Message::find(Query::newInstance()
+								->orderBy([$orderColumn => $orderDirection])
+								->limit($limit)
+								->offset($offset)
+								->search($searchQuery, array('t.subject', 't._body'))
+								->groupBy(['t.threadId'])
+								->where(['folderId'=>$folder->id])
+		);
+
+		$store = new Store($accounts);
+		$store->setReturnAttributes($returnAttributes);
+
+		return $this->renderStore($store);
 	}
-
-	private function _returnAttributesToImapProps($returnAttributes) {
-		$returnAttributes = array_map([$this, '_decamelCasify'], $returnAttributes);
-
-		if (in_array('ANSWERED', $returnAttributes) || in_array('SEEN', $returnAttributes) || in_array('FORWARDED', $returnAttributes)) {
-			$returnAttributes[] = 'FLAGS';
-		}
-		return $returnAttributes;
-	}
-
+	
 	/**
 	 * GET a list of accounts or fetch a single account
 	 *
@@ -32,70 +48,22 @@ class ThreadController extends AbstractCrudController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($accountId, $mailboxName, $uids, $returnAttributes = ["uid", "answered", "forwarded", "seen", "size", "date", "from", "subject", "to", "cc", "bcc", "replyTo", "contentType", "messageId", "xPriority", "dispositionNotificationTo", "body", "quote", "attachments"]) {
+	protected function actionRead($threadId, $limit = 10, $offset = 0, $returnAttributes = ["*", "sourceUrl", "syncUrl", "isSentByCurrentUser", "body", "quote", "attachments", "toAddresses", "ccAddresses"]) {
 		
-		$uids = explode(',', $uids);
-		
-		$response['results']=[];
+		$accounts = Message::find(Query::newInstance()
+								->orderBy(['date' => 'DESC'])
+								->limit($limit)
+								->offset($offset)
+								->where(['threadId' => $threadId])
+								
+								
+				);
+								
 
-		$account = Account::findByPk($accountId);
+		$store = new Store($accounts);
+		$store->setReturnAttributes($returnAttributes);
 
-		if (!$account) {
-			throw new NotFound();
-		}
-
-		$mailbox = Mailbox::findByName($account->getConnection(), $mailboxName);
-		
-		foreach($uids as $uid){
-
-			$message = $mailbox->getMessage($uid, $this->_returnAttributesToImapProps($returnAttributes));
-
-			$data = $this->renderModel($message, $returnAttributes);
-			$data = $this->_setAttachmentUrls($message, $data);
-			
-			$response['results'][]=$data['data'];
-		}
-		
-		return $this->renderJson($response);
+		return $this->renderStore($store);
 	}
 	
-	private function _setAttachmentUrls(Message $message, $json){
-		if(isset($json['data']['attributes']['attachments'])){
-			for($i=0, $c = count($json['data']['attributes']['attachments']);$i < $c; $i++) {
-				$json['data']['attributes']['attachments'][$i]['attributes']['url'] = 
-						App::router()->buildUrl($this->router->route.'/attachments/'.$json['data']['attributes']['attachments'][$i]['attributes']['partNumber']);
-			}
-		}
-		
-		if(isset($json['data']['attributes']['body'])){
-			preg_match_all('/cid:([^"\' ]+)/',$json['data']['attributes']['body'], $matches);
-			
-			foreach($matches[1] as $cid){
-				$part = $message->getStructure()->findParts(['id' => $cid]);
-				
-				if(isset($part[0])) {
-					$url = App::router()->buildUrl($this->router->route.'/attachments/'.$part[0]->partNumber);
-					
-					$json['data']['attributes']['body'] = str_replace('cid:'.$cid, $url, $json['data']['attributes']['body']);
-				}
-			}
-		}
-		
-		
-		if(isset($json['data']['attributes']['quote'])){
-			preg_match_all('/cid:([^"\' ]+)/',$json['data']['attributes']['quote'], $matches);
-			
-			foreach($matches[1] as $cid){
-				$part = $message->getStructure()->findParts(['id' => $cid]);
-				
-				if(isset($part[0])) {
-					$url = App::router()->buildUrl($this->router->route.'/attachments/'.$part[0]->partNumber);
-					
-					$json['data']['attributes']['quote'] = str_replace('cid:'.$cid, $url, $json['data']['attributes']['quote']);
-				}
-			}
-		}
-		
-		return $json;
-	}
 }

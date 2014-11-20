@@ -18,7 +18,7 @@ class Streamer {
 	
 	private $leftOver = "";
 
-	public function __construct($filePointer, $encoding) {
+	public function __construct($filePointer, $encoding = null) {
 		$this->filePointer = $filePointer;
 
 		$this->encoding = strtolower($encoding);
@@ -86,7 +86,7 @@ class Streamer {
 			fputs($this->filePointer, base64_decode($this->leftOver));			
 		}
 		
-		fclose($this->filePointer);
+//		fclose($this->filePointer);
 	}
 
 }

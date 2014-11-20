@@ -100,7 +100,7 @@ class Criteria extends AbstractObject {
 	 * @param string|array|Criteria $condition
 	 * @param string $operator =, !=, LIKE, NOT LIKE
 	 * 
-	 * @return self
+	 * @return static
 	 */
 	public function where($condition, $operator = "AND") {
 		$this->where[] = [$operator, $condition];
@@ -114,7 +114,7 @@ class Criteria extends AbstractObject {
 	 * {@see where()}
 	 * 
 	 * @param string|array|Criteria $condition
-	 * @return self
+	 * @return static
 	 */
 	public function andWhere($condition) {
 		return $this->where($condition, 'AND');
@@ -126,7 +126,7 @@ class Criteria extends AbstractObject {
 	 * {@see where()}
 	 * 
 	 * @param string|array|Criteria $condition
-	 * @return self
+	 * @return static
 	 */
 	public function orWhere($condition) {
 		return $this->where($condition, 'OR');

@@ -29,12 +29,19 @@ class String {
 	 * @param string $sourceCharset
 	 * @return string
 	 */
-	public static function cleanUtf8($str, $sourceCharset = 'UTF-8') {
+	public static function cleanUtf8($str, $sourceCharset = null) {
+		
+		if(!isset($sourceCharset)){
+			$sourceCharset = mb_detect_encoding($str);
+			if(!$sourceCharset){
+				$sourceCharset = 'UTF-8';
+			}
+		}
 
-		$sourceCharset = strtoupper($sourceCharset);
+		$sourceCharset = strtoupper($sourceCharset);		
 
 		if ($sourceCharset !== 'UTF-8') {
-			$str = mb_convert_encoding($str, 'UTF-8', $sourceCharset);
+			$str = mb_convert_encoding($str, 'UTF-8', $sourceCharset);			
 		}
 
 		//Check if preg validates it as UTF8
@@ -135,8 +142,8 @@ END;
 	public static function textToHtml($text, $convertLinks = true) {
 
 		if ($convertLinks) {
-			$text = preg_replace("/\b(https?:\/\/[\pL0-9\.&\-\/@#;`~=%?:_\+,\)\(]+)\b/ui", '{lt}a href={quot}$1{quot} target={quot}_blank{quot} class={quot}normal-link{quot}{gt}$1{lt}/a{gt}', $text . "\n");
-			$text = preg_replace("/\b([\pL0-9\._\-]+@[\pL0-9\.\-_]+\.[a-z]{2,4})(\s)/ui", "{lt}a class={quot}normal-link{quot} href={quot}mailto:$1{quot}{gt}$1{lt}/a{gt}$2", $text);
+			$text = preg_replace("/\b(https?:\/\/[\pL0-9\.&\-\/@#;`~=%?:_\+,\)\(]+)\b/ui", '{lt}a href={quot}$1{quot} target={quot}_blank{quot}{gt}$1{lt}/a{gt}', $text . "\n");
+			$text = preg_replace("/\b([\pL0-9\._\-]+@[\pL0-9\.\-_]+\.[a-z]{2,4})(\s)/ui", "{lt}a href={quot}mailto:$1{quot}{gt}$1{lt}/a{gt}$2", $text);
 		}
 
 		//replace repeating spaces with &nbsp;		
@@ -184,7 +191,7 @@ END;
 //			else
 //				$html = substr($html, $body_startpos);
 //		}
-
+		
 		$html = preg_replace("'</[\s]*([\w]*)[\s]*>'u", "</$1>", $html);
 
 		$to_removed_array = array(
@@ -279,8 +286,8 @@ END;
 			$html = preg_replace($regexp, "<a target=$1_blank$1 href=$1".$baseUrl, $html);
 		}
 		
-		
-		$html = preg_replace("/\b(https?:\/\/[\pL0-9\.&\-\/@#;`~=%?:_\+,\)\(]+)\b/ui", '<a href="$1" target="_blank">$1</a>', $html);
+//		var_dump($html);
+		$html = preg_replace("/[^='\"a-z0-9\/\\\\\(](https?:\/\/[\pL0-9\.&\-\/@#;`~=%?:_\+,\)\(]+)/ui", '<a href="$1" target="_blank">$0</a>', $html);
 			
 
 		//$regexp="/<a.+?href=([\"']?)".str_replace('/','\\/', \GO::config()->full_url)."(.+?)>/i";
