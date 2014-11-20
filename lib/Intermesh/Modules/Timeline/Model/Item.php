@@ -6,7 +6,7 @@ use Intermesh\Core\Db\RelationFactory;
 use Intermesh\Core\Db\SoftDeleteTrait;
 use Intermesh\Modules\Auth\Model\User;
 use Intermesh\Modules\Contacts\Model\Contact;
-use Intermesh\Modules\Imap\Model\Message;
+
 /**
  * The Item model
  *
@@ -33,8 +33,7 @@ class Item extends AbstractRecord {
 	protected static function defineRelations(RelationFactory $r) {
 		return [
 			$r->belongsTo('owner', User::className(), 'ownerUserId'),
-			$r->belongsTo('contact', Contact::className(), 'contactId'),
-			$r->belongsTo('imapMessage', Message::className(), 'imapMessageId')
+			$r->belongsTo('contact', Contact::className(), 'contactId')
 			];
 	}
 	
