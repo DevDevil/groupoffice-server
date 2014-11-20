@@ -347,7 +347,7 @@ class Relation {
 		$rmn = $this->relatedModelName;
 		$primaryKey = $rmn::primaryKeyColumn();
 
-		if (is_a($hasMany, "Intermesh\Core\Db\ActiveRecord")) {
+		if ($hasMany instanceof AbstractRecord) {
 			$hasMany->{$this->foreignKey} = $model->{$this->key};
 		} else {
 			//It's an array of attributes of the has many related model

@@ -1,8 +1,8 @@
 <?php
 
-namespace Intermesh\Modules\Imap\Model;
+namespace Intermesh\Modules\Email\Model;
 
-use Flow\Exception;
+use Exception;
 use Intermesh\Core\App;
 use Intermesh\Core\Db\AbstractRecord;
 use Intermesh\Core\Db\RelationFactory;
@@ -18,6 +18,8 @@ use Intermesh\Core\Fs\File;
  * @property string $contentType
  * @property string $contentId
  * @property boolean $inline
+ * @property string $imapPartNumber
+ * @property boolean $foundInBody
  * 
  * @property Message $message
  *
@@ -71,7 +73,30 @@ class Attachment extends AbstractRecord {
 	 */
 	public function output() {
 		
-		header('Content-Type: ' . $this->contentType);
+		if($this->size == null){
+			//attachment hasn't been downloaded from IMAP yet.
+			
+			$imapMessage = $this->message->getImapMessage(true);
+			
+			if(!$imapMessage){
+				throw new \Exception("Could not get IMAP message");
+			}
+			
+			$attachments = $imapMessage->getStructure()->findParts(['partNumber' => $this->imapPartNumber]);
+			$attachment = array_shift($attachments);
+			if(!$attachment){
+//				var_dump($imapMessage->getStructure()->toArray());
+				throw new \Exception("Could not find attachment part with number: ".$this->imapPartNumber);
+			}
+			
+			$file = File::tempFile();
+			$attachment->output($file->open('w'));				
+
+			$this->setFile($file);
+			$this->save();
+		}
+		
+		header('Content-Type: ' . $this->_getFilesystemFile()->getContentType());
 		header('Content-Disposition: inline; filename="' . $this->filename . '"');
 		header('Content-Length: ' . $this->size);
 		
@@ -91,10 +116,14 @@ class Attachment extends AbstractRecord {
 			throw new Exception("Save file first!");
 		}
 
-		return App::config()->getDataFolder()->createFile('imap/' . $this->messageId . '/' . $this->id);
+		return App::config()->getDataFolder()->createFile('email/' . $this->messageId . '/' . $this->id);
 	}
 	
 	public function getUrl(){
-		return App::router()->buildUrl('intermesh/imap/message/attachment',['id' => $this->id]);
+		return App::router()->buildUrl('email/accounts/'.$this->message->accountId.'/threads/'.$this->message->threadId.'/attachments/'.$this->id);
+	}
+	
+	public function toArray(array $returnAttributes = ['*', 'url']) {
+		return parent::toArray($returnAttributes);
 	}
 }

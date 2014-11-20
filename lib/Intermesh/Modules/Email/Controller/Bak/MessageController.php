@@ -29,7 +29,7 @@ class MessageController extends AbstractCrudController {
 			throw new NotFound();
 		}
 
-		$mailbox = $account->findMailbox($mailboxName);
+		$mailbox = $account->findMailbox('virtual/'.$mailboxName);
 
 //		$mailbox->threadSort();
 		
@@ -64,6 +64,7 @@ class MessageController extends AbstractCrudController {
 	 *
 	 * 
 	 * @param int $accountId The ID of the role
+	 * @param string $mailboxName Is base64_encoded to avoid problems with slashes
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
@@ -75,9 +76,9 @@ class MessageController extends AbstractCrudController {
 			throw new NotFound();
 		}
 
-		$mailbox = Mailbox::findByName($account->getConnection(), $mailboxName);
+		$mailbox = Mailbox::findByName($account->getConnection(), base64_decode($mailboxName));
 
-		$message = $mailbox->getMessage($uid, $this->_returnAttributesToImapProps($returnAttributes));
+		$message = $mailbox->getMessage($uid, false, $this->_returnAttributesToImapProps($returnAttributes));
 
 		$data = $this->renderModel($message, $returnAttributes);
 		$data = $this->_setAttachmentUrls($message, $data);

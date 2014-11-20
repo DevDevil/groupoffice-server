@@ -3,7 +3,7 @@
 namespace Intermesh\Core\Controller;
 
 use DateTime;
-use Flow\Exception;
+use Exception;
 use Intermesh\Core\AbstractObject;
 use Intermesh\Core\App;
 use Intermesh\Core\Data\Store;
@@ -107,6 +107,18 @@ abstract class AbstractRESTController extends AbstractObject {
 	protected function authenticate(){
 		return User::current() != false;
 	}
+	
+	private function jsonEncode($data){
+		$json = json_encode($data, JSON_PRETTY_PRINT);
+		
+		if(empty($json)){
+			echo 'JSON encoding error: ';
+			
+			var_dump($data);
+			exit();
+		}
+		return $json;
+	}
 
 	/**
 	 * Runs the controller action
@@ -122,31 +134,40 @@ abstract class AbstractRESTController extends AbstractObject {
 				throw new HttpException(403);
 			}
 
-			$json = $this->callMethodWithParams("http" . $_SERVER['REQUEST_METHOD']);		
+			$data = $this->callMethodWithParams("http" . $_SERVER['REQUEST_METHOD']);		
 
-			if(isset($json)){
-				$json = json_encode($json, JSON_PRETTY_PRINT);
+			if(isset($data)){
+				$data = $this->jsonEncode($data);
 
 				if ($this->cacheJsonOutput) {
-					$this->cacheHeaders(null, md5($json));
+					$this->cacheHeaders(null, md5($data));
 				}
+				
+				header("Allow: GET, HEAD, PUT, POST, DELETE");
+				echo $data;
 			}
 
 	//		header('X-XSS-Protection: 1; mode=block');
 	//		header('X-Content-Type-Options: nosniff');
 
 
-			header("Allow: GET, HEAD, PUT, POST, DELETE");
+			
 
 
 			
 			
 		}catch(HttpException $e){	
-			$json = $this->renderError($e->getCode(), $e->getMessage(), $e);	
-			$json = json_encode($json , JSON_PRETTY_PRINT);
+			$data = $this->renderError($e->getCode(), $e->getMessage(), $e);	
+			$data = $this->jsonEncode($data);
+			echo $data;
+		}
+		catch(Exception $e){
+			$data = $this->renderError(500, $e->getMessage(), $e);		
+			
+			$data = $this->jsonEncode($data);
+			echo $data;
 		}
 		
-		echo $json;
 		
 		
 	}
@@ -221,8 +242,9 @@ abstract class AbstractRESTController extends AbstractObject {
 	 * 
 	 * @param DateTime $lastModified
 	 * @param string $etagContent
+	 * @param DateTime $expires Optionally set an expires header
 	 */
-	protected function cacheHeaders(DateTime $lastModified = null, $etagContent = null) {
+	protected function cacheHeaders(DateTime $lastModified = null, $etagContent = null, DateTime $expires = null) {
 
 		//get the HTTP_IF_MODIFIED_SINCE header if set
 		$ifModifiedSince = (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) ? $_SERVER['HTTP_IF_MODIFIED_SINCE'] : false);
@@ -242,7 +264,12 @@ abstract class AbstractRESTController extends AbstractObject {
 //		header('Expires: '.date('D, d M Y H:i:s', time()+86400*30)); //30 days
 //		header("Vary: Authorization");
 		header_remove('Pragma');
-		header_remove('Expires');
+		
+		if(isset($expires)){
+			header('Expires: '.$expires->format('D, d M Y H:i:s')); //30 days
+		}  else {
+			header_remove('Expires');
+		}
 
 
 

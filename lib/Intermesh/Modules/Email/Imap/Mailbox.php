@@ -90,9 +90,10 @@ class Mailbox extends Model {
 	 * 
 	 * @var boolean 
 	 */
-	public $selected = false;
-	
-	
+	public function getSelected(){
+		return $this->connection->selectedMailbox == $this->name;
+	}
+			
 	
 	private $_status;
 
@@ -136,6 +137,11 @@ class Mailbox extends Model {
 		$response = $connection->getResponse();
 				
 		if($connection->lastCommandSuccessful){
+			
+			if(!isset($response[0][0])){
+				return false;
+			}
+			
 			return self::createFromImapListResponse($connection, $response[0][0]);
 		}else
 		{
@@ -371,10 +377,12 @@ class Mailbox extends Model {
 		
 		
 		$str = str_replace(array(' )', ' ) ', ')', ' (', ' ( ', '( '), array(')', ')', ')', '(', '(', '('), $str);
-//		var_dump($str);
+		var_dump($str);
 //		$str = substr($str, 8); //Take off THREAD
 		
 		$tokens = str_split($str);
+		
+//		var_dump($tokens);
 		
 		$threads = [];
 		
@@ -384,7 +392,7 @@ class Mailbox extends Model {
 		$closeLevels = 0;
 		
 		while($token = array_shift($tokens)) {
-//			echo $token."\n";
+			echo $token."\n";
 			
 			switch($token){	
 				
@@ -402,6 +410,9 @@ class Mailbox extends Model {
 					if($level==1){
 						$threadUid = "";
 						while(($token = array_shift($tokens)) !== false && (is_numeric($token) /*|| $token ==' '*/)) {
+							
+//							echo 'T:'.$token.'-';
+							
 							$threadUid .= $token;
 						}
 						
@@ -441,7 +452,13 @@ class Mailbox extends Model {
 					
 					$closeLevels = 0;
 					
-					$level--;		
+					$level--;	
+					if($level == -1){
+						//happens with extra ()
+						//((1)(9)(10(11)(12))(13)(14))(2)(3)(4)((5)(6(32)(33)))((7)(8))(34)(15 16 17(18 19(21 25 26 27(28)(31))(24))(20))(22)(23)((29)(30))
+						//happens on (2) here.
+						$level = 0;
+					}
 					
 //					echo "New level $level\n";					
 					
@@ -450,6 +467,8 @@ class Mailbox extends Model {
 							$subStr .= $token;
 							
 							if(!$recursive) {
+								
+//								var_dump($subStr);
 								preg_match_all('/\d+/', $subStr, $matches);
 
 								$threads[$threadUid] = array_merge([$threadUid], $matches[0]);
@@ -480,7 +499,6 @@ class Mailbox extends Model {
 					break;
 			}
 		}
-		
 		return $threads;
 		
 	}
@@ -490,11 +508,12 @@ class Mailbox extends Model {
 	 * 
 	 * @return Message[]
 	 */
-	public function getMessages($sort = 'DATE', $reverse = true, $threaded = false, $limit = 10, $offset = 0, array $returnAttributes=["uid","flags","date","from","subject","to","contentType","xPriority"], $filter='ALL'){
+	public function getMessages($sort = 'DATE', $reverse = true, $threaded = false, $limit = 10, $offset = 0, $filter='ALL', array $returnAttributes=["FLAGS","SIZE","DATE", "INTERNALDATE","FROM","SUBJECT","TO","CC","BCC","REPLY-TO","CONTENT_TYPE","MESSAGE-ID","X-PRIORITY","DISPOSITION-NOTIFICATION-TO", "IN-REPLY-TO", "REFERENCES"]){
 		$uids = $this->serverSideSort($sort, $reverse, $filter);
 //		var_dump($uids);
-		if(!$uids){
-			return false;
+		
+		if(!count($uids)){
+			return array();
 		}
 		
 		//even though the uid list is sorted UID FETCH does not return it sorted.
@@ -531,6 +550,9 @@ class Mailbox extends Model {
 				
 			}
 		}		
+//		
+//		var_dump(count($uids));
+//		exit();
 		
 		$responses = $this->getMessageHeaders($uids, $returnAttributes);
 
@@ -571,9 +593,9 @@ class Mailbox extends Model {
 	 * Fetch a single message
 	 * 
 	 * @param int $uid
-	 * @return Message
+	 * @return Message|boolean
 	 */
-	public function getMessage($uid, array $returnAttributes = []){		
+	public function getMessage($uid, $noFetchProps = false, array $returnAttributes = []){		
 		
 		$uid = (int) $uid;
 		
@@ -581,8 +603,16 @@ class Mailbox extends Model {
 			$this->select();
 		}
 		
-		if(count($returnAttributes)) {
+		if(!$noFetchProps) {
 			$responses = $this->getMessageHeaders([$uid], $returnAttributes);
+			
+			if(!$this->connection->lastCommandSuccessful){
+				throw new \Exception($this->connection->lastCommandStatus);
+			}
+			
+			if(empty($responses[0][0])){
+				return false;
+			}
 
 			return Message::createFromImapResponse($this, $responses[0][0], $responses[0][1]);
 		}else
@@ -596,7 +626,7 @@ class Mailbox extends Model {
 	 * 
 	 * @return boolean
 	 */
-	private function select(){
+	public function select(){
 		
 		$command = 'SELECT "'.Utils::escape(Utils::utf7Encode($this->name)).'"';
 		
@@ -604,7 +634,9 @@ class Mailbox extends Model {
 		
 		$this->connection->getResponse();
 		
-		$this->selected = $this->connection->lastCommandSuccessful;
+		if($this->connection->lastCommandSuccessful){
+			$this->connection->selectedMailbox = $this->name;
+		}
 		
 		return $this->connection->lastCommandSuccessful;
 	}
@@ -639,9 +671,11 @@ class Mailbox extends Model {
 		$uids = [];
 
 		while($line = array_shift($response[0])) {
-			
-			$vals = explode(" ", trim(str_replace('* SORT', '', $line)));		
-			$uids = array_merge($uids, $vals);
+			$str =  trim(str_replace('* SORT', '', $line));
+			if(!empty($str)) {
+				$vals = explode(" ", $str);		
+				$uids = array_merge($uids, $vals);
+			}
 			
 		}
 		
@@ -654,7 +688,7 @@ class Mailbox extends Model {
 	
 
 	
-	private function _buildFetchProps(array $returnAttributes){
+	private function _buildFetchProps(array $returnAttributes = []){
 //		$returnAttributes = array_map([$this, '_decamelCasify'], $returnAttributes);
 				
 		$props = '';
@@ -666,19 +700,19 @@ class Mailbox extends Model {
 			];
 		
 		foreach($availableFields as $field) {
-			if(in_array($field, $returnAttributes)){
+			if(empty($returnAttributes) || in_array($field, $returnAttributes)){
 				$props .= $field.' ';
 			}
 		}
 		
 		$props = str_replace('SIZE', 'RFC822.SIZE', trim($props));
 		
-		$availableBodyProps = ["SUBJECT", "FROM", "DATE", "CONTENT-TYPE", "X-PRIORITY", "TO", "CC", "BCC", "REPLY-TO", "DISPOSITION-NOTIFICATION-TO", "MESSAGE-ID"];
+		$availableBodyProps = ["SUBJECT", "FROM", "DATE", "CONTENT-TYPE", "X-PRIORITY", "TO", "CC", "BCC", "REPLY-TO", "DISPOSITION-NOTIFICATION-TO", "MESSAGE-ID", "REFERENCES", "IN-REPLY-TO"];
 		
 		$bodyProps = "";
 		
 		foreach($availableBodyProps as $field) {
-			if(in_array($field, $returnAttributes)){
+			if(empty($returnAttributes) || in_array($field, $returnAttributes)){
 				$bodyProps .= $field.' ';
 			}
 		}
@@ -691,7 +725,7 @@ class Mailbox extends Model {
 		return $props;
 	}
 	
-	private function getMessageHeaders($uids, array $returnAttributes = ["FLAGS","SIZE","DATE","FROM","SUBJECT","TO","CC","BCC","REPLY-TO","CONTENT_TYPE","MESSAGE-ID","X-PRIORITY","DISPOSITION-NOTIFICATION-TO"]) {
+	private function getMessageHeaders($uids, array $returnAttributes = []) {
 
 		if(empty($uids)){
 			return [];

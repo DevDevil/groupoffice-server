@@ -42,6 +42,16 @@ class Structure {
 		}
 		
 	}
+	
+	public function toArray(){
+		
+		$arr=[];
+		foreach($this->parts as $part){
+			$arr[] = $part->toArray();
+		}
+		
+		return $arr;
+	}
 
 	private function parseStructure($structStr) {
 
@@ -144,6 +154,11 @@ class Structure {
 		$command = "UID FETCH " . $this->message->uid . " BODYSTRUCTURE";
 		$conn->sendCommand($command);
 		$response = $conn->getResponse();
+		
+		if(!isset($response[0][0])){
+			var_dump($response);
+			throw new \Exception();
+		}
 
 		$structStr = $response[0][0];
 
@@ -218,6 +233,9 @@ class Structure {
 			
 			$match = true;
 			foreach($props as $name => $value){
+				
+//				echo $part->$name.' != '.$value."\n";
+				
 				if(!isset($part->$name) || $part->$name != $value){
 					$match = false;
 					break;
@@ -226,11 +244,44 @@ class Structure {
 			
 			
 			if($match){
+//				echo 'ja';
 				$results[] = $part;
 			}
 			
 			if($part instanceof MultiPart){
 				$results = array_merge($results, $this->findParts($props, $part->parts));				
+			}
+		}
+		return $results;
+	}
+	
+	
+	/**
+	 * Find parts by type
+	 * 
+	 * @param Closure $fn Function that is called with the part
+	 * @param array $parts
+	 * @return SinglePart[]
+	 */
+	public function findPartsBy(\Closure $fn, $parts = null) {	
+		
+		$results  = [];
+		
+		if(!isset($parts)){
+			$parts = $this->parts;		
+		}
+		
+		foreach($parts as $part){
+			
+			$match = $fn($part);		
+			
+			
+			if($match){
+				$results[] = $part;
+			}
+			
+			if($part instanceof MultiPart){
+				$results = array_merge($results, $this->findPartsBy($fn, $part->parts));				
 			}
 		}
 		return $results;

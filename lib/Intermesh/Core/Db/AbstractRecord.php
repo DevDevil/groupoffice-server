@@ -541,7 +541,7 @@ abstract class AbstractRecord extends Model {
 		
 		$model = $relation->find($this, $query);		
 		
-		if($model){
+		if($model && !isset($query)){
 			$this->_setRelations[$name] = $model;
 		}
 		
@@ -798,12 +798,12 @@ abstract class AbstractRecord extends Model {
 		return self::$_validators[$calledClass];
 	}
 
-	private function _debugModifiedAttributes() {
-		foreach ($this->getModifiedAttributes() as $attrName => $oldVal) {
-			App::debug("Modified " . $attrName . " from " . var_export($oldVal, true) . " to " . var_export($this->_attributes[$attrName], true));
-		}
-	}
-	
+//	private function _debugModifiedAttributes() {
+//		foreach ($this->getModifiedAttributes() as $attrName => $oldVal) {
+//			App::debug("Modified " . $attrName . " from " . var_export($oldVal, true) . " to " . var_export($this->_attributes[$attrName], true));
+//		}
+//	}
+//	
 
 
 	/**
@@ -831,7 +831,7 @@ abstract class AbstractRecord extends Model {
 			return false;
 		}
 
-		$this->_debugModifiedAttributes();
+//		$this->_debugModifiedAttributes();
 
 //		$wasNew = $this->isNew;
 
@@ -1470,7 +1470,7 @@ abstract class AbstractRecord extends Model {
 			return array_map('trim', explode(',', $matches[2]));			
 		}else
 		{
-			return [];
+			return null;
 		}		
 	}
 	
@@ -1518,7 +1518,7 @@ abstract class AbstractRecord extends Model {
 		if(!$relation){
 			return null;
 		}elseif($relation instanceof AbstractRecord){
-			return $relation->toArray($attributes);		
+			return isset($attributes) ? $relation->toArray($attributes) : $relation->toArray();		
 		}elseif(is_array($relation) || $relation instanceof Finder)
 		{			
 			$return = [];
@@ -1539,13 +1539,30 @@ abstract class AbstractRecord extends Model {
 					$return[$index] = ['attributes' => $relatedModel];
 				}else{
 				
-					$return[$index] = $relatedModel->toArray($attributes);
+					$return[$index] = isset($attributes) ? $relatedModel->toArray($attributes) : $relatedModel->toArray();		
 				}
 			}
 			
 			return $return;			
 		}
 	}	
+	
+	/**
+	 * By default all fields except the ones that start with an underscore are returned.
+	 * @return array
+	 */
+	protected function getDefaultReturnAttributes(){
+		$names = array_keys($this->_attributes);
+		
+		$arr = [];
+		foreach($names as $name){
+			if(substr($name, 0, 1) != '_'){
+				$arr[]=$name;
+			}
+		}
+		
+		return $arr;
+	}
 	
 
 	/**
@@ -1573,7 +1590,7 @@ abstract class AbstractRecord extends Model {
 	public function getAttributes(array $returnAttributes = []) {		
 		
 		if (empty($returnAttributes)) {
-			$returnAttributes = array_keys($this->_attributes);
+			$returnAttributes = $this->getDefaultReturnAttributes();
 		}
 
 		$return = [];

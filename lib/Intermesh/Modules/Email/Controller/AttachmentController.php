@@ -2,9 +2,7 @@
 namespace Intermesh\Modules\Email\Controller;
 
 use Intermesh\Core\Controller\AbstractCrudController;
-use Intermesh\Core\Exception\NotFound;
-use Intermesh\Modules\Email\Imap\Mailbox;
-use Intermesh\Modules\Email\Model\Account;
+use Intermesh\Modules\Email\Model\Attachment;
 
 class AttachmentController extends AbstractCrudController {
 
@@ -18,25 +16,14 @@ class AttachmentController extends AbstractCrudController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($accountId, $mailboxName, $uid, $partNumber) {
+	protected function actionRead($attachmentId) {
 		
-		//cache forever
-		$this->cacheHeaders(null, $accountId.'-'.$mailboxName.'-'.$uid.'-'.$partNumber);
+		//cache for a month
+		$this->cacheHeaders(null, "attachment-".$attachmentId, new \DateTime('@'.(time()+86400*30)));
 		
-		header('Expires: '.date('D, d M Y H:i:s', time()+86400*30)); //30 days
-
-		$account = Account::findByPk($accountId);
-
-		if (!$account) {
-			throw new NotFound();
-		}
-
-		$mailbox = Mailbox::findByName($account->getConnection(), $mailboxName);
-
-		$message = $mailbox->getMessage($uid);
 		
-		$part = $message->getStructure()->getPart($partNumber);
+		$attachment = Attachment::findByPk($attachmentId);
+		$attachment->output();
 
-		$part->output();
 	}
 }

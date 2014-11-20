@@ -34,6 +34,13 @@ abstract class AbstractPart extends Model {
 	public $type = 'multipart';
 	
 	/**
+	 * Content ID
+	 * 
+	 * @var string 
+	 */
+	public $id;
+	
+	/**
 	 * Subtype
 	 * 
 	 * eg. "plain", "html", "jpeg", "mixed"
@@ -48,6 +55,44 @@ abstract class AbstractPart extends Model {
 	 * @var array 
 	 */
 	public $params;
+	
+	
+	public $description;
+	
+	/**
+	 * Encoding type
+	 * 
+	 * eg. base64 or quoted-printable
+	 * 
+	 * @var string 
+	 */
+	public $encoding;
+	
+	/**
+	 * Size in bytes
+	 * 
+	 * @var int 
+	 */
+	public $size;
+	
+	public $lines;
+	
+	public $md5;
+	
+	/**
+	 * Disposition
+	 * 
+	 * eg.
+	 * 
+	 * ['attachment' => ['filename' => 'Doc.pdf']]
+	 * 
+	 * @var array 
+	 */
+	public $disposition;
+	
+	public $language;
+	
+	public $location;
 
 	/**
 	 * The message this part belongs to
@@ -80,7 +125,7 @@ abstract class AbstractPart extends Model {
 	 * 
 	 * @param boolean $peek Don't mark message as read
 	 * @param \Intermesh\Modules\Email\Imap\Streamer $streamer
-	 * @return string
+	 * @return string|boolean Returns boolean if streamer is given and operation was successful
 	 */
 	public function getData($peek = true, Streamer $streamer = null) {
 
@@ -94,5 +139,65 @@ abstract class AbstractPart extends Model {
 		$response = $conn->getResponse($streamer);
 		
 		return $response[0][1];		
+	}
+	
+	/**
+	 * Get the filename
+	 * 
+	 * Uses the part name or content disposition
+	 * 
+	 * @return boolean
+	 */
+	public function getFilename(){
+		if(!empty($this->params['name'])){
+			return Utils::mimeHeaderDecode($this->params['name']);
+		}else if(isset($this->disposition) && is_array($this->disposition)){
+			$props = array_shift($this->disposition);
+			
+			if($props['filename']){
+				return Utils::mimeHeaderDecode($props['filename']);
+			}
+		}
+		else if(isset($this->description)){
+			return $this->description.'.txt';
+		}
+	
+		return null;
+	}
+	
+	/**
+	 * Stream data to a file pointer
+	 * 
+	 * @param $filePointer If none is given the browser output will be used
+	 */
+	public function output($filePointer = null){
+		
+		
+		if(!isset($filePointer)){
+			
+			$sendHeaders = true;
+		
+			$filePointer = fopen("php://output",'w');
+		}else
+		{
+			$sendHeaders = false;
+		}
+		
+		if(!is_resource($filePointer)){
+			throw new Exception("Invalid file pointer given");
+		}
+		
+		if($sendHeaders){
+			header('Content-Type: '.$this->type.'/'.$this->subtype);
+			header('Content-Disposition: inline; filename='.$this->getFilename());
+		}		
+		
+		$streamer = new Streamer($filePointer, $this->encoding);
+		
+		$this->getData(true, $streamer);
+	}	
+	
+	public function toArray(array $attributes = array('filename', 'partNumber','type', 'subtype', 'parts')) {
+		return parent::toArray($attributes);
 	}
 }

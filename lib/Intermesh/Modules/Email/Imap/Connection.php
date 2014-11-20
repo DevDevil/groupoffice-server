@@ -32,6 +32,14 @@ class Connection {
 	
 	
 	/**
+	 * the selected mailbox name
+	 * 
+	 * @var string 
+	 */
+	public $selectedMailbox;
+	
+	
+	/**
 	 * Set to true if the last IMAP command had an OK response.
 	 * 
 	 * @var boolean 
@@ -261,10 +269,12 @@ class Connection {
 	 * @param int $length
 	 * @return string
 	 */
-	public function readLine($length = 8192){
+	public function readLine($length = 8192, $debug = true){
 		$line = fgets($this->getHandle(), $length);
 
-		App::debug('< ' . $line, 'imap');	
+		if($debug){
+			App::debug('< ' . $line, 'imap');	
+		}
 		
 		
 //		var_dump($line);
@@ -381,11 +391,26 @@ class Connection {
 		
 		$readLength = 0;
 		$data = "";
+		
+		App::debug('< .. DATA OMITTED FROM LOG ...', 'imap');	
+		
+		$leftOver = $size;
 		do{
+			$newMax = $max < $leftOver ? $max : $leftOver;
 			
-			$line = $this->readLine($max);
+			if($newMax==1){
+				//From PHP docs of
+				//Reading ends when length - 1 bytes have been read, or a newline 
+				//(which is included in the return value), or an EOF (whichever comes first). 
+				//If no length is specified, it will keep reading from the stream until it reaches the end of the line.
+				$newMax++;
+			}
+			
+			$line = $this->readLine($newMax, false);			
 			
 			$readLength += strlen($line);
+			
+			$leftOver = $size - $readLength;
 			
 			if(isset($streamer)){
 				$streamer->put($line);
@@ -398,7 +423,7 @@ class Connection {
 	
 		if(isset($streamer)){
 			$streamer->finish();
-			return null;
+			return true;
 		}else
 		{
 			return $data;

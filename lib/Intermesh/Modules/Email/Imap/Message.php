@@ -128,6 +128,22 @@ class Message extends Model {
 	 * @var string 
 	 */
 	public $messageId;
+	
+	/**
+	 * List of message ID's
+	 * 
+	 * @var string 
+	 */
+	public $references;
+	
+	/**
+	 * In-Reply-To header
+	 * 
+	 * eg. <sadasdsad@domain.com>
+	 * 
+	 * @var string 
+	 */
+	public $inReplyTo;
 
 	/**
 	 * Priority header
@@ -151,7 +167,10 @@ class Message extends Model {
 	 */
 	public $dispositionNotificationTo;
 	private static $mimeDecodeAttributes = ['to', 'replyTo', 'cc', 'bcc', 'dispositionNotificationTo', 'subject'];
+	
 	private $_structure;
+	private $_body;
+	private $_quote;
 
 	public function __construct(Mailbox $mailbox, $uid) {
 		parent::__construct();
@@ -191,7 +210,7 @@ class Message extends Model {
 
 				if ($prop == 'from' || $prop == 'replyTo' || $prop == 'displayNotificationTo') {
 					$list = new RecipientList($value);
-					$value = $list[0];
+					$value = isset($list[0]) ? $list[0] : null;
 				}
 
 				$message->$prop = $value;
@@ -303,8 +322,44 @@ class Message extends Model {
 		return $this->_structure;
 	}
 
-	private $_body;
-	private $_quote;
+	/**
+	 * Get the full MIME source
+	 * 
+	 * @param resource $filePointer
+	 * @return string
+	 * @throws \Exception
+	 */
+	public function getSource($filePointer = null){		
+		
+		if(isset($filePointer)){
+			
+			if(!is_resource($filePointer)){
+				throw new \Exception("Invalid file pointer given");
+			}
+			
+			$streamer = new Streamer($filePointer);
+		}else
+		{
+			$streamer = null;
+		}
+		
+		$conn = $this->mailbox->connection;
+		
+
+		$command = "UID FETCH " . $this->uid . " BODY.PEEK[HEADER]";
+		$conn->sendCommand($command);
+		$response = $conn->getResponse($streamer);
+		
+		$str = $response[0][1];
+		
+		$command = "UID FETCH " . $this->uid . " BODY.PEEK[TEXT]";
+		$conn->sendCommand($command);
+		$response = $conn->getResponse($streamer);
+		
+		$str .= $response[0][1];
+		
+		return $str;		
+	}
 
 	/**
 	 * Returns body in HTML
@@ -330,21 +385,22 @@ class Message extends Model {
 			$part = array_shift($parts);
 
 			$this->_body = $part->getDataDecoded();
+			$this->_body = String::cleanUtf8($this->_body, isset($part->params['charset']) ? $part->params['charset'] : null);
 
 			$this->_body = String::normalizeCrlf($this->_body, "\n");
 
 			if ($part->subtype == 'plain' && $asHtml) {
 				$this->_body = $this->_stripQuote(true);
-				$this->_body = nl2br($this->_body);
-				$this->_quote = nl2br($this->_quote);
+				$this->_body = String::textToHtml($this->_body);
+				$this->_quote = String::textToHtml($this->_quote);
 			}
 
 			if ($part->subtype == 'html') {
-				$this->_body = $this->_stripQuote();
+			 	$this->_body = $this->_stripQuote();
 
-				$doc = new DOMDocument();
-				@$doc->loadHTML($this->_body);
-				$this->_body = $doc->saveHTML();
+//				$doc = new DOMDocument();
+//				@$doc->loadHTML($this->_body);
+//				$this->_body = $doc->saveHTML();
 
 				$this->_body = String::sanitizeHtml($this->_body);
 			}
@@ -446,23 +502,25 @@ class Message extends Model {
 	 */
 	public function getAttachments() {
 
-		$attachments = [];
+		$attachments = $this->getStructure()->findPartsBy(function($part){
+			return !empty($part->getFilename());
+		});
 
-		if ($this->getStructure()->parts[0]->subtype == 'alternative') {
-			return [];
-		}
-
-		if (count($this->getStructure()->parts) == 1 && $this->getStructure()->parts[0]->type == 'multipart') {
-			$parts = $this->getStructure()->parts[0]->parts;
-		} else {
-			$parts = $this->getStructure()->parts;
-		}
-
-		foreach ($parts as $part) {
-			if ($part->partNumber != "1" && $part->type != "multipart") {
-				$attachments[] = $part;
-			}
-		}
+//		if ($this->getStructure()->parts[0]->subtype == 'alternative') {
+//			return [];
+//		}
+//
+//		if (count($this->getStructure()->parts) == 1 && $this->getStructure()->parts[0]->type == 'multipart') {
+//			$parts = $this->getStructure()->parts[0]->parts;
+//		} else {
+//			$parts = $this->getStructure()->parts;
+//		}
+//
+//		foreach ($parts as $part) {
+//			if ($part->partNumber != "1" && $part->type != "multipart") {
+//				$attachments[] = $part;
+//			}
+//		}
 
 		return $attachments;
 	}
