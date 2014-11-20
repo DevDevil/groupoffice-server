@@ -44,6 +44,7 @@ class Note extends AbstractRecord{
 		
 		$wasNew=$this->getIsNew();
 		
+		$this->_resort();
 		$success = parent::save();
 		
 		if($success && $wasNew){
@@ -60,4 +61,34 @@ class Note extends AbstractRecord{
 		
 		return $success;
 	}
+	
+	public $resort = false;
+	
+	private function _resort(){		
+		
+		if($this->resort) {			
+
+			$notes = Note::find();
+			
+
+			$sortOrder = 0;
+			foreach($notes as $note){
+				
+				$sortOrder++;
+
+				if($sortOrder == $this->sortOrder){
+					$sortOrder++;
+				}
+
+				//skip this model
+				if($note->id == $this->id){					
+					continue;
+				}
+
+				$note->sortOrder = $sortOrder;				
+				$note->save();
+			}
+		}		
+	}
+	
 }

@@ -8,6 +8,7 @@ use Intermesh\Core\Db\Query;
 use Intermesh\Core\Exception\Forbidden;
 use Intermesh\Core\Exception\NotFound;
 use Intermesh\Modules\Auth\Model\User;
+use Intermesh\Modules\Modules\Model\Module;
 use Intermesh\Modules\Notes\Model\Note;
 
 /*
@@ -61,7 +62,7 @@ class NoteController extends AbstractCrudController{
 		return $this->renderStore($store);
 	}
 	
-	protected function actionNew($returnAttributes){
+	protected function actionNew($returnAttributes=[]){
 		$note = new Note();
 		return $this->renderModel($note, $returnAttributes);
 	}
@@ -120,7 +121,7 @@ class NoteController extends AbstractCrudController{
 	public function actionCreate($returnAttributes = []) {
 		
 		
-		if (!Module::find(['name' => 'note'])->single()->checkPermission('createAccess')) {
+		if (!Module::find(['name' => 'notes'])->single()->checkPermission('createAccess')) {
 			throw new Forbidden();
 		}
 
