@@ -403,8 +403,16 @@ class Relation {
 ////			var_dump($value);
 //		}
 		
-		if(empty($value)){	
-			return null;
+		if(empty($value)){
+			
+			switch($this->type){
+				case self::TYPE_HAS_ONE:
+					case self::TYPE_BELONGS_TO:
+					return null;
+						
+				default:
+					return [];
+			}
 		}
 
 		$query->andWhere([$this->foreignKey => $value]);
