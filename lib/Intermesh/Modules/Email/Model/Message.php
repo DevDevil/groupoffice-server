@@ -59,7 +59,7 @@ class Message extends AbstractRecord {
 			$r->hasMany('attachments', Attachment::className(), 'messageId'),
 			$r->hasMany('toAddresses', ToAddress::className(), 'messageId'),
 			$r->hasMany('ccAddresses', CcAddress::className(), 'messageId'),
-			$r->hasMany('references', Message::className(), 'threadId', 'threadId'),
+			$r->hasMany('threadMessages', Message::className(), 'threadId', 'threadId'),
 		];
 	}
 	
@@ -92,7 +92,10 @@ class Message extends AbstractRecord {
 	private function loadBodyFromImap(){
 		
 		if(!isset($this->_body)){
-			$imapMessage = $this->getImapMessage(true);
+			$imapMessage = $this->getImapMessage();
+			if(!$imapMessage){
+				throw new Exception("Could not get IMAP message");
+			}
 			$this->_body = $imapMessage->getBody();
 			
 			
@@ -247,22 +250,33 @@ class Message extends AbstractRecord {
 //		
 //	}
 	
-	
+	private $_imapMessage;
 	
 	/**
 	 * Get the IMAP message
 	 * 
-	 * @param array $returnAttributes
+	
 	 * @return ImapMessage | boolean
 	 */
-	public function getImapMessage($noFetchProps=false, $returnAttributes = []){
-		$mailbox = $this->account->findMailbox($this->folder->name);		
+	public function getImapMessage($noFetchProps=false){
 		
-		if(!$mailbox){
-			throw new Exception("Mailbox ".$this->folder->name." doesn't exist anymore!");
+		if(!isset($this->_imapMessage)){
+			$mailbox = $this->account->findMailbox($this->folder->name);		
+
+			if(!$mailbox){
+				throw new Exception("Mailbox ".$this->folder->name." doesn't exist anymore!");
+			}
+
+			$m = $mailbox->getMessage($this->imapUid, $noFetchProps);
+			
+			if(!$noFetchProps){
+				$this->_imapMessage = $m;
+			}  else {
+				return $m;
+			}
 		}
-				
-		return $mailbox->getMessage($this->imapUid, $noFetchProps,  $returnAttributes);
+		
+		return $this->_imapMessage;
 	}
 	
 	/**
@@ -286,6 +300,8 @@ class Message extends AbstractRecord {
 		$imapMessage = $this->getImapMessage();
 		$this->setFromImapMessage($imapMessage);
 		$this->save();
+		
+//		$this->getBody();
 	}
 	
 	/**

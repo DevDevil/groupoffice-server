@@ -104,7 +104,7 @@ class Account extends AbstractRecord {
 		
 //		$this->_updateThreads();
 //		return;
-		
+//		
 		
 //		$date = new DateTime();
 //			$interval = new DateInterval('P7D');
@@ -114,10 +114,11 @@ class Account extends AbstractRecord {
 //			$this->syncedAt = $date->format('Y-m-d H:i:s');
 		
 		
-//		App::dbConnection()->getPDO()->query('delete from emailMessage');
-//		App::dbConnection()->getPDO()->query('update emailFolder set syncedUntil = "2014-11-10"');
+		App::dbConnection()->getPDO()->query('delete from emailMessage');
+		App::dbConnection()->getPDO()->query('update emailFolder set syncedUntil = "2014-11-10"');
 		
-		
+		//TODO changed since:
+		//http://tools.ietf.org/html/rfc4551#section-3.3.1
 		
 		$this->_syncMailboxes();
 		
@@ -181,7 +182,50 @@ class Account extends AbstractRecord {
 		$this->_updateThreads();
 	}
 	
+	
+	private function findThreadByReferences(Message $message){
+		$refs = $message->getReferences();		
+			
+		if(!empty($refs)){
+
+			$q = Query::newInstance()->where(['IN', 'messageId', $refs]);
+			return $orgMessage = Message::find($q)->single();	
+		}else
+		{
+			return false;
+		}
+	}
+	
+	private function findThreadBySubject(Message $message){
+		//Attempt to find by subject (poor man's threading)
+		if(($pos = strpos($message->subject, ':'))){
+			$orgSubject = trim(substr($message->subject, $pos+2));
+			
+			$addresses = [$message->fromEmail];
+			
+			foreach($message->toAddresses as $address){
+				$addresses[] = $address->email;
+			}
+			
+			foreach($message->ccAddresses as $address){
+				$addresses[] = $address->email;
+			}
+
+			$q = Query::newInstance()
+					->where(['subject' => $orgSubject])
+					->andWhere(['IN','toAddresses.email', $addresses])
+					->groupBy(['t.id']);				
+
+			return Message::find($q)->single();					
+		}else
+		{
+			return false;
+		}
+	}
+	
 	private function _updateThreads(){
+		
+	
 		
 //		$query = \Intermesh\Core\Db\Query::newInstance()
 //				->where([
@@ -190,21 +234,21 @@ class Account extends AbstractRecord {
 //				->andWhere('isNull(t.threadId)');
 		
 		
-		App::dbConnection()->getPDO()->query('update emailMessage set threadId=id where `references` IS NULL');
-		App::dbConnection()->getPDO()->query('update emailMessage set threadId=null where `references` IS NOT NULL');		
+//		App::dbConnection()->getPDO()->query('update emailMessage set threadId=id where `references` IS NULL');
+//		App::dbConnection()->getPDO()->query('update emailMessage set threadId=null where `references` IS NOT NULL');		
 //		App::dbConnection()->getPDO()->query('update emailMessage m1 inner join emailMessage m2 on(m1.inReplyTo=m2.messageId) set m1.threadId=m2.id where m1.threadId IS NULL');
 
+		App::dbConnection()->getPDO()->query('update emailMessage set threadId=null');
 		
 		$messages = $this->messages(Query::newInstance()->orderBy(['date' => 'ASC'])->where(['threadId'=>null]));
 		
 		foreach($messages as $message){
 			
-			$refs = $message->getReferences();
+			$orgMessage = $this->findThreadByReferences($message);
 			
-			$q = Query::newInstance()->where(['IN', 'messageId', $refs]);
-			$orgMessage = Message::find($q)->single();			
-			
-			
+			if(!$orgMessage){
+				$orgMessage = $this->findThreadBySubject($message);
+			}
 
 			if($orgMessage){
 				

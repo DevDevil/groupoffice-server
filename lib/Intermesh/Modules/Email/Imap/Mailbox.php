@@ -377,7 +377,7 @@ class Mailbox extends Model {
 		
 		
 		$str = str_replace(array(' )', ' ) ', ')', ' (', ' ( ', '( '), array(')', ')', ')', '(', '(', '('), $str);
-		var_dump($str);
+//		var_dump($str);
 //		$str = substr($str, 8); //Take off THREAD
 		
 		$tokens = str_split($str);

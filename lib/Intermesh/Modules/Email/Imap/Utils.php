@@ -39,7 +39,9 @@ class Utils {
 		 *
 		 *  http://www.faqs.org/rfcs/rfc2047.html
 		 */
-		$string = preg_replace("/\?=[\s]*=\?/", "?==?", $string);
+		
+		//probably an error in header parsing and not needed anymore.
+//		$string = preg_replace("/\?=[\s]*=\?/", "?==?", $string);
 
 		if (preg_match_all("/(=\?[^\?]+\?(q|b)\?[^\?]+\?=)/i", $string, $matches)) {
 			foreach ($matches[1] as $v) {

@@ -111,7 +111,7 @@ class Finder extends AbstractObject implements IteratorAggregate {
 		$orderBy = $this->_buildOrderBy();
 
 		$limit = "";
-		if (isset($this->_query->limit)) {
+		if (!empty($this->_query->limit)) {
 			$limit .= "\nLIMIT " . intval($this->_query->offset) . ',' . intval($this->_query->limit);
 		}
 

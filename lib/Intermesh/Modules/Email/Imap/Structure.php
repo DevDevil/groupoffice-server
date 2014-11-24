@@ -157,7 +157,7 @@ class Structure {
 		
 		if(!isset($response[0][0])){
 			var_dump($response);
-			throw new \Exception();
+			throw new \Exception("No structure returned");
 		}
 
 		$structStr = $response[0][0];

@@ -554,7 +554,7 @@ abstract class AbstractRecord extends Model {
 	 */
 	public function __isset($name) {
 		return isset($this->_attributes[$name]) ||
-						($this->getRelation($name) && $this->findRelation($name)) ||
+						($this->getRelation($name) && $this->_getRelated($name)) ||
 						parent::__isset($name);
 	}
 
@@ -582,8 +582,8 @@ abstract class AbstractRecord extends Model {
 
 				if ($relation->isA(Relation::TYPE_BELONGS_TO)) {
 					//belongs to must be set immediately.
-					App::debug("SET BELONGS TO");
-					App::debug($value);
+//					App::debug("SET BELONGS TO");
+//					App::debug($value);
 					
 					$relation->set($this, $value);				
 					

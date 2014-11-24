@@ -287,7 +287,12 @@ END;
 		}
 		
 //		var_dump($html);
-		$html = preg_replace("/[^='\"a-z0-9\/\\\\\(](https?:\/\/[\pL0-9\.&\-\/@#;`~=%?:_\+,\)\(]+)/ui", '<a href="$1" target="_blank">$0</a>', $html);
+		
+//		preg_match("/[^='\"a-z0-9\/\\\\\(>](https?:\/\/[\pL0-9\.&\-\/@#;`~=%?:_\+,\)\(]+)/ui", $html, $matches);
+//		var_dump($matches);
+		
+		//replace URL's without anchor tags to links
+		$html = preg_replace("/[^='\"a-z0-9\/\\\\\(>](https?:\/\/[\pL0-9\.&\-\/@#;`~=%?:_\+,\)\(]+)/ui", '<a href="$1" target="_blank">$0</a>', $html);
 			
 
 		//$regexp="/<a.+?href=([\"']?)".str_replace('/','\\/', \GO::config()->full_url)."(.+?)>/i";
