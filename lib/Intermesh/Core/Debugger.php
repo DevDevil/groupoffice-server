@@ -22,7 +22,22 @@ class Debugger extends AbstractObject{
 	 * The debug entries as strings
 	 * @var array
 	 */
-	public $entries= array();
+	public $entries = [];
+	
+	
+	public $requestStart;
+	
+	
+	public function init(){
+		if($this->enabled){
+			$this->requestStart = $this->getMicroTime();			
+		}
+	}
+	
+	private function getMicroTime(){
+		list ($usec, $sec) = explode(" ", microtime());
+		return ((float) $usec + (float) $sec);
+	}
 
 	/**
 	 * Add a debug entry. Objects will be converted to strings with var_export();
@@ -36,7 +51,7 @@ class Debugger extends AbstractObject{
 			$this->entries[$section]=array();
 		}
 
-		$this->entries[$section][]=var_export($mixed, true);
+		$this->entries[$section][]=['msg' => var_export($mixed, true), 'time' => $this->getMicroTime() - $this->requestStart];
 	}
 
 

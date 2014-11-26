@@ -108,6 +108,10 @@ class Token extends AbstractRecord {
 	 */
 	private static function _getAuthorizationToken(){
 		
+		if(PHP_SAPI === 'cli'){
+			return false;
+		}
+		
 		$headers = apache_request_headers();
 		if(!isset($headers['Authorization'])){
 			return false;

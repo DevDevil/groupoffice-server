@@ -30,14 +30,18 @@ use Intermesh\Core\Model;
  */
 class ValidateEmail extends AbstractValidationRule {
 	
-	private $_regex = "/^[a-z0-9\._\-+\&]+@[a-z0-9\.\-_]+\.[a-z]{2,6}$/i";
+	private static $_regex = "/^[a-z0-9\._\-+\&]+@[a-z0-9\.\-_]+\.[a-z]{2,6}$/i";
 	
 	public function validate(Model $model) {
-		if(preg_match($this->_regex, $model->{$this->getId()})){
+		if(self::check($model->{$this->getId()})){
 			return true;
 		}else
 		{
 			$this->errorCode='emailInvalid';
 		}
+	}
+	
+	public static function check($email){
+		return preg_match(self::$_regex, $email);
 	}
 }

@@ -72,6 +72,8 @@ class App {
 		
 
 		App::config()->setConfig($config);
+		
+		App::debugger()->init();
 	}
 
 	private static $_lastReportedError;

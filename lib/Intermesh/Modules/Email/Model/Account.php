@@ -34,7 +34,7 @@ use Intermesh\Modules\Email\Imap\Mailbox;
  */
 class Account extends AbstractRecord {
 
-	private $_connection;
+	private static $_connection = [];
 	private $_rootMailbox;
 
 	protected static function defineRelations(RelationFactory $r) {
@@ -52,12 +52,12 @@ class Account extends AbstractRecord {
 	 */
 	public function getConnection() {
 
-		if (!isset($this->_connection)) {
-			$this->_connection = new Connection(
+		if (!isset(self::$_connection[$this->host.':'.$this->username])) {
+			self::$_connection[$this->host.':'.$this->username] = new Connection(
 					$this->host, $this->port, $this->username, $this->password, $this->encrytion == 'ssl', $this->encrytion == 'tls', 'plain');
 		}
 
-		return $this->_connection;
+		return self::$_connection[$this->host.':'.$this->username];
 	}
 
 	/**
@@ -98,6 +98,13 @@ class Account extends AbstractRecord {
 			}
 		}
 	}
+	
+	public function resync(){
+		
+		App::dbConnection()->getPDO()->query('delete from emailFolder where accountId='.intval($this->id));
+//		App::dbConnection()->getPDO()->query('delete from emailMessage where accountId='.intval($this->id));
+		App::dbConnection()->getPDO()->query('update emailFolder set highestSyncedUid = null');
+	}
 
 	public function sync() {
 		
@@ -114,8 +121,7 @@ class Account extends AbstractRecord {
 //			$this->syncedAt = $date->format('Y-m-d H:i:s');
 		
 		
-		App::dbConnection()->getPDO()->query('delete from emailMessage');
-		App::dbConnection()->getPDO()->query('update emailFolder set syncedUntil = "2014-11-10"');
+		
 		
 		//TODO changed since:
 		//http://tools.ietf.org/html/rfc4551#section-3.3.1
@@ -125,50 +131,89 @@ class Account extends AbstractRecord {
 		$folders = $this->folders;
 
 		
+		$totalDbCount = 0;
+		$totalImapCount = 0;
+		$response = [];
+		
+		$startTime = time();
 			
 
 //		$mailboxes = ['INBOX', 'Sent'];
 
 		foreach ($folders as $folder) {
-
-			$mailbox = $this->findMailbox($folder->name);
 			
-			if(!$mailbox){
-				
-				echo $mailbox ." not found";
+			
+
+//			$mailbox = $this->findMailbox($folder->name);
+			
+//			echo "----- ".$folder->name."<br />";
+			
+			
+			if(!$folder->getImapMailbox()){
 				continue;
 			}
-
-
-			$messages = $mailbox->getMessages('ARRIVAL', false, false, 300, 0, $folder->getSyncFilter());
-
-//			if (!$messages) {
-//				throw new Exception("Could not fetch messages");
+			
+//			if(!$mailbox){
+//				
+//				echo $mailbox ." not found<br />";
+//				continue;
 //			}
-			while ($imapMessage = array_shift($messages)) {				
-				$message = Message::find(['messageId' => $imapMessage->messageId])->single();
-				if (!$message) {
-					$message = new Message();
-					$message->account = $this;
-					$message->setFromImapMessage($imapMessage);
-				}else
-				{
-//					$message->updateFromImapMessage($imapMessage);
-					$message->setFromImapMessage($imapMessage);
-				}
-				
-				$message->folder = $folder;
+			
+			
+			$messages = $folder->getMessagesToSync();
+			
+			
+//			$messages = $mailbox->getMessages('ARRIVAL', false, false, 100, 0, $folder->getSyncFilter());
 
+			while ($imapMessage = array_shift($messages)) {		
+				/* @var $imapMessage \Intermesh\Modules\Email\Imap\Message */
 				
-				if(!$message->save()){
-					var_dump($message);
-					var_dump($message->getValidationErrors());
-					exit();
-				}
+				//Skip already synced messages. IMAP can only limit search results to a whole day.
+//				if($imapMessage->internaldate >= $folder->syncedUntil) {
 				
-				$folder->syncedUntil = $imapMessage->internaldate;
-				$folder->save();
+//					$message = Message::find(['messageId' => $imapMessage->messageId])->single();
+//					if (!$message) {
+						$message = new Message();
+						$message->account = $this;
+						$message->setFromImapMessage($imapMessage);
+//					}else
+//					{
+	//					$message->updateFromImapMessage($imapMessage);
+//						$message->setFromImapMessage($imapMessage);
+						
+//						echo "already synced ".$imapMessage->internaldate.'<br />';
+						
+//					}
+
+					$message->folder = $folder;
+
+
+					if(!$message->save()){
+						var_dump($message);
+						var_dump($message->getValidationErrors());
+						exit();
+					}
+
+					$folder->highestSyncedUid = $imapMessage->uid;
+					
+//					echo "New synced until ".$imapMessage->uid.'<br />';
+					
+					$folder->save();
+					
+					if(time() > $startTime + 25){
+						
+						//make sure we don't reach the max_execution_time
+						break;
+					}
+//				}
 			}
+			
+			$res = ['mailbox' => $folder->name, 'dbCount'=>$folder->getMessagesCount(), 'imapCount'=>$folder->getImapMailbox()->getMessagesCount()];
+			
+			$totalDbCount += $res['dbCount'];
+			$totalImapCount += $res['imapCount'];
+			
+			$response[] = $res;
 		}
 		
 //		ksort($sorted);		
@@ -179,7 +224,11 @@ class Account extends AbstractRecord {
 //				
 //		}
 		
-		$this->_updateThreads();
+		if($totalDbCount >= $totalImapCount){
+			$this->_updateThreads();			
+		}
+		
+		return ['dbCount'=>$totalDbCount, 'imapCount' => $totalImapCount, $response];
 	}
 	
 	
@@ -238,7 +287,7 @@ class Account extends AbstractRecord {
 //		App::dbConnection()->getPDO()->query('update emailMessage set threadId=null where `references` IS NOT NULL');		
 //		App::dbConnection()->getPDO()->query('update emailMessage m1 inner join emailMessage m2 on(m1.inReplyTo=m2.messageId) set m1.threadId=m2.id where m1.threadId IS NULL');
 
-		App::dbConnection()->getPDO()->query('update emailMessage set threadId=null');
+		App::dbConnection()->getPDO()->query('update emailMessage set threadId=null, threadDisplay=0');
 		
 		$messages = $this->messages(Query::newInstance()->orderBy(['date' => 'ASC'])->where(['threadId'=>null]));
 		
@@ -263,7 +312,10 @@ class Account extends AbstractRecord {
 			
 		}
 		
-		App::dbConnection()->getPDO()->query('update emailMessage set threadId=id where threadId IS NULL');
+		//Update threadDisplay to 1 on the most recent messages of threads
+		App::dbConnection()->getPDO()->query('UPDATE emailMessage m1 INNER JOIN (SELECT threadId, MAX(`date`) maxDate FROM emailMessage GROUP BY threadId) m2 ON m1.threadId=m2.threadId AND m1.`date` = m2.maxDate set threadDisplay=1');
+			
+		
 	}
 
 }

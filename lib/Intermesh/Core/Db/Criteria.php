@@ -159,6 +159,8 @@ class Criteria extends AbstractObject {
 		}
 
 		$this->bindParameters[] = ['paramTag' => $tag, 'value' => $value, 'pdoType' => $pdoType];
+		
+		return $this;
 	}
 
 }

@@ -100,6 +100,8 @@ class Finder extends AbstractObject implements IteratorAggregate {
 		$joins = $this->_joinAdvanced();
 		$joins .= $this->_joinModels();
 		
+		$joins .= $this->_joinRaw();
+		
 		$where = $this->_buildWhere();
 		$joins .= $this->_joinRelations($select);
 
@@ -309,13 +311,16 @@ class Finder extends AbstractObject implements IteratorAggregate {
 		}
 	}
 
-	private function _splitTableAndColumn($column) {
+	private function _splitTableAndColumn($column, $usePrimaryTableAsDefault = true) {
 		$parts = explode('.', $column);
 
 		if (count($parts) > 1) {
 			return [trim($parts[0], ' `'), trim($parts[1], ' `')];
 		} else {
-			return [$this->primaryTableAlias, trim($column, ' `')];
+			
+			$alias = $usePrimaryTableAsDefault ? $this->primaryTableAlias : null;
+			
+			return [$alias, trim($column, ' `')];
 		}
 	}
 
@@ -342,11 +347,16 @@ class Finder extends AbstractObject implements IteratorAggregate {
 		return $this->quoteTableName($columnName);
 	}
 
-	protected function quoteTableAndColumnName($columnName) {
+	protected function quoteTableAndColumnName($columnName, $usePrimaryTableAsDefault = true) {
 		
-		$parts = $this->_splitTableAndColumn($columnName);
+		$parts = $this->_splitTableAndColumn($columnName, $usePrimaryTableAsDefault);
 
-		return $this->quoteTableName($parts[0]) . '.' . $this->quoteColumnName($parts[1]);
+		if(isset($parts[0])){
+			return $this->quoteTableName($parts[0]) . '.' . $this->quoteColumnName($parts[1]);
+		}else
+		{
+			return $this->quoteColumnName($parts[1]);
+		}
 	}
 	
 	/**
@@ -454,7 +464,7 @@ class Finder extends AbstractObject implements IteratorAggregate {
 
 			$direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
 
-			$orderBy .= $this->quoteTableAndColumnName($column) . ' ' . $direction . ', ';
+			$orderBy .= $this->quoteTableAndColumnName($column, false) . ' ' . $direction . ', ';
 		}
 
 		return trim($orderBy, ' ,')."\n";
@@ -540,6 +550,17 @@ class Finder extends AbstractObject implements IteratorAggregate {
 		}
 
 		return $joins;
+	}
+	
+	private function _joinRaw(){
+		
+		$join = '';
+		
+		foreach($this->_query->joinRaw as $str){
+			$join .= $str."\n";
+		}
+		
+		return $join;
 	}
 
 	private function _joinRelations(&$select) {

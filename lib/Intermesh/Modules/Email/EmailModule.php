@@ -5,7 +5,6 @@ namespace Intermesh\Modules\Email;
 use Intermesh\Core\AbstractModule;
 use Intermesh\Modules\Email\Controller\AccountController;
 use Intermesh\Modules\Email\Controller\AttachmentController;
-use Intermesh\Modules\Email\Controller\ImapMailboxController;
 use Intermesh\Modules\Email\Controller\ImapMessageController;
 use Intermesh\Modules\Email\Controller\SyncController;
 use Intermesh\Modules\Email\Controller\ThreadController;
@@ -43,6 +42,7 @@ class EmailModule extends AbstractModule {
 									],
 								],
 							],
+							
 									
 							'threads' =>[
 								'routeParams' => ['threadId'],
@@ -53,8 +53,19 @@ class EmailModule extends AbstractModule {
 										'controller' => AttachmentController::className()
 									]
 								]
+							],
+							
+							
+							'messages' =>[
+								'routeParams' => ['messageId'],
+								'controller' => Controller\MessageController::className(),
+								'children' => [
+									'attachments' =>[
+										'routeParams' => ['attachmentId'],
+										'controller' => AttachmentController::className()
+									]
+								]
 							]
-								
 						]
 					]
 				]

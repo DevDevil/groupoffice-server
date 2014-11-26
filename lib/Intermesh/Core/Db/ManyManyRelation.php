@@ -96,7 +96,7 @@ class ManyManyRelation extends Relation {
 				
 								
 				
-			} elseif (is_a($foreignKey, "\Intermesh\Core\Db\ActiveRecord")) {
+			} elseif (is_a($foreignKey, AbstractRecord::className())) {
 				$foreignKey = $foreignKey->{$foreignKey->primaryKeyColumn()};
 				$delete=false;
 			}

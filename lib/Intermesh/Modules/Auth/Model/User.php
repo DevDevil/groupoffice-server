@@ -198,19 +198,6 @@ class User extends AbstractRecord {
 	 * @inheritdoc
 	 */
 	public function save() {
-		
-		
-	
-		if ($this->isModified('password')) {
-			
-			if(!User::current()->isAdmin() && !$this->checkPassword($this->currentPassword)){
-				$this->setValidationError('currentPassword', 'wrongPassword');
-				
-				return false;
-			}
-			
-			
-		}
 
 		$wasNew = $this->getIsNew();
 
@@ -243,6 +230,8 @@ class User extends AbstractRecord {
 	 * @inheritdoc
 	 */
 	public function delete() {
+		
+		echo 'ja';
 
 		if ($this->id === 1) {
 			$this->setValidationError('id', 'adminDeleteForbidden');

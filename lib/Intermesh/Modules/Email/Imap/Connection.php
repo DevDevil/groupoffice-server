@@ -56,6 +56,9 @@ class Connection {
 	 * @var string 
 	 */
 	public $lastCommandStatus;
+	
+	
+	public static $test;
 
 	/**
 	 * Constructor
@@ -69,6 +72,12 @@ class Connection {
 	 * @param string $auth 'plain' or 'cram-md5'
 	 */
 	public function __construct($server, $port, $username, $password, $ssl = false, $starttls = false, $auth = 'plain') {
+		
+		if(isset(self::$test)){
+			throw new Exception("Reconstruct!");
+		}
+		
+		self::$test = true;
 
 		$this->ssl = $ssl;
 		$this->starttls = $starttls;

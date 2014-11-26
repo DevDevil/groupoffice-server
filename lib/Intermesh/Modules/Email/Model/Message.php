@@ -23,6 +23,8 @@ use Intermesh\Modules\Timeline\Model\Item;
  *
  * @property int $id
  * @property int $ownerUserId
+ * @propery int $threadId Each messaqe thread get's a unique thread id. This is the ID of the first message in the thread
+ * @property boolean $threadDisplay The most actual message of the thread should be displayed. So IMAP sync will set this to true on the most actual message.
  * @property User $owner
  * @property string $date
  * @property string $subject
@@ -52,7 +54,7 @@ class Message extends AbstractRecord {
 	
 	protected static function defineRelations(RelationFactory $r) {
 		return [
-			$r->hasMany('timelineItems', Item::className(), 'imapMessageId', 'threadId'),
+//			$r->hasMany('timelineItems', Item::className(), 'imapMessageId', 'threadId'),
 			$r->belongsTo('owner', User::className(), 'ownerUserId'),
 			$r->belongsTo('account', Account::className(), 'accountId'),
 			$r->belongsTo('folder', Folder::className(), 'folderId'),
@@ -63,21 +65,21 @@ class Message extends AbstractRecord {
 		];
 	}
 	
-//	public function save() {
-//		if(parent::save()){
-//			
-//			if($this->threadId === null){
-//				$this->threadId = $this->id;
-//				
-//				$this->dbUpdate();
-//			}
-//			
-//			return true;
-//		}else
-//		{
-//			return false;
-//		}
-//	}
+	public function save() {
+		if(parent::save()){
+			
+			if($this->threadId === null){
+				$this->threadId = $this->id;
+				
+				$this->dbUpdate();
+			}
+			
+			return true;
+		}else
+		{
+			return false;
+		}
+	}
 	
 	
 	
@@ -190,10 +192,20 @@ class Message extends AbstractRecord {
 	 */
 	public function getExcerpt($length = 70){
 		
-		$text = str_replace('>','> ', $this->body);
-		$text = html_entity_decode($text);
-		$text = strip_tags($text);		
-		$text = String::cutString($text, 0, $length);
+		if(isset($this->_body)){
+			$text = str_replace('>','> ', $this->getBody());
+			
+			
+			$text = strip_tags($text);		
+			
+			$text = html_entity_decode($text);			
+			
+			$text = trim(preg_replace('/[\s]+/u',' ', $text));			
+			$text = mb_substr($text, 0, $length);			
+		}else
+		{
+			$text = null;
+		}
 		
 		return $text;
 		
@@ -304,6 +316,33 @@ class Message extends AbstractRecord {
 //		$this->getBody();
 	}
 	
+	
+	public function getThreadFrom(){
+		$messages = $this->threadMessages(Query::newInstance()->select('t.fromPersonal, t.fromEmail')->groupBy(['fromEmail']))->all();
+		
+//		$total = count($messages);
+//		
+//		$max = 3;
+		
+		$str = '';
+		
+		foreach($messages as $message){
+			$names = !empty($message->fromPersonal) ? $message->fromPersonal : $message->fromEmail;
+			
+			if($message->fromEmail == $this->account->fromEmail) {
+				$name = 'me';
+			}else
+			{
+				$parts = explode(' ', $names);
+				$name = array_shift($parts);
+			}
+			
+			$str .= $name.', ';
+		}
+		
+		return rtrim($str, ' ,');
+	}
+	
 	/**
 	 * Set's all attributes from an IMAP message
 	 * 
@@ -374,26 +413,27 @@ class Message extends AbstractRecord {
 
 		foreach ($imapAttachments as $attachment) {
 			
-			if(!Attachment::find(['messageId' => $this->id, 'imapPartNumber' => $attachment->partNumber])->single()){
+			if($this->getIsNew() || !($a = Attachment::find(['messageId' => $this->id, 'imapPartNumber' => $attachment->partNumber])->single())){
 				$a = new Attachment();
 				$a->imapPartNumber = $attachment->partNumber;
-				$a->message = $this;
-				$a->filename = $attachment->getFilename();
-				
-				if(empty($a->filename)){
-					$a->filename = 'unnamed';
-				}
-				
-				$a->contentType = $attachment->type.'/'.$attachment->subtype;
-				//$a->inline = $attachment->disposition == 'inline';				
-				$a->contentId = $attachment->id;
-				
-				if(empty($a->contentId) ){
-					$this->hasAttachments = true;
-				}
-				
-				$attachments[] = $a;
+				$a->message = $this;				
 			}
+			$a->filename = $attachment->getFilename();
+
+			if(empty($a->filename)){
+				$a->filename = 'unnamed';
+			}
+
+			$a->contentType = $attachment->type.'/'.$attachment->subtype;
+			//$a->inline = $attachment->disposition == 'inline';				
+			$a->contentId = $attachment->id;
+
+			if(empty($a->contentId) ){
+				$this->hasAttachments = true;
+			}
+
+			$attachments[] = $a;			
+			
 		}
 		
 		$this->attachments = $attachments;

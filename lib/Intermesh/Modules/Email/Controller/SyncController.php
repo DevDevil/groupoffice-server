@@ -14,18 +14,22 @@ use Intermesh\Modules\Email\Model\Account;
  * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
  */
 class SyncController extends AbstractRESTController {
-	protected function httpGet($accountId, $messageId=null){
+	protected function httpGet($accountId, $messageId=null, $resync=null){
 		
 		if(isset($messageId)){
 			$message = \Intermesh\Modules\Email\Model\Message::findByPk($messageId);
-			$message->sync();
+			$response = $message->sync();
 		}else
 		{
 			$account = Account::findByPk($accountId);
+			
+			if(!empty($resync)){
+				$account->resync();
+			}
 
-			$account->sync();
+			$response = $account->sync();
 		}
 		
-		return $this->renderJson();
+		return $this->renderJson($response);
 	}
 }

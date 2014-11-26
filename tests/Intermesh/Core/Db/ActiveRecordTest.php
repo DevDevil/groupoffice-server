@@ -2,10 +2,8 @@
 
 namespace Intermesh\Core\Db;
 
-use Intermesh\Apps\Auth\Model\Role;
-use Intermesh\Apps\Auth\Model\User;
-use IPE\Apps\Addressbook\Model\Addressbook;
-use IPE\Apps\Addressbook\Model\Contact;
+use Intermesh\Modules\Auth\Model\Role;
+use Intermesh\Modules\Auth\Model\User;
 use PHPUnit_Framework_TestCase;
 
 /**
@@ -24,17 +22,23 @@ class ActiveRecordTest extends PHPUnit_Framework_TestCase {
 	public function testSetRelation() {
 
 		//Set's all roles on test user.
-		$user = User::find(Query::newInstance()->where(array('username' => 'test')))->single();
-		if (!$user) {
+		$user = User::find(Query::newInstance()->where(['username' => 'test']))->single();
+		
+		if($user) {			
+			$user->deletePermanently();
+		}
+		
+//		if (!$user) {
 			$user = new User();
 			$user->username = 'test';
-			$user->email = 'test@intermesh.nl';
 			$user->password = $user->passwordConfirm = 'Test123!';
-		}
+//		}
 
 		$user->save();
 
 		$success = $user->save() !== false;
+		
+	
 
 		$this->assertEquals(true, $success);
 
@@ -67,7 +71,7 @@ class ActiveRecordTest extends PHPUnit_Framework_TestCase {
 		$success = $user->save() !== false;
 
 		$this->assertEquals(true, $success);
-		$this->assertEquals($user->roles, $allRoles);
+		$this->assertEquals($user->roles->all(), $allRoles);
 
 
 		//do it again but with arrays instead of primary keys
@@ -80,6 +84,8 @@ class ActiveRecordTest extends PHPUnit_Framework_TestCase {
 
 
 		$roleOfUser = $user->role;
+		
+		$this->assertEquals(true, is_a($roleOfUser, AbstractRecord::className()));
 
 		$user->role=$roleOfUser;
 		$success = $user->save() !== false;

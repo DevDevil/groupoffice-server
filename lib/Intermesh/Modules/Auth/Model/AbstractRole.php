@@ -26,7 +26,9 @@ abstract class AbstractRole extends AbstractRecord {
 	/**
 	 * @return string The column field of the resource this role access list is for.
 	 */
-	abstract static function resourceKey();
+	static function resourceKey(){
+		throw new Exception("Please implement static function resourceKey in ".get_called_class());
+	}
 	
 	/**
 	 * Get an array of permission dependencies.

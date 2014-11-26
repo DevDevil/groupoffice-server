@@ -168,7 +168,7 @@ class Message extends Model {
 	 * @var Recipient 
 	 */
 	public $dispositionNotificationTo;
-	private static $mimeDecodeAttributes = ['to', 'replyTo', 'cc', 'bcc', 'dispositionNotificationTo', 'subject','from'];
+	private static $mimeDecodeAttributes = ['subject'];
 	
 	private $_structure;
 	private $_body;

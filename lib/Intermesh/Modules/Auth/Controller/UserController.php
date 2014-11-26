@@ -143,7 +143,16 @@ class UserController extends AbstractCrudController {
 		}
 
 		$user->setAttributes(App::request()->payload['data']['attributes']);
+		
+		if ($this->isModified('password')) {
+			
+			if(!User::current()->isAdmin() && !$user->checkPassword($user->currentPassword)){
+				$user->setValidationError('currentPassword', 'wrongPassword');
+			}
+		}
+		
 		$user->save();
+		
 		
 		return $this->renderModel($user, $returnAttributes);
 	}

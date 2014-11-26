@@ -149,14 +149,19 @@ abstract class AbstractPart extends Model {
 	 * @return boolean
 	 */
 	public function getFilename(){
+		
+		if(isset($this->disposition) && is_array($this->disposition)){
+			$dispositionType = key($this->disposition);
+			
+			
+			if($dispositionType && !empty($this->disposition[$dispositionType]['filename'])){
+				$decoded = Utils::mimeHeaderDecode($this->disposition[$dispositionType]['filename']);
+				return $decoded;
+			}
+		} 
+			
 		if(!empty($this->params['name'])){
 			return Utils::mimeHeaderDecode($this->params['name']);
-		}else if(isset($this->disposition) && is_array($this->disposition)){
-			$props = array_shift($this->disposition);
-			
-			if($props['filename']){
-				return Utils::mimeHeaderDecode($props['filename']);
-			}
 		}
 		else if(isset($this->description)){
 			return $this->description.'.txt';

@@ -4,6 +4,8 @@ namespace Intermesh\Modules\Email\Util;
 
 use ArrayAccess;
 use Exception;
+use Intermesh\Core\Validate\ValidateEmail;
+use Intermesh\Modules\Email\Imap\Utils;
 
 class RecipientList implements ArrayAccess{
 
@@ -14,7 +16,7 @@ class RecipientList implements ArrayAccess{
 	 * 
 	 * @param string $emailRecipientList 
 	 */
-	public function __construct($emailRecipientList = '', $strict = false) {
+	public function __construct($emailRecipientList = '', $strict = false) {		
 		$this->strict = $strict;
 		$this->addString($emailRecipientList);
 	}
@@ -108,7 +110,7 @@ class RecipientList implements ArrayAccess{
 	 * @var     bool
 	 * @access  private
 	 */
-	private $_quote = false;
+	private $_inQuotedString = false;
 
 	/**
 	 * Bool to check if we found an e-mail address
@@ -152,12 +154,25 @@ class RecipientList implements ArrayAccess{
 					break;
 
 				case '>':
-					//do nothing		
+					//do nothing
+					if($this->_inQuotedString){
+						$this->_buffer .= $char;
+					}
 					break;
+				
+//				case ' ':
+//					if($this->_inQuotedString){
+//						$this->_buffer .= $char;
+//					}else
+//					{
+//						$this->_addBuffer();
+//					}
+//						
+//					break;
 
 				case ',':
 				case ';':
-					if ($this->_quote || (!$this->strict && !$this->_emailFound /*&& !\GO\Base\Util\String::validate_email(trim($this->_buffer))*/)) {
+					if ($this->_inQuotedString ) {// || (!$this->strict && !$this->_emailFound && !ValidateEmail::check(trim($this->_buffer)))) {
 						$this->_buffer .= $char;
 					} else {
 						$this->_addBuffer();
@@ -188,16 +203,16 @@ class RecipientList implements ArrayAccess{
 		}
 
 		if (!empty($this->_buffer)) {
-			if ($this->strict && !\GO\Base\Util\String::validate_email($this->_buffer)) {
+			if ($this->strict && !ValidateEmail::check($this->_buffer)) {
 				throw new Exception("Address " . $this->_buffer . " is not valid");
 			} else {				
-				$this->_recipients[] = new Recipient($this->_buffer, $this->_personal);
+				$this->_recipients[] = new Recipient($this->_buffer, Utils::mimeHeaderDecode($this->_personal));
 			}
 		}
 		$this->_buffer = '';
 		$this->_personal = null;
 		$this->_emailFound = false;
-		$this->_quote = false;
+		$this->_inQuotedString = false;
 	}
 
 	/**
@@ -207,10 +222,10 @@ class RecipientList implements ArrayAccess{
 	 * @return void
 	 */
 	private function _handleQuote($char) {
-		if (!$this->_quote && trim($this->_buffer) == "") {
-			$this->_quote = $char;
-		} elseif ($char == $this->_quote) {
-			$this->_quote = false;
+		if (!$this->_inQuotedString && trim($this->_buffer) == "") {
+			$this->_inQuotedString = $char;
+		} elseif ($char == $this->_inQuotedString) {
+			$this->_inQuotedString = false;
 		} else {
 			$this->_buffer .= $char;
 		}

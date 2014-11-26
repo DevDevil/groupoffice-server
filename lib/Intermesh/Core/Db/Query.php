@@ -147,6 +147,15 @@ class Query extends Criteria {
 	public function orHaving($condition){
 		return $this->having($condition, 'OR');
 	}
+	
+	
+	public $joinRaw = [];
+	
+	public function joinRaw($str){
+		$this->joinRaw[]=$str;
+		
+		return $this;
+	}
 
 	/**
 	 * Join a model table on the main table. Note that the main table can also be
