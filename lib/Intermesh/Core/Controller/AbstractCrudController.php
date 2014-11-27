@@ -33,7 +33,7 @@ use Intermesh\Core\Exception\NotFound;
  *
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 
 abstract class AbstractCrudController extends AbstractRESTController{

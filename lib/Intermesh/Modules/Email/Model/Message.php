@@ -46,7 +46,7 @@ use Intermesh\Modules\Timeline\Model\Item;
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class Message extends AbstractRecord {
 	
@@ -65,21 +65,21 @@ class Message extends AbstractRecord {
 		];
 	}
 	
-	public function save() {
-		if(parent::save()){
-			
-			if($this->threadId === null){
-				$this->threadId = $this->id;
-				
-				$this->dbUpdate();
-			}
-			
-			return true;
-		}else
-		{
-			return false;
-		}
-	}
+//	public function save() {
+//		if(parent::save()){
+//			
+//			if($this->threadId === null){
+//				$this->threadId = $this->id;
+//				
+//				$this->dbUpdate();
+//			}
+//			
+//			return true;
+//		}else
+//		{
+//			return false;
+//		}
+//	}
 	
 	
 	
@@ -201,7 +201,7 @@ class Message extends AbstractRecord {
 			$text = html_entity_decode($text);			
 			
 			$text = trim(preg_replace('/[\s]+/u',' ', $text));			
-			$text = mb_substr($text, 0, $length);			
+			$text = String::cutString($text, 0, $length);			
 		}else
 		{
 			$text = null;

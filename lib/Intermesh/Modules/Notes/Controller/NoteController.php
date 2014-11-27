@@ -16,7 +16,7 @@ use Intermesh\Modules\Notes\Model\Note;
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Wesley Smits <wsmits@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class NoteController extends AbstractCrudController{	
 	

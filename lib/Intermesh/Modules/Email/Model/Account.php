@@ -30,7 +30,7 @@ use Intermesh\Modules\Email\Imap\Mailbox;
  *
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class Account extends AbstractRecord {
 
@@ -126,7 +126,11 @@ class Account extends AbstractRecord {
 		//TODO changed since:
 		//http://tools.ietf.org/html/rfc4551#section-3.3.1
 		
+		App::debugger()->debugTiming("Start sync");
+		
 		$this->_syncMailboxes();
+		
+		App::debugger()->debugTiming("Mailboxes synced");
 		
 		$folders = $this->folders;
 
@@ -148,6 +152,8 @@ class Account extends AbstractRecord {
 			
 //			echo "----- ".$folder->name."<br />";
 			
+			App::debugger()->debugTiming("Sync messages of ".$folder->name);
+			
 			
 			if(!$folder->getImapMailbox()){
 				continue;
@@ -161,6 +167,9 @@ class Account extends AbstractRecord {
 			
 			
 			$messages = $folder->getMessagesToSync();
+			
+			
+			App::debugger()->debugTiming(count($messages)." messages fetched");
 			
 			
 //			$messages = $mailbox->getMessages('ARRIVAL', false, false, 100, 0, $folder->getSyncFilter());
@@ -189,16 +198,16 @@ class Account extends AbstractRecord {
 
 
 					if(!$message->save()){
-						var_dump($message);
-						var_dump($message->getValidationErrors());
-						exit();
+//						var_dump($message);
+						throw new \Exception(var_export($message->getValidationErrors(), true));
+//						exit();
 					}
 
-					$folder->highestSyncedUid = $imapMessage->uid;
+//					$folder->highestSyncedUid = $imapMessage->uid;
 					
 //					echo "New synced until ".$imapMessage->uid.'<br />';
 					
-					$folder->save();
+//					$folder->save();
 					
 					if(time() > $startTime + 25){
 						
@@ -207,6 +216,8 @@ class Account extends AbstractRecord {
 					}
 //				}
 			}
+			
+			App::debugger()->debugTiming("Sync done");
 			
 			$res = ['mailbox' => $folder->name, 'dbCount'=>$folder->getMessagesCount(), 'imapCount'=>$folder->getImapMailbox()->getMessagesCount()];
 			
@@ -224,7 +235,7 @@ class Account extends AbstractRecord {
 //				
 //		}
 		
-		if($totalDbCount >= $totalImapCount){
+		if($totalDbCount < 1000 || $totalDbCount >= $totalImapCount){
 			$this->_updateThreads();			
 		}
 		
@@ -237,7 +248,9 @@ class Account extends AbstractRecord {
 			
 		if(!empty($refs)){
 
-			$q = Query::newInstance()->where(['IN', 'messageId', $refs]);
+			$q = Query::newInstance()
+					->where(['IN', 'messageId', $refs])
+					->andWhere(['accountId' => $this->id]);
 			return $orgMessage = Message::find($q)->single();	
 		}else
 		{
@@ -262,6 +275,7 @@ class Account extends AbstractRecord {
 
 			$q = Query::newInstance()
 					->where(['subject' => $orgSubject])
+					->andWhere(['accountId' => $this->id])
 					->andWhere(['IN','toAddresses.email', $addresses])
 					->groupBy(['t.id']);				
 
@@ -274,7 +288,7 @@ class Account extends AbstractRecord {
 	
 	private function _updateThreads(){
 		
-	
+	//REFERENCES ON FORWARD???
 		
 //		$query = \Intermesh\Core\Db\Query::newInstance()
 //				->where([
@@ -287,7 +301,7 @@ class Account extends AbstractRecord {
 //		App::dbConnection()->getPDO()->query('update emailMessage set threadId=null where `references` IS NOT NULL');		
 //		App::dbConnection()->getPDO()->query('update emailMessage m1 inner join emailMessage m2 on(m1.inReplyTo=m2.messageId) set m1.threadId=m2.id where m1.threadId IS NULL');
 
-		App::dbConnection()->getPDO()->query('update emailMessage set threadId=null, threadDisplay=0');
+//		App::dbConnection()->getPDO()->query('update emailMessage set threadId=null, threadDisplay=0');
 		
 		$messages = $this->messages(Query::newInstance()->orderBy(['date' => 'ASC'])->where(['threadId'=>null]));
 		
@@ -295,9 +309,9 @@ class Account extends AbstractRecord {
 			
 			$orgMessage = $this->findThreadByReferences($message);
 			
-			if(!$orgMessage){
-				$orgMessage = $this->findThreadBySubject($message);
-			}
+//			if(!$orgMessage){
+//				$orgMessage = $this->findThreadBySubject($message);
+//			}
 
 			if($orgMessage){
 				
@@ -312,8 +326,8 @@ class Account extends AbstractRecord {
 			
 		}
 		
-		//Update threadDisplay to 1 on the most recent messages of threads
-		App::dbConnection()->getPDO()->query('UPDATE emailMessage m1 INNER JOIN (SELECT threadId, MAX(`date`) maxDate FROM emailMessage GROUP BY threadId) m2 ON m1.threadId=m2.threadId AND m1.`date` = m2.maxDate set threadDisplay=1');
+		App::dbConnection()->getPDO()->query('update emailMessage set threadId=id where `threadId` IS NULL');
+		
 			
 		
 	}

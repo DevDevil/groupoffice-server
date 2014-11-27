@@ -7,7 +7,7 @@ namespace Intermesh\Core;
  *
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class Debugger extends AbstractObject{
 
@@ -25,6 +25,11 @@ class Debugger extends AbstractObject{
 	public $entries = [];
 	
 	
+	/**
+	 * Start of the request in Milliseconds since epoch
+	 * 
+	 * @var int
+	 */
 	public $requestStart;
 	
 	
@@ -51,7 +56,16 @@ class Debugger extends AbstractObject{
 			$this->entries[$section]=array();
 		}
 
-		$this->entries[$section][]=['msg' => var_export($mixed, true), 'time' => $this->getMicroTime() - $this->requestStart];
+		$this->entries[$section][] = var_export($mixed, true);
+	}
+	
+	/**
+	 * Add a message that notes the time since the request started in milliseconds
+	 * 
+	 * @param string $message
+	 */
+	public function debugTiming($message){
+		$this->debug(($this->getMicroTime() - $this->requestStart).'ms '.$message, 'timing');				
 	}
 
 
@@ -62,9 +76,7 @@ class Debugger extends AbstractObject{
 	 * @param \Intermesh\Core\Db\Query $query
 	 * @param array $bindParams
 	 */
-	public function debugSql($sql, $bindParams=array()){
-
-
+	public function debugSql($sql, $bindParams = []){
 	
 		//sort so that :param1 does not replace :param11 first.
 		arsort($bindParams);
@@ -82,10 +94,7 @@ class Debugger extends AbstractObject{
 
 			$sql = preg_replace('/'.$key.'([^0-9])?/', $queryValue.'$1', $sql);
 		}
-		
-		
-//		echo $sql;
 
-		$this->debug($sql, 'sql');
+		$this->debug('['.($this->getMicroTime() - $this->requestStart).'ms] '.$sql, 'sql');
 	}
 }
