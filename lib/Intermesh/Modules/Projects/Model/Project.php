@@ -16,6 +16,7 @@ use Intermesh\Core\Db\SoftDeleteTrait;
  * @property int $createdAt
  * @property int $modifiedAt
  * @property string $color
+ * @property int $ownerUserId
  */
 
 class Project extends AbstractRecord{
