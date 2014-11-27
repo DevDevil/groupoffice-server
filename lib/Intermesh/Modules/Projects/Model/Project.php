@@ -10,13 +10,21 @@ use Intermesh\Core\Db\SoftDeleteTrait;
  * @property int $id
  * @property string $name
  * @property string $description
- * @property boolean $finished
+ * @property int $statusId
  * @property boolean $deleted
  * @property boolean $sticky
+ * @property int $createdAt
+ * @property int $modifiedAt
+ * @property string $color
  */
 
 class Project extends AbstractRecord{
 	
+	const STATUS_NEW = 1;
+	const STATUS_OPEN = 2;
+	const STATUS_ONGOING = 3;
+	const STATUS_COMPLETE = 4;
+
 	use RecordPermissionTrait;
 	
 	use SoftDeleteTrait {
