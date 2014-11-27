@@ -31,7 +31,7 @@ class ProjectController extends AbstractCrudController{
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 'title', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = [], $where = null) {
+	public function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = [], $where = null) {
 
 		$query = Query::newInstance()
 				->orderBy([$orderColumn => $orderDirection])
@@ -39,7 +39,7 @@ class ProjectController extends AbstractCrudController{
 				->offset($offset);
 
 		if (!empty($searchQuery)) {
-			$query->search($searchQuery, ['title']);
+			$query->search($searchQuery, ['name']);
 		}
 
 		if (!empty($where)) {
