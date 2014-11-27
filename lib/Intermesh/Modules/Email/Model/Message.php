@@ -298,10 +298,10 @@ class Message extends AbstractRecord {
 	 */
 	public function updateFromImapMessage(ImapMessage $imapMessage){
 
-		
+		$this->imapUid = $imapMessage->uid;
 		$this->answered = $imapMessage->getAnswered();
 		$this->forwarded = $imapMessage->getForwarded();
-		$this->seen = $imapMessage->getSeen();		
+		$this->seen = $imapMessage->getSeen();
 	}
 	
 	/**
@@ -312,6 +312,8 @@ class Message extends AbstractRecord {
 		$imapMessage = $this->getImapMessage();
 		$this->setFromImapMessage($imapMessage);
 		$this->save();
+		
+		return true;
 		
 //		$this->getBody();
 	}

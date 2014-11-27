@@ -18,7 +18,11 @@ class SyncController extends AbstractRESTController {
 		
 		if(isset($messageId)){
 			$message = \Intermesh\Modules\Email\Model\Message::findByPk($messageId);
-			$response = $message->sync();
+			$response['success'] = $message->sync();
+			
+			var_dump($message->getBody());
+			
+			
 		}else
 		{
 			$account = Account::findByPk($accountId);

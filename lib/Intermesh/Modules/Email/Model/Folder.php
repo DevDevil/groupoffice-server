@@ -14,8 +14,9 @@ use Intermesh\Modules\Email\Imap\Mailbox;
  * @property int $id
  * @property int $accountId
  * @property string $name
- * @property string $syncedUntil
+
  * @property int $highestSyncedUid
+ * @property int $highestModSeq
  * 
  * @property Account $account
  *
@@ -26,7 +27,7 @@ use Intermesh\Modules\Email\Imap\Mailbox;
 class Folder extends AbstractRecord {
 	
 	
-	public static $maxSyncMessages = 100;
+	public static $maxSyncMessages = 500;
 	
 	private $imapMailbox;
 		
@@ -51,9 +52,7 @@ class Folder extends AbstractRecord {
 	}
 	
 	public function getHighestSyncedUid(){
-		$result = $this->messages(Query::newInstance()->select('min(imapUid) AS highestSyncedUid'))->single();
-		
-		
+		$result = $this->messages(Query::newInstance()->select('max(imapUid) AS highestSyncedUid'))->single();
 		
 		return (int) $result->highestSyncedUid;	
 	}
@@ -66,44 +65,27 @@ class Folder extends AbstractRecord {
 	}
 	
 	private function getUidsToSync(){
+
+		$highestSyncedUid = $this->getHighestSyncedUid();
 		
-		$allUids = $this->getImapMailbox()->search();
+		$nextUid = $highestSyncedUid + 1;
 		
-		if(!$allUids){
+		$nextUids = $this->getImapMailbox()->search("UID ".$nextUid.':*');
+		
+		if(!$nextUids){
 			return [];
 		}
 		
-//		echo $this->highestSyncedUid."\n";
-		
-		$highestSyncedUid = $this->getHighestSyncedUid();
-		
-		
-		if(!empty($highestSyncedUid)){
-			while(($offset = array_search($highestSyncedUid, $allUids)) === false && $highestSyncedUid>0){
-				$highestSyncedUid++;
-			}
-			if($offset !== false){
-//				$offset--;
-				if($offset === 0){
-					return [];
-				}
-			}else
-			{
-				$offset = count($allUids);
-			}
-		}else
-		{
-			$offset = count($allUids);
+		//uid search always returns the latest UID
+		if(count($nextUids) == 1 && $nextUids[0] == $highestSyncedUid){
+			return [];
 		}
 		
-		App::debug("Highest uid ".$this->name.": ".$highestSyncedUid.' : '.$offset);
+		$slice = array_slice($nextUids, 0, self::$maxSyncMessages);
 		
-		$max = $offset > self::$maxSyncMessages ? self::$maxSyncMessages : $offset;
+		App::debug($this->name.': '.$highestSyncedUid, 'imapsync');
 		
-		$slice = array_slice($allUids, $offset-$max, $max);
-		
-		App::debug($slice);
-		
+		App::debug($slice, 'imapsync');
 		
 		return $slice;
 	}
@@ -116,7 +98,7 @@ class Folder extends AbstractRecord {
 		$uids = $this->getUidsToSync();
 		
 
-		return array_reverse($this->getImapMailbox()->getMessagesUnsorted($uids));
+		return $this->getImapMailbox()->getMessagesUnsorted($uids);
 
 	}
 	

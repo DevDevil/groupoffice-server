@@ -79,7 +79,7 @@ class Debugger extends AbstractObject{
 	public function debugSql($sql, $bindParams = []){
 	
 		//sort so that :param1 does not replace :param11 first.
-		arsort($bindParams);
+		krsort($bindParams);
 
 		foreach($bindParams as $key=>$value){
 
@@ -92,7 +92,7 @@ class Debugger extends AbstractObject{
 				$queryValue = '"'.$value.'"';
 			}
 
-			$sql = preg_replace('/'.$key.'([^0-9])?/', $queryValue.'$1', $sql);
+			$sql = str_replace($key, $queryValue, $sql);
 		}
 
 		$this->debug('['.($this->getMicroTime() - $this->requestStart).'ms] '.$sql, 'sql');

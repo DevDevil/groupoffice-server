@@ -88,7 +88,11 @@ abstract class Model extends AbstractObject {
 
 		$arr = ['attributes' => []];
 
-		if (empty($attributes)) {
+		if (empty($attributes) || ($asteriskKey = array_search('*', $attributes)) !== false) {
+			
+			if(isset($asteriskKey)){
+				unset($attributes[$asteriskKey]);
+			}
 			
 			$reflection = new ReflectionClass($this);
 			

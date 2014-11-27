@@ -14,10 +14,10 @@ class ImapMessageController extends AbstractCrudController {
 	 * 
 	 * @param int $accountId The ID of the role
 	 * @param string $mailboxName Is base64_encoded to avoid problems with slashes
-	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
+	 * 
 	 * @return JSON Model data
 	 */
-	protected function actionRead($accountId, $mailboxName, $uid, $returnAttributes = ["uid", "answered", "forwarded", "seen", "size", "date", "from", "subject", "to", "cc", "bcc", "replyTo", "contentType", "messageId", "xPriority", "dispositionNotificationTo", "body", "quote", "attachments"]) {
+	protected function actionRead($accountId, $mailboxName, $uid) {
 
 		//cache for a month
 		$this->cacheHeaders(null, "source-".$accountId."-".$mailboxName."-".$uid, new \DateTime('@'.(time()+86400*30)));
@@ -31,6 +31,10 @@ class ImapMessageController extends AbstractCrudController {
 		$mailbox = Mailbox::findByName($account->getConnection(), base64_decode($mailboxName));
 
 		$message = $mailbox->getMessage($uid, true);
+//		
+//		$arr = $message->toArray();
+//		
+//		return $this->renderJson($arr);
 		
 		
 		header('Content-Type: text/plain');
@@ -39,6 +43,8 @@ class ImapMessageController extends AbstractCrudController {
 		$fp = fopen('php://output','w');
 		
 		$message->getSource($fp);
+		
+//		return $this->renderJson($arr);
 	}
 	
 	

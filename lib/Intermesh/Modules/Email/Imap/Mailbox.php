@@ -85,6 +85,20 @@ class Mailbox extends Model {
 	public $flags = [];
 	
 	
+	
+	private $_unseen;
+	
+	private $_highestModSeq;
+	
+	private $_uidValidity;
+	
+	private $_messagesCount;
+	
+	private $_recent;
+	
+	private $_uidNext;
+	
+	
 	/**
 	 * True if this mailbox was selected using the SELECT mailbox command
 	 * 
@@ -94,8 +108,6 @@ class Mailbox extends Model {
 		return $this->connection->selectedMailbox == $this->name;
 	}
 			
-	
-	private $_status;
 
 	
 	/**
@@ -194,10 +206,15 @@ class Mailbox extends Model {
 	 * @return array eg. ['messages'=> 1, 'unseen' => 1]
 	 * @throws Exception
 	 */
-	private function getStatus(){
+	private function getStatus($props = ['MESSAGES','UIDNEXT','UNSEEN']){
 		
-		if(!isset($this->_status)){
-			$cmd = 'STATUS "'.Utils::escape(Utils::utf7Encode($this->name)).'" (MESSAGES UNSEEN UIDNEXT)';
+//		if(!isset($this->_status)){
+			
+			if($this->selected){
+				$this->unselect();
+			}
+			
+			$cmd = 'STATUS "'.Utils::escape(Utils::utf7Encode($this->name)).'" ('.implode(' ',$props).')';
 
 			$this->connection->sendCommand($cmd);
 
@@ -225,11 +242,63 @@ class Mailbox extends Model {
 				$status[strtolower($name)] = intval($value);
 			}	
 
-			$this->_status = $status;
+		
+//		}
+		
+		return $status;
+	}
+
+	
+	
+	/**
+	 * Get the UID validity
+	 * 
+	 * {@see http://tools.ietf.org/html/rfc4551}
+	 * 
+	 * @return int
+	 */
+	public function getUidValidity(){
+		if(!isset($this->_uidValidity)){
+//			throw new \Exception("TODO implement examine");
+			$this->select();
 		}
 		
-		return $this->_status;
+		return $this->_uidValidity;
 	}
+	
+	/**
+	 * Get number of recent messages
+	 * 
+	 * 
+	 * @return int
+	 */
+	public function getRecent(){
+		if(!isset($this->_recent)){
+//			throw new \Exception("TODO implement examine");
+			$this->select();
+		}
+		
+		return $this->_recent;
+	}
+	
+	
+	/**
+	 * Get the highest mod sequence
+	 * 
+	 * {@see http://tools.ietf.org/html/rfc4551}
+	 * 
+	 * @return int
+	 */
+	public function getHighestModSeq(){
+		if(!isset($this->_highestModSeq)){
+//			throw new \Exception("TODO implement examine");
+			$this->select();
+		}
+		
+		return $this->_highestModSeq;
+	}
+	
+	
 	
 	/**
 	 * Get the number of unseen messages
@@ -237,9 +306,14 @@ class Mailbox extends Model {
 	 * @return int
 	 */
 	public function getUnseenCount(){
-		$status = $this->getStatus();
 		
-		return $status['unseen'];
+		if(!isset($this->_unseen)){
+			$status = $this->getStatus(['UNSEEN']);
+			
+			$this->_unseen = $status['UNSEEN'];
+		}
+		
+		return $this->_unseen;
 	}
 	
 	/**
@@ -248,10 +322,16 @@ class Mailbox extends Model {
 	 * @return int
 	 */
 	public function getUidnext(){
-		$status = $this->getStatus();
+		if(!isset($this->_uidNext)){
+			$status = $this->getStatus(['UIDNEXT']);
+			
+			$this->_unseen = $status['UIDNEXT'];
+		}
 		
-		return $status['uidnext'];
+		return $this->_uidNext;
 	}
+	
+	
 	
 	/**
 	 * Get the number of messages
@@ -259,9 +339,13 @@ class Mailbox extends Model {
 	 * @return int
 	 */
 	public function getMessagesCount(){
-		$status = $this->getStatus();
+		if(!isset($this->_messagesCount)){
+			$status = $this->getStatus(['MESSAGES']);
+			
+			$this->_messagesCount = $status['MESSAGES'];
+		}
 		
-		return $status['messages'];
+		return $this->_messagesCount;
 	}
 	
 	/**
@@ -557,6 +641,7 @@ class Mailbox extends Model {
 //		exit();
 		
 		
+		
 		$messages = $this->getMessagesUnsorted($uids, $returnAttributes);		
 		
 		
@@ -577,17 +662,35 @@ class Mailbox extends Model {
 	/**
 	 * Get message objects without sorting
 	 * 
-	 * @param array $uids
+	 * @param array|string $uidSequence array of uids or sequence like 1:*
 	 * @param array $returnAttributes
+	 * @param int $changedSinceModSeq Modsequence to get only changed messages
+	 * @param int $changedSinceModSeq Modsequence to get only changed messages
 	 * @return Message[]
 	 */
-	public function getMessagesUnsorted(array $uids, array $returnAttributes = []){
-		$responses = $this->getMessageHeaders($uids, $returnAttributes);
+	public function getMessagesUnsorted($uidSequence, array $returnAttributes = [], $changedSinceModSeq = null){
+		
+		if(empty($uidSequence)){
+			return [];
+		}
+		
+		if(is_array($uidSequence)){		
+			$uidSequence = implode(',', $uidSequence);	
+		}
+		
+		$responses = $this->getMessageHeaders($uidSequence, $returnAttributes, $changedSinceModSeq);
 
 		$messages = [];
 		
-		while($response = array_shift($responses)){			
-			$messages[] = Message::createFromImapResponse($this, $response[0], $response[1]);
+		while($response = array_shift($responses)){	
+			
+			if(substr($response[0], 0,4) == '* OK'){
+				//not a message. but when changedSince is given it may reply with:
+				//* OK [HIGHESTMODSEQ 1] Highest
+			}else
+			{				
+				$messages[] = Message::createFromImapResponse($this, $response[0], isset($response[1]) ? $response[1] : "");
+			}
 		}
 		
 		return $messages;
@@ -611,7 +714,6 @@ class Mailbox extends Model {
 	 * @return Message|boolean
 	 */
 	public function getMessage($uid, $noFetchProps = false, array $returnAttributes = []){		
-		
 		$uid = (int) $uid;
 		
 		if(!$this->selected) {
@@ -619,7 +721,7 @@ class Mailbox extends Model {
 		}
 		
 		if(!$noFetchProps) {
-			$responses = $this->getMessageHeaders([$uid], $returnAttributes);
+			$responses = $this->getMessageHeaders($uid, $returnAttributes);
 			
 			if(!$this->connection->lastCommandSuccessful){
 				throw new \Exception($this->connection->lastCommandStatus);
@@ -647,10 +749,64 @@ class Mailbox extends Model {
 		
 		$this->connection->sendCommand($command);
 		
+		$responses = $this->connection->getResponse();
+		
+		if($this->connection->lastCommandSuccessful){
+			foreach($responses as $response){
+				//* 13477 EXISTS
+				if(preg_match('/\* ([0-9]+) EXISTS/',$response[0], $matches)){
+					$this->_messagesCount = (int) $matches[1];
+				}
+				elseif(preg_match('/\* ([0-9]+) RECENT/',$response[0], $matches)){
+					$this->_recent = (int) $matches[1];
+				}
+	//			elseif(preg_match('/\* OK \[UNSEEN ([0-9]+)\]/',$response[0], $matches)){
+	//				//"* OK [UNSEEN 13338] First unseen."
+	//				$this->_status['unseen'] = $matches[1];
+	//			}
+				elseif(preg_match('/\* OK \[UIDVALIDITY ([0-9]+)\]/',$response[0], $matches)){
+					//"* OK [UNSEEN 13338] First unseen."
+					$this->_uidValidity = (int) $matches[1];
+				}
+				elseif(preg_match('/\* OK \[UIDNEXT ([0-9]+)\]/',$response[0], $matches)){
+					//"* OK [UNSEEN 13338] First unseen."
+					$this->_uidNext = (int) $matches[1];
+				}
+				elseif(preg_match('/\* OK \[HIGHESTMODSEQ ([0-9]+)\]/',$response[0], $matches)){
+					//"* OK [UNSEEN 13338] First unseen."
+					$this->_highestModSeq = (int) $matches[1];
+				}
+
+			}		
+
+		
+		
+			$this->connection->selectedMailbox = $this->name;
+		}
+		
+		return $this->connection->lastCommandSuccessful;
+	}
+	
+	
+	
+	
+	
+	
+	/**
+	 * Select this mailbox on the IMAP server
+	 * 
+	 * @return boolean
+	 */
+	public function unselect(){
+		
+		$command = 'UNSELECT';
+		
+		$this->connection->sendCommand($command);
+		
 		$this->connection->getResponse();
 		
 		if($this->connection->lastCommandSuccessful){
-			$this->connection->selectedMailbox = $this->name;
+			$this->connection->selectedMailbox = null;
 		}
 		
 		return $this->connection->lastCommandSuccessful;
@@ -752,7 +908,8 @@ class Mailbox extends Model {
 		$availableFields = [
 			'FLAGS', 
 			'INTERNALDATE',
-			'SIZE'
+			'SIZE',
+			'BODYSTRUCTURE' //Important that this one comes last for parsing in Message model
 			];
 		
 		foreach($availableFields as $field) {
@@ -781,16 +938,19 @@ class Mailbox extends Model {
 		return $props;
 	}
 	
-	private function getMessageHeaders($uids, array $returnAttributes = []) {
-
-		if(empty($uids)){
-			return [];
+	private function getMessageHeaders($uidSequence, array $returnAttributes = [], $changedSinceModSeq = null) {
+		
+		if(!$this->selected){
+			$this->select();
 		}
 		
-		$sortedString = implode(',', $uids);		
+					
+		$command = 'UID FETCH '.$uidSequence.' ('.$this->_buildFetchProps($returnAttributes).')';
 		
-		$command = 'UID FETCH '.$sortedString.' ('.$this->_buildFetchProps($returnAttributes).')';
-
+		if(isset($changedSinceModSeq)){
+			$command .= ' (CHANGEDSINCE '.(int) $changedSinceModSeq.')';
+		}
+		
 		$this->connection->sendCommand($command);
 		$res = $this->connection->getResponse();
 		

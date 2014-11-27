@@ -202,7 +202,7 @@ abstract class AbstractPart extends Model {
 		$this->getData(true, $streamer);
 	}	
 	
-	public function toArray(array $attributes = array('filename', 'partNumber','type', 'subtype', 'parts')) {
+	public function toArray(array $attributes = ['filename', 'partNumber','type', 'subtype', 'parts']) {
 		return parent::toArray($attributes);
 	}
 }

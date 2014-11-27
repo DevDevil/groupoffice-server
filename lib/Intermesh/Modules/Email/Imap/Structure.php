@@ -29,10 +29,21 @@ class Structure {
 	 */
 	public $parts;
 	
-	public function __construct(Message $message) {
+	public function __construct(Message $message, $structureString) {
 		$this->message = $message;	
 		
-		$struct = $this->getStructure();	
+		
+		$startpos = strpos($structureString, "BODYSTRUCTURE");
+		$endpos = strpos($structureString, ' BODY[');
+		if(!$endpos){
+			$length = -1;
+		}else
+		{
+			$length = $endpos-$startpos+13;
+		}
+
+		$struct = $this->parseStructure(substr($structureString, $startpos + 14, $length));
+		
 				
 		if(is_array($struct[0])){
 			$this->parts[] = new MultiPart($message,"", $struct);
@@ -141,35 +152,7 @@ class Structure {
 		return $tokens;
 	}
 
-	private function getStructure() {
-		
-		$conn = $this->message->mailbox->connection;
-		
-		if(!$this->message->mailbox->selected) {
-			$this->message->mailbox->select();
-		}
-
 	
-		$struct = array();
-		$command = "UID FETCH " . $this->message->uid . " BODYSTRUCTURE";
-		$conn->sendCommand($command);
-		$response = $conn->getResponse();
-		
-		if(!isset($response[0][0])){
-			var_dump($response);
-			throw new \Exception("No structure returned");
-		}
-
-		$structStr = $response[0][0];
-
-		$startpos = strpos($structStr, "BODYSTRUCTURE");
-
-		$struct = $this->parseStructure(substr($structStr, $startpos + 14, -1));
-
-
-		return $struct;
-		
-	}
 	
 	/**
 	 * Check if the message has an alternative html body

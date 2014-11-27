@@ -94,8 +94,13 @@ class Account extends AbstractRecord {
 				$folder = new Folder();
 				$folder->accountId = $this->id;
 				$folder->name = $mailbox->name;
-				$folder->save();
+				
 			}
+			if(!isset($folder->highestModSeq)){
+				$folder->highestModSeq = $mailbox->getHighestModSeq();
+			}
+			$folder->uidValidity = $mailbox->getUidValidity(); 
+			$folder->save();
 		}
 	}
 	
@@ -103,7 +108,7 @@ class Account extends AbstractRecord {
 		
 		App::dbConnection()->getPDO()->query('delete from emailFolder where accountId='.intval($this->id));
 //		App::dbConnection()->getPDO()->query('delete from emailMessage where accountId='.intval($this->id));
-		App::dbConnection()->getPDO()->query('update emailFolder set highestSyncedUid = null');
+//		App::dbConnection()->getPDO()->query('update emailFolder set highestSyncedUid = null');
 	}
 
 	public function sync() {
@@ -126,17 +131,22 @@ class Account extends AbstractRecord {
 		//TODO changed since:
 		//http://tools.ietf.org/html/rfc4551#section-3.3.1
 		
+		//http://tools.ietf.org/html/rfc4549
+		
 		App::debugger()->debugTiming("Start sync");
 		
 		$this->_syncMailboxes();
 		
 		App::debugger()->debugTiming("Mailboxes synced");
 		
-		$folders = $this->folders;
+		$folders = $this->folders->all();
 
 		
 		$totalDbCount = 0;
 		$totalImapCount = 0;
+		
+		$syncCount = 0;
+		
 		$response = [];
 		
 		$startTime = time();
@@ -177,22 +187,21 @@ class Account extends AbstractRecord {
 			while ($imapMessage = array_shift($messages)) {		
 				/* @var $imapMessage \Intermesh\Modules\Email\Imap\Message */
 				
-				//Skip already synced messages. IMAP can only limit search results to a whole day.
-//				if($imapMessage->internaldate >= $folder->syncedUntil) {
+
 				
-//					$message = Message::find(['messageId' => $imapMessage->messageId])->single();
-//					if (!$message) {
+					$message = Message::find(['messageId' => $imapMessage->messageId])->single();
+					if (!$message) {
 						$message = new Message();
 						$message->account = $this;
 						$message->setFromImapMessage($imapMessage);
-//					}else
-//					{
-	//					$message->updateFromImapMessage($imapMessage);
+					}else
+					{
+						$message->updateFromImapMessage($imapMessage);
 //						$message->setFromImapMessage($imapMessage);
 						
 //						echo "already synced ".$imapMessage->internaldate.'<br />';
 						
-//					}
+					}
 
 					$message->folder = $folder;
 
@@ -202,44 +211,72 @@ class Account extends AbstractRecord {
 						throw new \Exception(var_export($message->getValidationErrors(), true));
 //						exit();
 					}
+					
+					$syncCount++;
 
-//					$folder->highestSyncedUid = $imapMessage->uid;
-					
-//					echo "New synced until ".$imapMessage->uid.'<br />';
-					
-//					$folder->save();
-					
-					if(time() > $startTime + 25){
+					if(time() > $startTime + 10){
 						
 						//make sure we don't reach the max_execution_time
-						break;
+						break 2;
 					}
-//				}
 			}
 			
 			App::debugger()->debugTiming("Sync done");
 			
-			$res = ['mailbox' => $folder->name, 'dbCount'=>$folder->getMessagesCount(), 'imapCount'=>$folder->getImapMailbox()->getMessagesCount()];
+			$res = ['mailbox' => $folder->name,  'syncCount' => $syncCount, 'dbCount'=>$folder->getMessagesCount(), 'imapCount'=>$folder->getImapMailbox()->getMessagesCount()];
 			
 			$totalDbCount += $res['dbCount'];
 			$totalImapCount += $res['imapCount'];
 			
 			$response[] = $res;
+			
+			
 		}
 		
-//		ksort($sorted);		
 		
-//		while($imapMessage = array_shift($sorted)) {
-////			\Intermesh\Core\App::debug($imapMessage->uid.' : '.$imapMessage->messageId, 'imapsync');
-//
-//				
-//		}
+		$this->_updateFlags($folders);
 		
-		if($totalDbCount < 1000 || $totalDbCount >= $totalImapCount){
+
+		
+		if($totalDbCount >= $totalImapCount){
+			App::debugger()->debugTiming("Start thread index");
 			$this->_updateThreads();			
+			App::debugger()->debugTiming("End thread index");
 		}
 		
 		return ['dbCount'=>$totalDbCount, 'imapCount' => $totalImapCount, $response];
+	}
+	
+	/**
+	 * 
+	 * @param Folder[] $folders
+	 */
+	private function _updateFlags(array $folders){
+		foreach($folders as $folder) {
+			if($folder->getImapMailbox()){
+				$messages = $folder->getImapMailbox()->getMessagesUnsorted('1:*', ['FLAGS','MESSAGE-ID'], $folder->highestModSeq);
+				
+				foreach($messages as $imapMessage){
+					$message = Message::find(['messageId' => $imapMessage->messageId])->single();
+					
+					$message->updateFromImapMessage($imapMessage);
+					
+					
+//					var_dump($imapMessage);
+//					exit();
+
+					if(!$message->save()){
+//						var_dump($message);
+						throw new \Exception(var_export($message->getValidationErrors(), true));
+//						exit();
+					}
+				}
+				
+				//update highest mod sequence
+				$folder->highestModSeq = $folder->getImapMailbox()->getHighestModSeq();
+				$folder->save();
+			}
+		}
 	}
 	
 	
@@ -289,6 +326,10 @@ class Account extends AbstractRecord {
 	private function _updateThreads(){
 		
 	//REFERENCES ON FORWARD???
+		
+		
+		
+		
 		
 //		$query = \Intermesh\Core\Db\Query::newInstance()
 //				->where([

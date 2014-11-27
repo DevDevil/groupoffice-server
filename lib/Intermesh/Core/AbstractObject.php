@@ -123,5 +123,39 @@ abstract class AbstractObject {
 
 			throw new \Exception($errorMsg);			
 		}
-	}	
+	}
+	
+	/**
+	 * Check if a writable propery exists
+	 * 
+	 * Same as property_exists but it als checks for a setter method set{NAME}
+	 * 
+	 * @param string $name
+	 * @return boolean
+	 */
+	public function hasWritableProperty($name){
+		if(property_exists($this, $name)){
+			return true;
+		}else
+		{		
+			return method_exists($this,'set'.$name);
+		}
+	}
+	
+	/**
+	 * Check if a writable propery exists
+	 * 
+	 * Same as property_exists but it als checks for getter method set{NAME}
+	 * 
+	 * @param string $name
+	 * @return boolean
+	 */
+	public function hasReadableProperty($name){
+		if(property_exists($this, $name)){
+			return true;
+		}else
+		{		
+			return method_exists($this,'get'.$name);
+		}
+	}
 }

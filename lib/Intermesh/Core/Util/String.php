@@ -506,7 +506,7 @@ END;
 	 * @return int 
 	 */
 	public static function length($str) {
-		return function_exists("mb_strlen") ? mb_strlen($str, 'UTF-8') : strlen($str);
+		return mb_strlen($str, 'UTF-8');
 	}
 
 	/**

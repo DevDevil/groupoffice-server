@@ -3,7 +3,6 @@
 namespace Intermesh\Modules\Email\Imap;
 
 use DateTime;
-use DOMDocument;
 use Exception;
 use Intermesh\Core\App;
 use Intermesh\Core\Db\Column;
@@ -197,8 +196,7 @@ class Message extends Model {
 		unset($attr['uid']);
 
 		foreach ($attr as $prop => $value) {
-
-			if (property_exists($message, $prop)) {
+			if ($message->hasWritableProperty($prop)) {
 
 				if (in_array($prop, self::$mimeDecodeAttributes)) {				
 					$value = Utils::mimeHeaderDecode($value);
@@ -216,29 +214,96 @@ class Message extends Model {
 				}
 
 				$message->$prop = $value;
+			}else
+			{
+//				trigger_error("Undefined property ".$prop." found in IMAP response for fetch message");
 			}
 		}
 
 		return $message;
 	}
+	
+	private $_bodyStructureStr;
+	
+	
+	protected function setBodyStructureStr($str){
+		$this->_bodyStructureStr = $str;
+	}
+	
+	
+	protected function getBodyStructureStr() {
+		
+		//$this->_bodyStructureStr may also have been set by _parseFetchResponse
+		if(!isset($this->_bodyStructureStr)){
+		
+			$conn = $this->mailbox->connection;
+
+			if(!$this->mailbox->selected) {
+				$this->mailbox->select();
+			}
+
+
+			$command = "UID FETCH " . $this->uid . " BODYSTRUCTURE";
+			$conn->sendCommand($command);
+			$response = $conn->getResponse();
+
+			if(!isset($response[0][0])){
+				throw new \Exception("No structure returned");
+			}
+
+			$this->_bodyStructureStr = $response[0][0];
+		}
+
+		return $this->_bodyStructureStr;
+		
+	}
+	
+//	private function _extractBodyStructure($line){
+//		$startpos = strpos($line, "BODYSTRUCTURE");
+//		
+//		if($startpos){
+//			//We know BODY[ comes next or end. because this is defined in Mailbox::_buildFetchProps
+//			$endpos = strpos($line, 'BODY[');
+//			
+//			if(!$endpos){
+//				$endpos = strlen($line)-$startpos;
+//			}
+//			
+//			$this->_bodyStructureStr = substr($line, $startpos, $endpos);
+//		}
+//	}
 
 	private static function _parseFetchResponse($response) {
-
-//		echo $response;
 
 		$attr = [];
 
 		$start = strpos($response, 'UID');
-		$end = strpos($response, 'BODY');
+		$end = strpos($response, 'BODY'); //match BODY[HEADER.FIELDS or BODYSTRUCTURE because they need different parsing
+		
+		if(strpos($response, 'BODYSTRUCTURE')){
+			$attr['bodyStructureStr'] = $response;
+		}
 
-		$line = substr($response, $start, $end - $start - 1);
+		$line = trim(substr($response, $start, $end - $start - 1));
+		
 
 		$arr = str_getcsv($line, ' ');
 
+
 		for ($i = 0, $c = count($arr); $i < $c; $i++) {
 			$name = String::lowerCamelCasify($arr[$i]);
-
-			$value = $arr[$i + 1];
+			
+			$valueIndex = $i + 1;
+//			if(!isset($arr[$valueIndex])){
+//				$value = null;
+//				
+//				var_dump($arr);
+//			}else
+//			{
+				$value = $arr[$valueIndex];
+//			}
+			
+			
 
 			if ($name == 'rfc822.size') {
 				$name = 'size';
@@ -275,36 +340,38 @@ class Message extends Model {
 
 		$headers = str_replace("\r", "", trim($headers));
 		$headers = preg_replace("/\n[\s]+/", "", $headers);
+		
+		if(!empty($headers)){
+
+			$lines = explode("\n", $headers);
+
+			foreach ($lines as $line) {
+				$parts = explode(':', $line);
+
+				$name = String::lowerCamelCasify(array_shift($parts));
+
+				$attr[$name] = trim(implode(':', $parts));
+			}
+
+			if (isset($attr['date'])) {
+
+				//sometimes headers contain some extra stuff between ()
+				//
+				//Still needed?
+				//
+				//$message['date']=preg_replace('/\([^\)]*\)/','', $message['date']);
+
+				$attr['date'] = date(Column::DATETIME_API_FORMAT, strtotime($attr['date']));
+			}
+
+			if (isset($attr['internaldate'])) {
+				$attr['internaldate'] = date(Column::DATETIME_API_FORMAT, strtotime($attr['internaldate']));
+			}
 
 
-		$lines = explode("\n", $headers);
-
-		foreach ($lines as $line) {
-			$parts = explode(':', $line);
-
-			$name = String::lowerCamelCasify(array_shift($parts));
-
-			$attr[$name] = trim(implode(':', $parts));
-		}
-
-		if (isset($attr['date'])) {
-
-			//sometimes headers contain some extra stuff between ()
-			//
-			//Still needed?
-			//
-			//$message['date']=preg_replace('/\([^\)]*\)/','', $message['date']);
-
-			$attr['date'] = date(Column::DATETIME_API_FORMAT, strtotime($attr['date']));
-		}
-
-		if (isset($attr['internaldate'])) {
-			$attr['internaldate'] = date(Column::DATETIME_API_FORMAT, strtotime($attr['internaldate']));
-		}
-
-
-		if (isset($attr['xPriority'])) {
-			$attr['xPriority'] = intval($attr['xPriority']);
+			if (isset($attr['xPriority'])) {
+				$attr['xPriority'] = intval($attr['xPriority']);
+			}
 		}
 
 		return $attr;
@@ -318,7 +385,7 @@ class Message extends Model {
 	public function getStructure() {
 
 		if (!isset($this->_structure)) {
-			$this->_structure = new Structure($this);
+			$this->_structure = new Structure($this, $this->bodyStructureStr);
 		}
 
 		return $this->_structure;
@@ -466,20 +533,26 @@ class Message extends Model {
 		return $pos;
 	}
 	
-	private function _splitLines($html) {
-		$br = '|BR|';
+	private $_bodyLines;
+	
+	private function _splitBodyLines($html) {
+		
+		if(!isset($this->_bodyLines)) {
+			$br = '|BR|';
 
-		$html = preg_replace([
-			'/<\/p>/i', // <P>
-			'/<\/div>/i', // <div>
-			'/<br[^>]*>/i',
-				], [
-			$br . "</p>",
-			$br . "</div>",
-			$br . "<br />",
-				], $this->_body);
+			$html = preg_replace([
+				'/<\/p>/i', // <P>
+				'/<\/div>/i', // <div>
+				'/<br[^>]*>/i',
+					], [
+				$br . "</p>",
+				$br . "</div>",
+				$br . "<br />",
+					], $this->_body);
 
-		return explode($br, $html);
+			$this->_bodyLines = explode($br, $html);
+		}
+		return $this->_bodyLines;
 	}
 
 	/**
@@ -495,7 +568,7 @@ class Message extends Model {
 	private function _findQuoteByHeaderBlock(){
 		
 		
-		$lines = $this->_splitLines($this->_body);
+		$lines = $this->_splitBodyLines($this->_body);
 		
 		$pos = 0;
 		
@@ -511,10 +584,37 @@ class Message extends Model {
 				return $pos;
 			}		
 			
-			$pos+=strlen($lines[$i]);
+			$pos += String::length($lines[$i]);
 
 		}
 		return false;
+	}
+	
+	private function _findQuoteByDashes(){
+		
+		$lines = $this->_splitBodyLines($this->_body);
+		
+//		var_dump($lines);
+		
+		$pos = 0;
+		
+		for($i=0,$c=count($lines);$i<$c;$i++) {		
+			
+			$plain = strip_tags($lines[$i]);
+
+			//Match:
+			//ABC: email@domain.com
+			if(preg_match('/---.*---/',$plain, $matches)){
+				App::debug('Stripped quote by dashes '.var_export($matches, true).' '.$lines[$i],'stripquote');
+				
+				return $pos;
+			}		
+			
+			$pos += String::length($lines[$i]);
+
+		}
+		return false;
+		
 	}
 
 	private function _stripQuote($plainText = false) {
@@ -550,6 +650,12 @@ class Message extends Model {
 			$positions[] = $headerBlockStartPos;
 		}
 		
+		$dashesStartPos = $this->_findQuoteByDashes();
+		if($dashesStartPos)
+		{
+			$positions[] = $dashesStartPos;
+		}
+		
 		$startPos = !empty($positions) ? min($positions) : false;
 		
 
@@ -557,8 +663,8 @@ class Message extends Model {
 			$this->_quote = "";
 			return $this->_body;
 		} else {
-			$this->_quote = substr($this->_body, $startPos);			
-			return substr($this->_body, 0, $startPos);
+			$this->_quote = mb_substr($this->_body, $startPos);			
+			return mb_substr($this->_body, 0, $startPos);
 		}
 	}
 
@@ -629,6 +735,12 @@ class Message extends Model {
 	 */
 	public function getSeen() {
 		return in_array('\Seen', $this->flags);
+	}
+	
+	
+	
+	public function toArray(array $attributes = ['*', 'attachments']) {
+		return parent::toArray($attributes);
 	}
 
 }

@@ -307,42 +307,15 @@ class Connection {
 
 		$commandEnd = false;
 		
+		$data = "";
+		
 		do {
 			
 			$chunk = $this->readLine();
 			
-			
-			if(substr($chunk, 0, 1) == '*'){
-				//untagged response
+			if(($commandEnd = substr($chunk, 0, $lastCommandTagLength) === $lastCommandTag)){
 				
-				if(isset($data)){
-					$response[] = trim($data);
-					
-					$responses[] = $response;
-					$response = [];
-				}				
-				
-				//check for literal {<SIZE>}
-				$trimmedChunk = trim($chunk);
-				if(substr($trimmedChunk,-1,1) == '}'){
-					
-					$response[] = trim($chunk);
-					
-					$startpos = strrpos($trimmedChunk, '{');
-
-					if($startpos){
-						$size = substr($trimmedChunk, $startpos+1, -1);						
-						$response[] = $this->getLiteralDataResponse($size, $streamer);
-					}					
-					
-				}else
-				{
-					$data = $chunk;
-				}
-				
-			}elseif(($commandEnd = substr($chunk, 0, $lastCommandTagLength) === $lastCommandTag)){
-				
-				if(isset($data)){
+				if(!empty($data)){
 					$response[] = trim($data);
 				}
 				
@@ -362,11 +335,35 @@ class Connection {
 				
 			}else
 			{
-				if(!isset($data)){
-					$data = "";
+				if(substr($chunk, 0, 1) == '*'){
+					//untagged response
+
+					if(!empty($data)){
+						$response[] = trim($data);
+
+						$responses[] = $response;
+						$response = [];
+
+						$data = "";
+					}
 				}
+				
+				
 				$data .= $chunk;
+
+				//check for literal {<SIZE>}
+				$trimmedData = trim($data);
+
+				if(substr($trimmedData,-1,1) == '}' && ($startpos = strrpos($trimmedData, ' {'))){			
+					$response[] = trim($data);
+					
+					$data = "";
+					
+					$size = substr($trimmedData, $startpos+2, -1);						
+					$response[] = $this->getLiteralDataResponse($size, $streamer);
+				}
 			}
+			
 			
 		} while ($commandEnd === false);
 
@@ -396,6 +393,7 @@ class Connection {
 	 * @return string
 	 */
 	private function getLiteralDataResponse($size, Streamer $streamer = null) {
+		
 		$max = 8192 > $size ? $size : 8192;
 		
 		$readLength = 0;
