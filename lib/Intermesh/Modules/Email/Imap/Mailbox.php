@@ -42,7 +42,7 @@ use Intermesh\Core\Model;
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class Mailbox extends Model {
 	
@@ -377,7 +377,7 @@ class Mailbox extends Model {
 		
 		
 		$str = str_replace(array(' )', ' ) ', ')', ' (', ' ( ', '( '), array(')', ')', ')', '(', '(', '('), $str);
-		var_dump($str);
+//		var_dump($str);
 //		$str = substr($str, 8); //Take off THREAD
 		
 		$tokens = str_split($str);
@@ -503,12 +503,14 @@ class Mailbox extends Model {
 		
 	}
 	
+	
+	
 	/**
 	 * Get messages from this mailbox
 	 * 
 	 * @return Message[]
 	 */
-	public function getMessages($sort = 'DATE', $reverse = true, $threaded = false, $limit = 10, $offset = 0, $filter='ALL', array $returnAttributes=["FLAGS","SIZE","DATE", "INTERNALDATE","FROM","SUBJECT","TO","CC","BCC","REPLY-TO","CONTENT_TYPE","MESSAGE-ID","X-PRIORITY","DISPOSITION-NOTIFICATION-TO", "IN-REPLY-TO", "REFERENCES"]){
+	public function getMessages($sort = 'DATE', $reverse = true, $threaded = false, $limit = 10, $offset = 0, $filter='ALL', array $returnAttributes=[]){
 		$uids = $this->serverSideSort($sort, $reverse, $filter);
 //		var_dump($uids);
 		
@@ -554,14 +556,8 @@ class Mailbox extends Model {
 //		var_dump(count($uids));
 //		exit();
 		
-		$responses = $this->getMessageHeaders($uids, $returnAttributes);
-
-		$messages = [];
 		
-		while($response = array_shift($responses)){			
-			$messages[] = Message::createFromImapResponse($this, $response[0], $response[1]);
-		}
-		
+		$messages = $this->getMessagesUnsorted($uids, $returnAttributes);		
 		
 		
 		$sorted = [];		
@@ -576,6 +572,25 @@ class Mailbox extends Model {
 		ksort($sorted);
 		
 		return $sorted;
+	}
+	
+	/**
+	 * Get message objects without sorting
+	 * 
+	 * @param array $uids
+	 * @param array $returnAttributes
+	 * @return Message[]
+	 */
+	public function getMessagesUnsorted(array $uids, array $returnAttributes = []){
+		$responses = $this->getMessageHeaders($uids, $returnAttributes);
+
+		$messages = [];
+		
+		while($response = array_shift($responses)){			
+			$messages[] = Message::createFromImapResponse($this, $response[0], $response[1]);
+		}
+		
+		return $messages;
 	}
 	
 //	private function sortUids($uidIndex, $uidsToSort){
@@ -684,6 +699,47 @@ class Mailbox extends Model {
 		}
 	
 		return $uids;
+	}
+	
+	
+	/**
+	 * Search the mailbox for UID's.
+	 * 
+	 * @param string $filter
+	 * @return boolean
+	 */
+	public function search($filter = "ALL"){
+		
+		
+		if(!$this->selected) {
+			$this->select();
+		}
+		
+		$command = 'UID SEARCH '.$filter;
+		
+		
+		$this->connection->sendCommand($command);
+		
+		$response = $this->connection->getResponse();
+		
+		if(!$this->connection->lastCommandSuccessful){
+			return false;
+		}
+
+		
+		$uids = [];
+
+		while($line = array_shift($response[0])) {
+			$str =  trim(str_replace('* SEARCH', '', $line));
+			if(!empty($str)) {
+				$vals = explode(" ", $str);		
+				$uids = array_merge($uids, $vals);
+			}
+			
+		}
+		
+		return $uids;
+		
 	}
 	
 

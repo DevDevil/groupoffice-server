@@ -9,7 +9,7 @@ namespace Intermesh\Modules\Email\Imap;
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class Structure {
 
@@ -157,7 +157,7 @@ class Structure {
 		
 		if(!isset($response[0][0])){
 			var_dump($response);
-			throw new \Exception();
+			throw new \Exception("No structure returned");
 		}
 
 		$structStr = $response[0][0];

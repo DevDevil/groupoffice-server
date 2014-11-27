@@ -19,14 +19,16 @@ use PDO;
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 abstract class AbstractRole extends AbstractRecord {
 
 	/**
 	 * @return string The column field of the resource this role access list is for.
 	 */
-	abstract static function resourceKey();
+	static function resourceKey(){
+		throw new Exception("Please implement static function resourceKey in ".get_called_class());
+	}
 	
 	/**
 	 * Get an array of permission dependencies.

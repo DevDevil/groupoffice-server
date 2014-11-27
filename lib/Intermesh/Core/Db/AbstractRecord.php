@@ -138,7 +138,7 @@ use Intermesh\Modules\Auth\Model\User;
  *
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 abstract class AbstractRecord extends Model {
 	
@@ -554,7 +554,7 @@ abstract class AbstractRecord extends Model {
 	 */
 	public function __isset($name) {
 		return isset($this->_attributes[$name]) ||
-						($this->getRelation($name) && $this->findRelation($name)) ||
+						($this->getRelation($name) && $this->_getRelated($name)) ||
 						parent::__isset($name);
 	}
 
@@ -582,8 +582,8 @@ abstract class AbstractRecord extends Model {
 
 				if ($relation->isA(Relation::TYPE_BELONGS_TO)) {
 					//belongs to must be set immediately.
-					App::debug("SET BELONGS TO");
-					App::debug($value);
+//					App::debug("SET BELONGS TO");
+//					App::debug($value);
 					
 					$relation->set($this, $value);				
 					
@@ -1222,7 +1222,7 @@ abstract class AbstractRecord extends Model {
 			if ($column->required && empty($this->_attributes[$colName])) {
 				$this->setValidationError($colName, "required");
 			} elseif (!empty($column->length) && !empty($this->_attributes[$colName]) && String::length($this->_attributes[$colName]) > $column->length) {
-				$this->setValidationError($colName, 'maxLength', ['length' => $column->length]);
+				$this->setValidationError($colName, 'maxLength', ['length' => $column->length, 'value'=>$this->_attributes[$colName]]);
 			}
 			
 			if($column->unique && isset($this->_attributes[$colName])){

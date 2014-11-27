@@ -4,6 +4,8 @@ namespace Intermesh\Modules\Email\Imap;
 
 use DateTime;
 use DOMDocument;
+use Exception;
+use Intermesh\Core\App;
 use Intermesh\Core\Db\Column;
 use Intermesh\Core\Model;
 use Intermesh\Core\Util\String;
@@ -18,7 +20,7 @@ use Intermesh\Modules\Email\Util\RecipientList;
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class Message extends Model {
 
@@ -166,7 +168,7 @@ class Message extends Model {
 	 * @var Recipient 
 	 */
 	public $dispositionNotificationTo;
-	private static $mimeDecodeAttributes = ['to', 'replyTo', 'cc', 'bcc', 'dispositionNotificationTo', 'subject'];
+	private static $mimeDecodeAttributes = ['subject'];
 	
 	private $_structure;
 	private $_body;
@@ -198,7 +200,7 @@ class Message extends Model {
 
 			if (property_exists($message, $prop)) {
 
-				if (in_array($prop, self::$mimeDecodeAttributes)) {
+				if (in_array($prop, self::$mimeDecodeAttributes)) {				
 					$value = Utils::mimeHeaderDecode($value);
 				}
 
@@ -327,14 +329,14 @@ class Message extends Model {
 	 * 
 	 * @param resource $filePointer
 	 * @return string
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function getSource($filePointer = null){		
 		
 		if(isset($filePointer)){
 			
 			if(!is_resource($filePointer)){
-				throw new \Exception("Invalid file pointer given");
+				throw new Exception("Invalid file pointer given");
 			}
 			
 			$streamer = new Streamer($filePointer);
@@ -394,91 +396,168 @@ class Message extends Model {
 				$this->_body = String::textToHtml($this->_body);
 				$this->_quote = String::textToHtml($this->_quote);
 			}
-
+			
 			if ($part->subtype == 'html') {
-			 	$this->_body = $this->_stripQuote();
+			 	
+				$this->_body = String::sanitizeHtml($this->_body);
+				$this->_body = String::convertLinks($this->_body);
+				$this->_body = $this->_stripQuote();
 
 //				$doc = new DOMDocument();
 //				@$doc->loadHTML($this->_body);
 //				$this->_body = $doc->saveHTML();
 
-				$this->_body = String::sanitizeHtml($this->_body);
+				
 			}
-
-			$this->_body = String::convertLinks($this->_body);
+			
+			
 		}
 		
 		return $this->_body;
 	}
 	
+	
+	private function _findQuoteByGreatherThan(){
+		$pos = strpos($this->_body, "\n>");
+		if($pos){
+			App::debug('Stripped quote by greather than','stripquote');
+		}
+		return $pos;
+	}
+	
+	private function _findQuoteByFromName() {
+//		var_dump($this);
+		if (isset($this->from->personal)) {
+
+			$parts = explode(' ', $this->from->personal);
+
+			while ($part = array_pop($parts)) {
+
+//					echo $part;
+				
+//				\Intermesh\Core\App::debug($part,'findquote');
+
+				$startPos = strpos($this->_body, $part);
+
+//					var_dump($startPos);
+
+				if ($startPos) {
+					
+					App::debug('Stripped quote by from name: '.$part,'stripquote');
+					
+					$startPos += strlen($part);
+
+					return $startPos;
+				}
+			}
+		}
+
+		return false;
+	}
+	
+	private function _findQuoteByBlockQuote(){
+		$pos = strpos($this->_body, "<blockquote");
+		
+		if($pos){
+			App::debug('Stripped quote by blockquote','stripquote');
+					
+		}
+		
+		return $pos;
+	}
+	
+	private function _splitLines($html) {
+		$br = '|BR|';
+
+		$html = preg_replace([
+			'/<\/p>/i', // <P>
+			'/<\/div>/i', // <div>
+			'/<br[^>]*>/i',
+				], [
+			$br . "</p>",
+			$br . "</div>",
+			$br . "<br />",
+				], $this->_body);
+
+		return explode($br, $html);
+	}
+
+	/**
+	 * eg
+	 * 
+	 * Van: Merijn Schering [mailto:mschering@intermesh.nl] 
+		Verzonden: donderdag 20 november 2014 16:40
+		Aan: Someone
+		Onderwerp: Subject
+	 * 
+	 * @return int|boolean
+	 */
+	private function _findQuoteByHeaderBlock(){
+		
+		
+		$lines = $this->_splitLines($this->_body);
+		
+		$pos = 0;
+		
+		for($i=0,$c=count($lines);$i<$c;$i++) {		
+			
+			$plain = strip_tags($lines[$i]);
+
+			//Match:
+			//ABC: email@domain.com
+			if(preg_match('/[a-z]+:[a-z0-9\._\-+\&]+@[a-z0-9\.\-_]+/i',$plain, $matches)){
+				App::debug('Stripped quote by HeaderBlock '.var_export($matches, true),'stripquote');
+				
+				return $pos;
+			}		
+			
+			$pos+=strlen($lines[$i]);
+
+		}
+		return false;
+	}
 
 	private function _stripQuote($plainText = false) {
 //		
 //		var_dump($body);
 		
-		$startPos = false;
+		$positions = [];
 				
-		if($plainText){
-			$startPos = strpos($this->_body, "\n>");
+		$plainTextQuoteStartPos = $plainText ? $this->_findQuoteByGreatherThan() : false;
+		if($plainTextQuoteStartPos)
+		{
+			$positions[] = $plainTextQuoteStartPos;
 		}
 		
-		if(!$startPos){
-
-			if (isset($this->from->personal)) {
-
-				$parts = explode(' ', $this->from->personal);
-
-				while ($part = array_pop($parts)) {
-					
-//					echo $part;
-					
-					$startPos = strpos($this->_body, $part);
-					
-//					var_dump($startPos);
-
-					if ($startPos) {
-						$startPos += strlen($part);
-						break;
-					}
-				}
-			}
-		}
-
-
 		
+		
+//		if(!$startPos){
+//			$startPos = $this->_findQuoteByFromName();
+//
+//		}
 
-
-		if (!$startPos) {
-			$startPos = strpos($this->_body, "<blockquote");
-
-			if (!$startPos) {
-				preg_match_all('/>[^:\n]+:[a-z0-9\._\-+\&]+@[a-z0-9\.\-_]+\b/i', $this->_body, $matches, PREG_OFFSET_CAPTURE);
-
-				//				var_dump($matches);
-
-				if (isset($matches[0][0])) {
-					$startPos = strrpos($this->_body, '<', $matches[0][0][1] - strlen($this->_body));
-
-					//					$body = substr($body, 0, $startPos).' HIER '.substr($body, $startPos);
-					//					
-					//					$startPos = false;
-					////					var_dump($startPos);
-				}
-			}
+//		if(!$startPos){
+		$blockQuoteStartPos = $this->_findQuoteByBlockQuote();
+		if($blockQuoteStartPos)
+		{
+			$positions[] = $blockQuoteStartPos;
 		}
+		
+//		if(!$startPos){
+		$headerBlockStartPos = $this->_findQuoteByHeaderBlock();
+		if($headerBlockStartPos)
+		{
+			$positions[] = $headerBlockStartPos;
+		}
+		
+		$startPos = !empty($positions) ? min($positions) : false;
 		
 
 		if (!$startPos) {
 			$this->_quote = "";
 			return $this->_body;
 		} else {
-			$this->_quote = substr($this->_body, $startPos);
-			
-			$doc = new DOMDocument();
-			@$doc->loadHTML($this->_quote);
-			$this->_quote = $doc->saveHTML();
-			$this->_quote = String::sanitizeHtml($this->_quote);
-			
+			$this->_quote = substr($this->_body, $startPos);			
 			return substr($this->_body, 0, $startPos);
 		}
 	}

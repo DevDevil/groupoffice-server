@@ -18,15 +18,18 @@ use Intermesh\Core\Db\RelationFactory;
  *
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class ToAddress extends AbstractRecord {	
-		
+	
+	use \Intermesh\Core\Db\TruncateAttributesTrait;
+	
 	protected static function defineRelations(RelationFactory $r) {
 		return [
 			$r->belongsTo('message', Message::className(), 'messageId'),
 		];
 	}
+	
 	
 	public function __toString() {
 		if (!empty($this->personal)) {

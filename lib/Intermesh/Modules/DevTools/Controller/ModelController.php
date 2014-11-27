@@ -45,7 +45,7 @@ class ModelController extends AbstractRESTController {
 		
 		 echo "\n * @copyright (c) ".date('Y').", Intermesh BV http://www.intermesh.nl".
 				"\n * @author Merijn Schering <mschering@intermesh.nl>".
-				"\n * @license https://www.gnu.org/licenses/lgpl.html LGPLv3";
+				"\n * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3";
 
 		echo "\n */";
 	}

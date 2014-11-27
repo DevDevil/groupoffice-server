@@ -54,14 +54,6 @@ class Store extends AbstractObject{
 	private $_returnAttributes=array();
 
 	/**
-	 * The maximum Query limit of records returned
-	 *
-	 * @see Query::limit()
-	 * @var int
-	 */
-	public $maxLimit=100;
-
-	/**
 	 * The default Query limit if none given
 	 *
 	 * @see Query::limit()
@@ -80,11 +72,11 @@ class Store extends AbstractObject{
 
 		$this->_finder=$finder;
 
-		if($finder->getQuery()->limit > $this->maxLimit){
-			throw new Exception("Limit may not be greater than ".$this->maxLimit);
-		}
+//		if($finder->getQuery()->limit > $this->maxLimit){
+//			throw new Exception("Limit may not be greater than ".$this->maxLimit);
+//		}
 
-		if(empty($finder->getQuery()->limit)){
+		if(!isset($finder->getQuery()->limit)){
 			$finder->getQuery()->limit($this->defaultLimit);
 		}
 	}

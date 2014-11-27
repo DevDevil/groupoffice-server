@@ -14,7 +14,7 @@ use Intermesh\Core\App;
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class Connection {
 
@@ -56,6 +56,9 @@ class Connection {
 	 * @var string 
 	 */
 	public $lastCommandStatus;
+	
+	
+	public static $test;
 
 	/**
 	 * Constructor
@@ -69,6 +72,12 @@ class Connection {
 	 * @param string $auth 'plain' or 'cram-md5'
 	 */
 	public function __construct($server, $port, $username, $password, $ssl = false, $starttls = false, $auth = 'plain') {
+		
+		if(isset(self::$test)){
+			throw new Exception("Reconstruct!");
+		}
+		
+		self::$test = true;
 
 		$this->ssl = $ssl;
 		$this->starttls = $starttls;

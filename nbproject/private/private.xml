@@ -3,20 +3,28 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group name="PocketOffice">
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Controller/ThreadController.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Message.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Imap/Streamer.php</file>
+            <file>file:/var/www/html/groupoffice-server/tests/Intermesh/Core/Db/ActiveRecordTest.php</file>
             <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Imap/Message.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Core/Util/String.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Core/Db/AbstractRecord.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Controller/AttachmentController.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Attachment.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Controller/SyncController.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Account.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Imap/SinglePart.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Util/RecipientList.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/CcAddress.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Imap/Mailbox.php</file>
             <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Imap/AbstractPart.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Imap/SinglePart.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Core/App.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Folder.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/ToAddress.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Core/Debugger.php</file>
+            <file>file:/var/www/html/groupoffice-server/go7.sql</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Core/Db/TruncateAttributesTrait.php</file>
+            <file>file:/var/www/html/groupoffice-server/tests/Intermesh/Modules/Email/RecipientListTest.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Util/RecipientList.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Auth/Model/User.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/CcAddress.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Core/Db/Relation.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Core/Validate/ValidateUnique.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Message.php</file>
+            <file>file:/var/www/html/groupoffice-server/config.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Core/Db/AbstractRecord.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Imap/Utils.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Account.php</file>
         </group>
         <group name="GroupOffice7"/>
     </open-files>

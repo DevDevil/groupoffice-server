@@ -32,7 +32,7 @@ use Intermesh\Modules\Contacts\Model\Contact;
  *
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class User extends AbstractRecord {
 	
@@ -198,19 +198,6 @@ class User extends AbstractRecord {
 	 * @inheritdoc
 	 */
 	public function save() {
-		
-		
-	
-		if ($this->isModified('password')) {
-			
-			if(!User::current()->isAdmin() && !$this->checkPassword($this->currentPassword)){
-				$this->setValidationError('currentPassword', 'wrongPassword');
-				
-				return false;
-			}
-			
-			
-		}
 
 		$wasNew = $this->getIsNew();
 
@@ -243,6 +230,8 @@ class User extends AbstractRecord {
 	 * @inheritdoc
 	 */
 	public function delete() {
+		
+		echo 'ja';
 
 		if ($this->id === 1) {
 			$this->setValidationError('id', 'adminDeleteForbidden');

@@ -31,7 +31,7 @@ use Intermesh\Core\Model;
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class ValidateUnique extends AbstractValidationRule {
 
@@ -85,7 +85,7 @@ class ValidateUnique extends AbstractValidationRule {
 			if ($existing) {
 
 				$this->errorCode = 'unique';
-				$this->errorInfo = ['relatedColumns' => $this->_relatedColumns];
+				$this->errorInfo = ['relatedColumns' => $this->_relatedColumns, 'existingAttributes' => $existing->getAttributes()];
 
 				return false;
 			}

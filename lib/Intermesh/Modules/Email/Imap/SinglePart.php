@@ -12,7 +12,7 @@ use Intermesh\Modules\Email\Imap\Message;
  *
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class SinglePart extends AbstractPart{
 	
@@ -156,7 +156,7 @@ class SinglePart extends AbstractPart{
 	 * @return string
 	 */
 	public function getDataDecoded(){
-		switch($this->encoding){
+		switch(strtolower($this->encoding)){
 			case 'base64':
 					return base64_decode($this->getData());
 				

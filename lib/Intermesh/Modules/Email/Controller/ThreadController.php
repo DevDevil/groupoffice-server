@@ -3,7 +3,9 @@ namespace Intermesh\Modules\Email\Controller;
 
 use Intermesh\Core\Controller\AbstractCrudController;
 use Intermesh\Core\Data\Store;
+use Intermesh\Core\Db\Criteria;
 use Intermesh\Core\Db\Query;
+use Intermesh\Modules\Email\Model\Folder;
 use Intermesh\Modules\Email\Model\Message;
 
 class ThreadController extends AbstractCrudController {
@@ -21,17 +23,19 @@ class ThreadController extends AbstractCrudController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($accountId, $orderColumn = 'date', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = ['threadId', 'subject','fromEmail','fromPersonal','excerpt','date', 'seen','answered','hasAttachments','forwarded']) {
+	protected function actionStore($accountId, $orderColumn = 'date', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = ['id', 'threadId', 'threadFrom', 'subject','excerpt','date', 'seen','answered','hasAttachments','forwarded']) {
 
-		$folder = \Intermesh\Modules\Email\Model\Folder::find(['accountId' => $accountId, 'name' => 'INBOX'])->single();
+		$folder = Folder::find(['accountId' => $accountId, 'name' => 'INBOX'])->single();
 		
 		$accounts = Message::find(Query::newInstance()
 								->orderBy([$orderColumn => $orderDirection])
 								->limit($limit)
 								->offset($offset)
-								->search($searchQuery, array('t.subject', 't._body'))
-								->groupBy(['t.threadId'])
+								->search($searchQuery, array('t.subject', 't._body'))								
 								->where(['folderId'=>$folder->id])
+								->joinRaw('INNER JOIN (SELECT threadId, MAX(`date`) maxDate FROM emailMessage WHERE folderId=:folderId GROUP BY threadId) m ON t.threadId=m.threadId AND t.`date` = m.maxDate')
+								->addBindParameter(':folderId', $folder->id)
+								->groupBy(['threadId'])
 		);
 
 		$store = new Store($accounts);

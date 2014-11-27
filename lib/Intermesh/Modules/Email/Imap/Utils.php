@@ -9,7 +9,7 @@ use Intermesh\Core\Util\String;
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
- * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class Utils {
 
@@ -39,7 +39,9 @@ class Utils {
 		 *
 		 *  http://www.faqs.org/rfcs/rfc2047.html
 		 */
-		$string = preg_replace("/\?=[\s]*=\?/", "?==?", $string);
+		
+		//probably an error in header parsing and not needed anymore.
+//		$string = preg_replace("/\?=[\s]*=\?/", "?==?", $string);
 
 		if (preg_match_all("/(=\?[^\?]+\?(q|b)\?[^\?]+\?=)/i", $string, $matches)) {
 			foreach ($matches[1] as $v) {
