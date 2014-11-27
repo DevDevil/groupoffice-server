@@ -4,6 +4,7 @@ namespace Intermesh\Modules\Projects;
 
 use Intermesh\Core\AbstractModule;
 use Intermesh\Modules\Projects\Controller\ProjectController;
+use Intermesh\Modules\Projects\Controller\TaskController;
 
 class ProjectsModule extends AbstractModule {
 
