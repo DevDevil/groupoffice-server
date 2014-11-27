@@ -18,5 +18,6 @@
             <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Imap/Mailbox.php</file>
             <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Imap/AbstractPart.php</file>
         </group>
+        <group name="GroupOffice7"/>
     </open-files>
 </project-private>
