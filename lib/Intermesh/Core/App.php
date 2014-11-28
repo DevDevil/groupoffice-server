@@ -69,9 +69,11 @@ class App {
 		set_error_handler(array('\Intermesh\Core\App', 'errorHandler'));
 		register_shutdown_function(array('\Intermesh\Core\App', 'shutdown'));
 
-		
-
 		App::config()->setConfig($config);
+                
+		if(isset(App::config()->defaultTimeZone)) {
+				date_default_timezone_set(App::config()->defaultTimeZone);
+		}
 		
 		App::debugger()->init();
 	}

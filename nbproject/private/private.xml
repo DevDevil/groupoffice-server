@@ -27,5 +27,8 @@
             <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Account.php</file>
         </group>
         <group name="GroupOffice7"/>
+        <group>
+            <file>file:/Users/mschering/Sites/groupoffice-server/lib/Intermesh/Modules/Email/Model/Folder.php</file>
+        </group>
     </open-files>
 </project-private>

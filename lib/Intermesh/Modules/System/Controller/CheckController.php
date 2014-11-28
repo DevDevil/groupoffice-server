@@ -14,7 +14,9 @@ use PDOException;
  */
 class CheckController extends AbstractRESTController{
 
-	
+    protected function authenticate() {
+        return true;
+    }
 
 	/**
 	 * Run system tests

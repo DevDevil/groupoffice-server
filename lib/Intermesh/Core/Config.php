@@ -19,6 +19,13 @@ class Config {
 	 * @var string
 	 */
 	public $productName = 'Intermesh Framework';
+        
+  /**
+	 * Set the default timezone for PHP.
+	 * 
+	 * @var string 
+	 */
+	public $defaultTimeZone;
 
 	/**
 	 * Temporary files folder to use. Defaults to the <system temp folder>/ifw

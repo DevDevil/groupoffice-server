@@ -1069,6 +1069,10 @@ ADD CONSTRAINT `timelineItem_ibfk_2` FOREIGN KEY (`contactId`) REFERENCES `conta
 
 --
 
+
+INSERT INTO `authUser` (`id`, `deleted`, `enabled`, `username`, `password`, `digest`, `createdAt`, `modifiedAt`) VALUES
+(1, 0, 1, 'admin', '$1$DbSzAYcF$oc9bUIm.SBRjCD24ZcKg//', '508fd3bc6f1ecfedaa475586ce0b4f2f', '2014-07-21 14:01:17', '2014-08-05 15:16:05');
+
 INSERT INTO `authRole` (`id`, `deleted`, `autoAdd`, `name`, `userId`) VALUES
 (1, 0, 0, 'Admins', 1),
 (2, 0, 0, 'Everyone', NULL);
@@ -1076,8 +1080,6 @@ INSERT INTO `authRole` (`id`, `deleted`, `autoAdd`, `name`, `userId`) VALUES
 -- --------------------------------------------------------
 
 
-INSERT INTO `authUser` (`id`, `deleted`, `enabled`, `username`, `password`, `digest`, `createdAt`, `modifiedAt`) VALUES
-(1, 0, 1, 'admin', '$1$DbSzAYcF$oc9bUIm.SBRjCD24ZcKg//', '508fd3bc6f1ecfedaa475586ce0b4f2f', '2014-07-21 14:01:17', '2014-08-05 15:16:05');
 
 -- --------------------------------------------------------
 
@@ -1086,7 +1088,29 @@ INSERT INTO `authUser` (`id`, `deleted`, `enabled`, `username`, `password`, `dig
 
 INSERT INTO `authUserRole` (`userId`, `roleId`) VALUES
 (1, 1),
-(1, 2),
-(1, 24);
+(1, 2);
 
 -- --------------------------------------------------------
+
+INSERT INTO `modulesModule` (`id`, `name`, `type`, `deleted`) VALUES
+(1, 'contacts', 'user', 0),
+(4, 'notes', 'user', 0),
+(5, 'roles', 'admin', 0),
+(6, 'users', 'admin', 0),
+(7, 'apibrowser', 'dev', 0),
+(8, 'customfields', 'admin', 0),
+(9, 'helloworld', 'user', 0),
+(10, 'announcements', 'user', 0),
+(10, 'email', 'user', 0);
+
+INSERT INTO `modulesModuleRole` (`moduleId`, `roleId`, `useAccess`, `createAccess`) VALUES
+(1, 1, 1, 1),
+(1, 2, 1, 0),
+(4, 1, 1, 1),
+(5, 1, 1, 1),
+(6, 1, 1, 1),
+(7, 1, 1, 1),
+(8, 1, 1, 1),
+(9, 1, 1, 1),
+(10, 1, 1, 1),
+(10, 2, 1, 0);

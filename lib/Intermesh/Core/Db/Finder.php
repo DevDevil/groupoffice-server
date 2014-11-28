@@ -142,8 +142,11 @@ class Finder extends AbstractObject implements IteratorAggregate {
 	 */
 	private function _executeSql($sql) {
 		try {
+                    
+                        $binds = [];
+                        
 			$stmt = App::dbConnection()->getPDO()->prepare($sql);
-			$binds = [];
+			
 			foreach ($this->bindParameters as $p) {
 				$binds[$p['paramTag']]=$p['value'];
 				$stmt->bindValue($p['paramTag'], $p['value'], $this->_findPdoType($p['tableAlias'], $p['column']));

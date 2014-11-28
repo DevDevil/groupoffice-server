@@ -2,6 +2,7 @@
 return [
 		'Intermesh\Core\Config' => [
 				'productName' => 'Group-Office 7.0',
+        'defaultTimeZone' => 'europe/amsterdam',
 				'dataFolder'=>dirname(__FILE__).'/data'
 		],
 		'Intermesh\Core\Debugger' => [

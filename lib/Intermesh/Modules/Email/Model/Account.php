@@ -2,6 +2,7 @@
 
 namespace Intermesh\Modules\Email\Model;
 
+use Exception;
 use Intermesh\Core\App;
 use Intermesh\Core\Db\AbstractRecord;
 use Intermesh\Core\Db\Query;
@@ -55,6 +56,10 @@ class Account extends AbstractRecord {
 		if (!isset(self::$_connection[$this->host.':'.$this->username])) {
 			self::$_connection[$this->host.':'.$this->username] = new Connection(
 					$this->host, $this->port, $this->username, $this->password, $this->encrytion == 'ssl', $this->encrytion == 'tls', 'plain');
+		}
+		
+		if(!self::$_connection[$this->host.':'.$this->username]->isAuthenticated() && !self::$_connection[$this->host.':'.$this->username]->authenticate()){
+			throw new Exception("Could not authenticate to host ".$this->host);
 		}
 
 		return self::$_connection[$this->host.':'.$this->username];
@@ -208,7 +213,7 @@ class Account extends AbstractRecord {
 
 					if(!$message->save()){
 //						var_dump($message);
-						throw new \Exception(var_export($message->getValidationErrors(), true));
+						throw new Exception(var_export($message->getValidationErrors(), true));
 //						exit();
 					}
 					
@@ -267,7 +272,7 @@ class Account extends AbstractRecord {
 
 					if(!$message->save()){
 //						var_dump($message);
-						throw new \Exception(var_export($message->getValidationErrors(), true));
+						throw new Exception(var_export($message->getValidationErrors(), true));
 //						exit();
 					}
 				}

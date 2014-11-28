@@ -91,7 +91,8 @@ abstract class AbstractRESTController extends AbstractObject {
 		$data['errors'][] = $message;
 		
 		if(isset($exception)){
-			$data['exception'] = $exception->getTrace();
+//			$data['exceptionMessage'] =$exception->getMessage();
+			$data['exception'] = (string) $exception;
 		}
 
 		return $this->renderJson($data);	
