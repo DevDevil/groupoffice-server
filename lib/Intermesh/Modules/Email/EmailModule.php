@@ -43,28 +43,35 @@ class EmailModule extends AbstractModule {
 								],
 							],
 							
-									
-							'threads' =>[
-								'routeParams' => ['threadId'],
-								'controller' => ThreadController::className(),
-								'children' => [
-									'attachments' =>[
-										'routeParams' => ['attachmentId'],
-										'controller' => AttachmentController::className()
+							'folders' => [
+									'routeParams' => ['folderId'],
+									'controller' => Controller\FolderController::className(),
+									'children' => [
+											
+										'threads' =>[
+											'routeParams' => ['threadId'],
+											'controller' => ThreadController::className(),
+											'children' => [
+												'attachments' =>[
+													'routeParams' => ['attachmentId'],
+													'controller' => AttachmentController::className()
+												]
+											]
+										],
+
+
+										'messages' =>[
+											'routeParams' => ['messageId'],
+											'controller' => Controller\MessageController::className(),
+											'children' => [
+												'attachments' =>[
+													'routeParams' => ['attachmentId'],
+													'controller' => AttachmentController::className()
+												]
+											]
+										]
 									]
-								]
-							],
-							
-							
-							'messages' =>[
-								'routeParams' => ['messageId'],
-								'controller' => Controller\MessageController::className(),
-								'children' => [
-									'attachments' =>[
-										'routeParams' => ['attachmentId'],
-										'controller' => AttachmentController::className()
-									]
-								]
+						
 							]
 						]
 					]
