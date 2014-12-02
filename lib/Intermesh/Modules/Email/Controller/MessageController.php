@@ -98,7 +98,7 @@ class MessageController extends AbstractCrudController {
 	public function actionCreate($returnAttributes = []) {
 
 		$message = new Message();
-		$message->setAttributes(App::request()->payload['data']['attributes']);
+		$message->setAttributes(App::request()->payload['data']);
 		$message->save();		
 
 		return $this->renderModel($message, $returnAttributes);
@@ -127,7 +127,7 @@ class MessageController extends AbstractCrudController {
 			throw new NotFound();
 		}
 
-		$message->setAttributes(App::request()->payload['data']['attributes']);
+		$message->setAttributes(App::request()->payload['data']);
 		$message->save();
 		
 		return $this->renderModel($message, $returnAttributes);

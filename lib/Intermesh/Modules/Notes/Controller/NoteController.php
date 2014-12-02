@@ -126,7 +126,7 @@ class NoteController extends AbstractCrudController{
 		}
 
 		$note = new Note();
-		$note->setAttributes(App::request()->payload['data']['attributes']);
+		$note->setAttributes(App::request()->payload['data']);
 		$note->save();
 		
 
@@ -165,7 +165,7 @@ class NoteController extends AbstractCrudController{
 			throw new Forbidden();
 		}
 
-		$note->setAttributes(App::request()->payload['data']['attributes']);
+		$note->setAttributes(App::request()->payload['data']);
 		$note->save();
 		
 		return $this->renderModel($note, $returnAttributes);

@@ -102,7 +102,7 @@ class TimelineController extends AbstractRESTController {
 
 		$item = new Item();
 
-		$item->setAttributes(App::request()->payload['data']['attributes']);
+		$item->setAttributes(App::request()->payload['data']);
 		$item->contactId = $contactId;
 
 
@@ -142,7 +142,7 @@ class TimelineController extends AbstractRESTController {
 		if (!$item->contact->checkPermission('editAccess')) {
 			$this->renderError(403);
 		}
-		$item->setAttributes(App::request()->payload['data']['attributes']);
+		$item->setAttributes(App::request()->payload['data']);
 		$item->save();
 		
 		return $this->renderModel($item, $returnAttributes);

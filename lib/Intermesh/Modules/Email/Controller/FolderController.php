@@ -100,7 +100,7 @@ class FolderController extends AbstractCrudController {
 	public function actionCreate($accountId, $returnAttributes = []) {
 
 		$folder = new Folder();
-		$folder->setAttributes(App::request()->payload['data']['attributes']);
+		$folder->setAttributes(App::request()->payload['data']);
 		$folder->accountId = $accountId;
 		$folder->save();		
 
@@ -130,7 +130,7 @@ class FolderController extends AbstractCrudController {
 			throw new NotFound();
 		}
 
-		$folder->setAttributes(App::request()->payload['data']['attributes']);
+		$folder->setAttributes(App::request()->payload['data']);
 		$folder->save();
 		
 		return $this->renderModel($folder, $returnAttributes);

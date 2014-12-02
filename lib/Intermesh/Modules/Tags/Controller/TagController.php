@@ -85,7 +85,7 @@ class TagController extends AbstractCrudController {
 
 		$tag = new Tag();
 
-		$tag->setAttributes(App::request()->payload['data']['attributes']);
+		$tag->setAttributes(App::request()->payload['data']);
 		$tag->save();
 
 		return $this->renderModel($tag, $returnAttributes);
@@ -124,7 +124,7 @@ class TagController extends AbstractCrudController {
 			throw new NotFound();
 		}
 
-		$tag->setAttributes(App::request()->payload['data']['attributes']);
+		$tag->setAttributes(App::request()->payload['data']);
 		$tag->save();
 
 		return $this->renderModel($tag, $returnAttributes);

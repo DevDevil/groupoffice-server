@@ -176,7 +176,7 @@ class ContactController extends AbstractCrudController {
 		}
 
 		$contact = new Contact();
-		$contact->setAttributes(App::request()->payload['data']['attributes']);
+		$contact->setAttributes(App::request()->payload['data']);
 		$contact->save();
 		
 
@@ -215,7 +215,7 @@ class ContactController extends AbstractCrudController {
 			throw new Forbidden();
 		}
 
-		$contact->setAttributes(App::request()->payload['data']['attributes']);
+		$contact->setAttributes(App::request()->payload['data']);
 		$contact->save();
 		
 		return $this->renderModel($contact, $returnAttributes);

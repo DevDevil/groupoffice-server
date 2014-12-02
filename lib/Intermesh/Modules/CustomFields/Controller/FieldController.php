@@ -89,7 +89,7 @@ class FieldController extends AbstractRESTController {
 		$field = new Field();
 		$field->fieldSetId = $fieldSetId;
 
-		$field->setAttributes(App::request()->payload['data']['attributes']);
+		$field->setAttributes(App::request()->payload['data']);
 
 		$field->save();
 		
@@ -120,7 +120,7 @@ class FieldController extends AbstractRESTController {
 			return $this->renderError(404);
 		}
 
-		$field->setAttributes(App::request()->payload['data']['attributes']);
+		$field->setAttributes(App::request()->payload['data']);
 		$field->save();
 		
 		return $this->renderModel($field, $returnAttributes);

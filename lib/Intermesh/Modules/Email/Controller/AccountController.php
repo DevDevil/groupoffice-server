@@ -98,7 +98,7 @@ class AccountController extends AbstractCrudController {
 	public function actionCreate($returnAttributes = []) {
 
 		$account = new Account();
-		$account->setAttributes(App::request()->payload['data']['attributes']);
+		$account->setAttributes(App::request()->payload['data']);
 		$account->save();		
 
 		return $this->renderModel($account, $returnAttributes);
@@ -127,7 +127,7 @@ class AccountController extends AbstractCrudController {
 			throw new NotFound();
 		}
 
-		$account->setAttributes(App::request()->payload['data']['attributes']);
+		$account->setAttributes(App::request()->payload['data']);
 		$account->save();
 		
 		return $this->renderModel($account, $returnAttributes);

@@ -83,7 +83,7 @@ class FieldSetController extends AbstractRESTController {
 		$fieldset = new FieldSet();
 		$fieldset->modelName = $modelName;
 
-		$fieldset->setAttributes(App::request()->payload['data']['attributes']);
+		$fieldset->setAttributes(App::request()->payload['data']);
 		$fieldset->save();
 		
 
@@ -113,7 +113,7 @@ class FieldSetController extends AbstractRESTController {
 			return $this->renderError(404);
 		}
 
-		$fieldset->setAttributes(App::request()->payload['data']['attributes']);
+		$fieldset->setAttributes(App::request()->payload['data']);
 		$fieldset->save();
 		
 		return $this->renderModel($fieldSet);

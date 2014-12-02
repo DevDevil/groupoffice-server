@@ -161,7 +161,7 @@ abstract class AbstractFilesController extends AbstractRESTController {
 		$file->parent = $folder;
 		$file->setModel($model);
 		
-		$file->setAttributes(App::request()->payload['data']['attributes']);
+		$file->setAttributes(App::request()->payload['data']);
 
 		$file->save();
 
@@ -196,7 +196,7 @@ abstract class AbstractFilesController extends AbstractRESTController {
 			return $this->renderError(403);
 		}
 
-		$file->setAttributes(App::request()->payload['data']['attributes']);
+		$file->setAttributes(App::request()->payload['data']);
 		$file->save();
 
 		return $this->renderModel($file, $returnAttributes);

@@ -108,7 +108,7 @@ class UserController extends AbstractCrudController {
 	public function actionCreate($returnAttributes = []) {
 
 		$user = new User();
-		$user->setAttributes(App::request()->payload['data']['attributes']);
+		$user->setAttributes(App::request()->payload['data']);
 		$user->save();		
 
 		return $this->renderModel($user, $returnAttributes);
@@ -142,7 +142,7 @@ class UserController extends AbstractCrudController {
 			throw new NotFound();
 		}
 
-		$user->setAttributes(App::request()->payload['data']['attributes']);
+		$user->setAttributes(App::request()->payload['data']);
 		
 		if ($this->isModified('password')) {
 			

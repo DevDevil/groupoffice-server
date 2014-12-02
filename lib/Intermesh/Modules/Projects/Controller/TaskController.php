@@ -126,7 +126,7 @@ class TaskController extends AbstractCrudController{
 		}
 
 		$task = new Task();
-		$task->setAttributes(App::request()->payload['data']['attributes']);
+		$task->setAttributes(App::request()->payload['data']);
 		$task->save();
 		
 
@@ -165,7 +165,7 @@ class TaskController extends AbstractCrudController{
 			throw new Forbidden();
 		}
 
-		$task->setAttributes(App::request()->payload['data']['attributes']);
+		$task->setAttributes(App::request()->payload['data']);
 		$task->save();
 		
 		return $this->renderModel($task, $returnAttributes);

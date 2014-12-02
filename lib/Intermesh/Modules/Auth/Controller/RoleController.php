@@ -112,7 +112,7 @@ class RoleController extends AbstractCrudController {
 	public function actionCreate($returnAttributes = []) {
 
 		$role = new Role();
-		$role->setAttributes(App::request()->payload['data']['attributes']);
+		$role->setAttributes(App::request()->payload['data']);
 		$role->save();
 
 		return $this->renderModel($role, $returnAttributes);
@@ -141,7 +141,7 @@ class RoleController extends AbstractCrudController {
 			throw new NotFound();
 		}
 
-		$role->setAttributes(App::request()->payload['data']['attributes']);
+		$role->setAttributes(App::request()->payload['data']);
 		$role->save();
 
 		return $this->renderModel($role, $returnAttributes);

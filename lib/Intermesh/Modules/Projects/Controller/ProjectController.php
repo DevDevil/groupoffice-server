@@ -126,7 +126,7 @@ class ProjectController extends AbstractCrudController{
 		}
 
 		$project = new Project();
-		$project->setAttributes(App::request()->payload['data']['attributes']);
+		$project->setAttributes(App::request()->payload['data']);
 		$project->save();
 		
 
@@ -165,7 +165,7 @@ class ProjectController extends AbstractCrudController{
 			throw new Forbidden();
 		}
 
-		$project->setAttributes(App::request()->payload['data']['attributes']);
+		$project->setAttributes(App::request()->payload['data']);
 		$project->save();
 		
 		return $this->renderModel($project, $returnAttributes);

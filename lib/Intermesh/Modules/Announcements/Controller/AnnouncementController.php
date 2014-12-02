@@ -78,7 +78,7 @@ class AnnouncementController extends AbstractCrudController {
 	public function actionCreate($returnAttributes = []) {
 
 		$announcement = new Announcement();
-		$announcement->setAttributes(App::request()->payload['data']['attributes']);
+		$announcement->setAttributes(App::request()->payload['data']);
 		$announcement->save();		
 
 		return $this->renderModel($announcement, $returnAttributes);
@@ -131,7 +131,7 @@ class AnnouncementController extends AbstractCrudController {
 			throw new NotFound();
 		}
 	
-		$announcement->setAttributes(App::request()->payload['data']['attributes']);
+		$announcement->setAttributes(App::request()->payload['data']);
 		$announcement->save();
 		
 		return $this->renderModel($announcement, $returnAttributes);
