@@ -29,7 +29,7 @@ class ImapMailboxController extends AbstractCrudController{
 		
 		$response['results'] = [];
 		
-		$mailboxes = $account->getRootMailbox()->getChildren();
+		$mailboxes = $account->rootMailbox()->getChildren();
 		
 		while($mailbox = array_shift($mailboxes)){
 			$response['results'][] = $mailbox->toArray();

@@ -76,7 +76,7 @@ class MessageController extends AbstractCrudController {
 			throw new NotFound();
 		}
 
-		$mailbox = Mailbox::findByName($account->getConnection(), base64_decode($mailboxName));
+		$mailbox = Mailbox::findByName($account->connect(), base64_decode($mailboxName));
 
 		$message = $mailbox->getMessage($uid, false, $this->_returnAttributesToImapProps($returnAttributes));
 

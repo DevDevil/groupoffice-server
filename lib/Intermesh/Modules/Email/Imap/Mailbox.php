@@ -122,6 +122,7 @@ class Mailbox extends AbstractModel {
 	}
 	
 	public function __toString() {
+		
 		return $this->name;
 	}
 	

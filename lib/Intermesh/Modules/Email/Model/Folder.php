@@ -44,7 +44,7 @@ class Folder extends AbstractRecord {
 	 * 
 	 * @return Mailbox
 	 */
-	public function getImapMailbox(){
+	public function imapMailbox(){
 		if(!isset($this->imapMailbox)){
 			$this->imapMailbox = $this->account->findMailbox($this->name);
 		}
@@ -80,7 +80,7 @@ class Folder extends AbstractRecord {
 		
 		$nextUid = $highestSyncedUid + 1;
 		
-		$nextUids = $this->getImapMailbox()->search("UID ".$nextUid.':*');
+		$nextUids = $this->imapMailbox()->search("UID ".$nextUid.':*');
 		
 		//uid search always returns the latest UID
 		if(empty($nextUids) || (count($nextUids) == 1 && $nextUids[0] == $highestSyncedUid)){
@@ -108,10 +108,10 @@ class Folder extends AbstractRecord {
 	 * 
 	 * @return Message[]
 	 */
-	public function getMessagesToSync(){
+	public function messagesToSync(){
 		$uids = $this->getUidsToSync();		
 
-		return $this->getImapMailbox()->getMessagesUnsorted($uids);
+		return $this->imapMailbox()->getMessagesUnsorted($uids);
 	}
 	
 	/**
@@ -119,7 +119,7 @@ class Folder extends AbstractRecord {
 	 * 
 	 * @return array
 	 */
-	public function getAllUidsFromDb(){
+	public function allUidsFromDb(){
 		return $this->messages(Query::newInstance()->select('imapUid')->setFetchMode(\PDO::FETCH_COLUMN, 0))->all();
 	}
 	

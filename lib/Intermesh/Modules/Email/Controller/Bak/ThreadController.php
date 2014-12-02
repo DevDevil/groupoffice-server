@@ -44,7 +44,7 @@ class ThreadController extends AbstractCrudController {
 			throw new NotFound();
 		}
 
-		$mailbox = Mailbox::findByName($account->getConnection(), 'virtual/'.$mailboxName);
+		$mailbox = Mailbox::findByName($account->connect(), 'virtual/'.$mailboxName);
 		
 		foreach($uids as $uid){
 

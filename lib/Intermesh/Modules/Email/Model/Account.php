@@ -51,7 +51,7 @@ class Account extends AbstractRecord {
 	 * 
 	 * @return Connection
 	 */
-	public function getConnection() {
+	public function connect() {
 
 		if (!isset(self::$_connection[$this->host . ':' . $this->username])) {
 			self::$_connection[$this->host . ':' . $this->username] = new Connection(
@@ -70,10 +70,10 @@ class Account extends AbstractRecord {
 	 * 
 	 * @return Mailbox
 	 */
-	public function getRootMailbox() {
+	public function rootMailbox() {
 
 		if (!isset($this->_rootMailbox)) {
-			$this->_rootMailbox = new Mailbox($this->getConnection());
+			$this->_rootMailbox = new Mailbox($this->connect());
 		}
 		return $this->_rootMailbox;
 	}
@@ -87,7 +87,7 @@ class Account extends AbstractRecord {
 	 * @return Mailbox|boolean
 	 */
 	public function findMailbox($mailboxName, $reference = "") {
-		return Mailbox::findByName($this->getConnection(), $mailboxName, $reference);
+		return Mailbox::findByName($this->connect(), $mailboxName, $reference);
 	}
 
 	/**
@@ -97,7 +97,7 @@ class Account extends AbstractRecord {
 	private function _syncMailboxes() {
 
 		$folders = [];
-		$mailboxes = $this->getRootMailbox()->getChildren();
+		$mailboxes = $this->rootMailbox()->getChildren();
 		foreach ($mailboxes as $mailbox) {
 			$folder = Folder::find(['name' => $mailbox->name, 'accountId' => $this->id])->single();
 
@@ -194,11 +194,11 @@ class Account extends AbstractRecord {
 
 		foreach ($folders as $folder) {
 
-			if (!$folder->getImapMailbox()) {
+			if (!$folder->imapMailbox()) {
 				continue;
 			}			
 
-			$messages = $folder->getMessagesToSync();
+			$messages = $folder->messagesToSync();
 
 			App::debugger()->debugTiming(count($messages) . " messages fetched");
 
@@ -243,12 +243,12 @@ class Account extends AbstractRecord {
 	private function _syncDelete(array $folders) {
 
 		foreach ($folders as $folder) {
-			if (!$folder->getImapMailbox()) {
+			if (!$folder->imapMailbox()) {
 				continue;
 			}
 
-			$dbUids = $folder->getAllUidsFromDb();
-			$imapUids = $folder->getImapMailbox()->search();
+			$dbUids = $folder->allUidsFromDb();
+			$imapUids = $folder->imapMailbox()->search();
 
 			$diff = array_diff($dbUids, $imapUids);
 
@@ -275,11 +275,11 @@ class Account extends AbstractRecord {
 	private function _syncUpdate(array $folders) {
 		foreach ($folders as $folder) {
 
-			if (!$folder->getImapMailbox()) {
+			if (!$folder->imapMailbox()) {
 				continue;
 			}
 
-			$messages = $folder->getImapMailbox()->getMessagesUnsorted('1:*', ['FLAGS', 'MESSAGE-ID'], $folder->highestModSeq);
+			$messages = $folder->imapMailbox()->getMessagesUnsorted('1:*', ['FLAGS', 'MESSAGE-ID'], $folder->highestModSeq);
 
 			foreach ($messages as $imapMessage) {
 				$message = Message::find(['messageId' => $imapMessage->messageId])->single();
@@ -299,7 +299,7 @@ class Account extends AbstractRecord {
 			}
 
 			//update highest mod sequence
-			$folder->highestModSeq = $folder->getImapMailbox()->getHighestModSeq();
+			$folder->highestModSeq = $folder->imapMailbox()->getHighestModSeq();
 			$folder->save();
 		}
 		

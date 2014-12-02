@@ -31,7 +31,7 @@ class AttachmentController extends AbstractCrudController {
 			throw new NotFound();
 		}
 
-		$mailbox = Mailbox::findByName($account->getConnection(), $mailboxName);
+		$mailbox = Mailbox::findByName($account->connect(), $mailboxName);
 
 		$message = $mailbox->getMessage($uid);
 		

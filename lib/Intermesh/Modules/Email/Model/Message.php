@@ -52,6 +52,13 @@ class Message extends AbstractRecord {
 	
 	private $_inlineAttachments;
 	
+	/**
+	 * Save changes to IMAP too
+	 * 
+	 * @var boolean 
+	 */
+	public $saveToImap = true;
+	
 	protected static function defineRelations(RelationFactory $r) {
 		return [
 //			$r->hasMany('timelineItems', Item::className(), 'imapMessageId', 'threadId'),
@@ -297,6 +304,8 @@ class Message extends AbstractRecord {
 	 * @param ImapMessage $imapMessage
 	 */
 	public function updateFromImapMessage(ImapMessage $imapMessage){
+		
+		$this->saveToImap = false;
 
 		$this->imapUid = $imapMessage->uid;
 		$this->answered = $imapMessage->getAnswered();
@@ -322,12 +331,12 @@ class Message extends AbstractRecord {
 		}
 		
 		if(!empty($setFlags)){
-			if(!$this->folder->getImapMailbox()->setFlags($this->imapUid, $setFlags)){
+			if(!$this->folder->imapMailbox()->setFlags($this->imapUid, $setFlags)){
 				throw new \Exception("Could not set flags on IMAP server");
 			}
 		}
 		if(!empty($clearFlags)){
-			if(!$this->folder->getImapMailbox()->setFlags($this->imapUid, $clearFlags, true)){
+			if(!$this->folder->imapMailbox()->setFlags($this->imapUid, $clearFlags, true)){
 				throw new \Exception("Could not clear flags on IMAP server");
 			}
 		}
@@ -335,15 +344,16 @@ class Message extends AbstractRecord {
 	
 	public function save() {
 		
-	
-		$this->_saveFlags();
+		if($this->saveToImap){
+			$this->_saveFlags();
+		}
 		
 		return parent::save();
 	}
 	
 	public function delete(){
 		
-		if(!$this->folder->getImapMailbox()->setFlags($this->imapUid, ['\\Deleted'])){
+		if(!$this->folder->imapMailbox()->setFlags($this->imapUid, ['\\Deleted'])){
 			throw new \Exception("Could not set flags on IMAP server");
 		}
 		
@@ -398,6 +408,7 @@ class Message extends AbstractRecord {
 	 */
 	public function setFromImapMessage(ImapMessage $imapMessage){
 		
+		$this->saveToImap = false;
 		
 		$this->date = $imapMessage->date;
 		$this->subject = $imapMessage->subject;
