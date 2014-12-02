@@ -6,7 +6,7 @@ use DateTime;
 use Exception;
 use Intermesh\Core\App;
 use Intermesh\Core\Db\Column;
-use Intermesh\Core\Model;
+use Intermesh\Core\AbstractModel;
 use Intermesh\Core\Util\String;
 use Intermesh\Modules\Email\Util\Recipient;
 use Intermesh\Modules\Email\Util\RecipientList;
@@ -21,7 +21,7 @@ use Intermesh\Modules\Email\Util\RecipientList;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Message extends Model {
+class Message extends AbstractModel {
 
 	const XPRIORITY_HIGH = 1;
 	const XPRIORITY_NORMAL = 3;
@@ -735,12 +735,6 @@ class Message extends Model {
 	 */
 	public function getSeen() {
 		return in_array('\Seen', $this->flags);
-	}
-	
-	
-	
-	public function toArray(array $attributes = ['*', 'attachments']) {
-		return parent::toArray($attributes);
 	}
 
 }

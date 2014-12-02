@@ -3,7 +3,7 @@
 namespace Intermesh\Core\Validate;
 
 use Intermesh\Core\AbstractObject;
-use Intermesh\Core\Model;
+use Intermesh\Core\AbstractModel;
 
 /**
  * Abstract validator for the ActiveRecord class
@@ -71,9 +71,9 @@ abstract class AbstractValidationRule extends AbstractObject{
 	/**
 	 * Validate this rule on a model
 	 * 
-	 * @param Model $model The model to apply the rule on.
+	 * @param AbstractModel $model The model to apply the rule on.
 	 * @return bool
 	 */
-	abstract public function validate(Model $model);
+	abstract public function validate(AbstractModel $model);
 	
 }

@@ -1,7 +1,7 @@
 <?php
 namespace Intermesh\Core\Validate;
 
-use Intermesh\Core\Model;
+use Intermesh\Core\AbstractModel;
 
 /**
  * Validates an email attribute of the ActiveRecord
@@ -32,7 +32,7 @@ class ValidateEmail extends AbstractValidationRule {
 	
 	private static $_regex = "/^[a-z0-9\._\-+\&]+@[a-z0-9\.\-_]+\.[a-z]{2,6}$/i";
 	
-	public function validate(Model $model) {
+	public function validate(AbstractModel $model) {
 		if(self::check($model->{$this->getId()})){
 			return true;
 		}else

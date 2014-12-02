@@ -3,7 +3,7 @@
 namespace Intermesh\Modules\Email\Imap;
 
 use Exception;
-use Intermesh\Core\Model;
+use Intermesh\Core\AbstractModel;
 
 /**
  * Mailbox object
@@ -44,7 +44,7 @@ use Intermesh\Core\Model;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Mailbox extends Model {
+class Mailbox extends AbstractModel {
 	
 	/**
 	 *
@@ -174,13 +174,16 @@ class Mailbox extends Model {
 	public static function createFromImapListResponse(Connection $connection, $responseLine){
 		
 		//eg. "* LIST (\HasNoChildren) "/" Trash"
+		// * LSUB () "." "Ongewenste e-mail"
 		
-		$lineParts = explode(' ', $responseLine);
+		$lineParts = str_getcsv($responseLine,' ', '"');
+		
+//		var_dump($lineParts);
 		
 		$mailbox = new Mailbox($connection);
-
-		$mailbox->name = trim(array_pop($lineParts),' "');
-		$mailbox->delimiter = trim(array_pop($lineParts),'"\'');
+		
+		$mailbox->name = array_pop($lineParts);
+		$mailbox->delimiter = array_pop($lineParts);
 		
 		while($part = array_pop($lineParts)) {			
 			
@@ -715,10 +718,8 @@ class Mailbox extends Model {
 	 */
 	public function getMessage($uid, $noFetchProps = false, array $returnAttributes = []){		
 		$uid = (int) $uid;
-		
-		if(!$this->selected) {
-			$this->select();
-		}
+				
+		$this->select();		
 		
 		if(!$noFetchProps) {
 			$responses = $this->getMessageHeaders($uid, $returnAttributes);
@@ -744,6 +745,10 @@ class Mailbox extends Model {
 	 * @return boolean
 	 */
 	public function select(){
+		if($this->selected) {
+			return true;
+		}
+		
 		
 		$command = 'SELECT "'.Utils::escape(Utils::utf7Encode($this->name)).'"';
 		
@@ -776,10 +781,7 @@ class Mailbox extends Model {
 					//"* OK [UNSEEN 13338] First unseen."
 					$this->_highestModSeq = (int) $matches[1];
 				}
-
-			}		
-
-		
+			}	
 		
 			$this->connection->selectedMailbox = $this->name;
 		}
@@ -1016,5 +1018,56 @@ class Mailbox extends Model {
 	
 	public function toArray(array $attributes = array('name','delimiter','flags', 'unseencount', 'messagescount', 'uidnext')) {
 		return parent::toArray($attributes);
+	}
+	
+	
+	/**
+	 * Set or clear flags for an UID range. 
+	 * 
+	 * Flags can be:
+	 *
+	 * \Seen
+	 * \Answered
+	 * \Flagged
+	 * \Deleted
+	 * $Forwarded
+	 * other custom flags
+	 *
+	 * @param string $uidSequence
+	 * @param array $flags
+	 * @param boolean $clear
+	 * @return boolean
+	 */
+	public function setFlags($uidSequence, array $flags, $clear = false) {
+		
+		$this->select();
+		
+		if(is_array($uidSequence)){		
+			$uidSequence = implode(',', $uidSequence);	
+		}
+		
+		$sign = $clear ? '-' : '+';
+		
+		$command = "UID STORE ".$uidSequence." ".$sign."FLAGS.SILENT (";
+		
+		$command .= implode(' ', $flags);
+		
+		$command .= ")";
+		
+		$this->connection->sendCommand($command);
+		
+		return $this->connection->lastCommandSuccessful;
+	}
+	
+	/**
+	 * Expunge the mailbox
+	 * 
+	 * Will delete all messages in the mailbox with the \Deleted flag set.
+	 * 
+	 * @return boolean
+	 */
+	public function expunge(){
+		$this->connection->sendCommand("EXPUNGE");
+		return $this->connection->lastCommandSuccessful;
 	}
 }

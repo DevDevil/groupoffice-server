@@ -23,18 +23,18 @@ class ThreadController extends AbstractCrudController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($accountId, $orderColumn = 'date', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = ['id', 'threadId', 'threadFrom', 'subject','excerpt','date', 'seen','answered','hasAttachments','forwarded']) {
+	protected function actionStore($accountId, $folderId, $orderColumn = 'date', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = ['id', 'threadId', 'threadFrom', 'subject','excerpt','date', 'seen','answered','hasAttachments','forwarded']) {
 
-		$folder = Folder::find(['accountId' => $accountId, 'name' => 'INBOX'])->single();
+//		$folder = Folder::find(['accountId' => $accountId, 'name' => 'INBOX'])->single();
 		
 		$accounts = Message::find(Query::newInstance()
 								->orderBy([$orderColumn => $orderDirection])
 								->limit($limit)
 								->offset($offset)
 								->search($searchQuery, array('t.subject', 't._body'))								
-								->where(['folderId'=>$folder->id])
+								->where(['folderId'=>$folderId])
 								->joinRaw('INNER JOIN (SELECT threadId, MAX(`date`) maxDate FROM emailMessage WHERE folderId=:folderId GROUP BY threadId) m ON t.threadId=m.threadId AND t.`date` = m.maxDate')
-								->addBindParameter(':folderId', $folder->id)
+								->addBindParameter(':folderId', $folderId)
 								->groupBy(['threadId'])
 		);
 

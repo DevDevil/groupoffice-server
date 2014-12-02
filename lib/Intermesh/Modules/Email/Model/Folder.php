@@ -38,6 +38,7 @@ class Folder extends AbstractRecord {
 		];
 	}
 	
+	
 	/**
 	 * Get the IMAP mailbox
 	 * 
@@ -51,18 +52,27 @@ class Folder extends AbstractRecord {
 		return $this->imapMailbox;
 	}
 	
+	/**
+	 * Get the highest UID present in the database
+	 * 
+	 * @return int
+	 */
 	public function getHighestSyncedUid(){
 		$result = $this->messages(Query::newInstance()->select('max(imapUid) AS highestSyncedUid'))->single();
 		
 		return (int) $result->highestSyncedUid;	
 	}
 	
-	
+	/**
+	 * 
+	 * 
+	 * @return int
+	 */
 	public function getMessagesCount(){
-		$result = $this->messages(Query::newInstance()->select('count(*) AS count'))->single();
-		
-		return (int) $result->count;		
+		return (int) $this->messages(Query::newInstance()->select('count(*) AS count')->setFetchMode(\PDO::FETCH_COLUMN, 0))->single();		
 	}
+	
+	public $syncComplete = false;
 	
 	private function getUidsToSync(){
 
@@ -72,22 +82,26 @@ class Folder extends AbstractRecord {
 		
 		$nextUids = $this->getImapMailbox()->search("UID ".$nextUid.':*');
 		
-		if(!$nextUids){
-			return [];
-		}
-		
 		//uid search always returns the latest UID
-		if(count($nextUids) == 1 && $nextUids[0] == $highestSyncedUid){
+		if(empty($nextUids) || (count($nextUids) == 1 && $nextUids[0] == $highestSyncedUid)){
+			$this->syncComplete = true;
 			return [];
 		}
 		
-		$slice = array_slice($nextUids, 0, self::$maxSyncMessages);
+//		sort($nextUids);
 		
-		App::debug($this->name.': '.$highestSyncedUid, 'imapsync');
+		if(count($nextUids) > self::$maxSyncMessages){
 		
-		App::debug($slice, 'imapsync');
+			$slice = array_slice($nextUids, 0, self::$maxSyncMessages);
+
+			return $slice;
+			
+		}  else {
+			$this->syncComplete = true;
+			
+			return $nextUids;
+		}		
 		
-		return $slice;
 	}
 	
 	/**
@@ -95,12 +109,22 @@ class Folder extends AbstractRecord {
 	 * @return Message[]
 	 */
 	public function getMessagesToSync(){
-		$uids = $this->getUidsToSync();
-		
+		$uids = $this->getUidsToSync();		
 
 		return $this->getImapMailbox()->getMessagesUnsorted($uids);
-
 	}
+	
+	/**
+	 * Get all IMAP UID's in the database
+	 * 
+	 * @return array
+	 */
+	public function getAllUidsFromDb(){
+		return $this->messages(Query::newInstance()->select('imapUid')->setFetchMode(\PDO::FETCH_COLUMN, 0))->all();
+	}
+	
+	
+	
 	
 	
 }

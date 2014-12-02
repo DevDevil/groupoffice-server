@@ -354,12 +354,12 @@ class Connection {
 				//check for literal {<SIZE>}
 				$trimmedData = trim($data);
 
-				if(substr($trimmedData,-1,1) == '}' && ($startpos = strrpos($trimmedData, ' {'))){			
+				if(substr($trimmedData,-1,1) == '}' && ($startpos = strrpos($trimmedData, '] {'))){			
 					$response[] = trim($data);
 					
 					$data = "";
 					
-					$size = substr($trimmedData, $startpos+2, -1);						
+					$size = substr($trimmedData, $startpos + 3, -1);						
 					$response[] = $this->getLiteralDataResponse($size, $streamer);
 				}
 			}

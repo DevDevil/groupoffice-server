@@ -3,7 +3,7 @@
 namespace Intermesh\Core\Validate;
 
 use Intermesh\Core\Db\Query;
-use Intermesh\Core\Model;
+use Intermesh\Core\AbstractModel;
 
 /**
  * Checks if the attribute is unique. Can also validate it in combination with other columns
@@ -46,7 +46,7 @@ class ValidateUnique extends AbstractValidationRule {
 		$this->_relatedColumns = $relatedColumns;
 	}
 
-	public function validate(Model $model) {
+	public function validate(AbstractModel $model) {
 		$relatedColumns = $this->_relatedColumns;
 
 		if(!in_array($this->getId(), $relatedColumns)){

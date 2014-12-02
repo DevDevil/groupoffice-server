@@ -1,7 +1,7 @@
 <?php
 namespace Intermesh\Core\Validate;
 
-use Intermesh\Core\Model;
+use Intermesh\Core\AbstractModel;
 
 /**
  * Validates a password attribute of the ActiveRecord
@@ -91,7 +91,7 @@ class ValidatePassword extends AbstractValidationRule {
 		$this->confirmAttribute=$confirmAttribute;
 	}
 	
-	public function validate(Model $model) {
+	public function validate(AbstractModel $model) {
 		
 		//Don't validate if not modified
 		if(!$model->isModified($this->getId())){

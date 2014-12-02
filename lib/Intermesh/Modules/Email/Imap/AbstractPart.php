@@ -2,7 +2,7 @@
 
 namespace Intermesh\Modules\Email\Imap;
 
-use Intermesh\Core\Model;
+use Intermesh\Core\AbstractModel;
 
 /**
  * AbstractPart class
@@ -13,7 +13,7 @@ use Intermesh\Core\Model;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-abstract class AbstractPart extends Model {
+abstract class AbstractPart extends AbstractModel {
 
 	/**
 	 * IMAP part number.
@@ -137,6 +137,10 @@ abstract class AbstractPart extends Model {
 
 		$conn->sendCommand($command);
 		$response = $conn->getResponse($streamer);
+		
+		if(!$conn->lastCommandSuccessful){
+			throw new Exception("Could not fetch data: ".$conn->lastCommandStatus);
+		}
 		
 		return $response[0][1];		
 	}

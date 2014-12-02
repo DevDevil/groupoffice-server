@@ -143,7 +143,7 @@ class Finder extends AbstractObject implements IteratorAggregate {
 	private function _executeSql($sql) {
 		try {
                     
-                        $binds = [];
+			$binds = [];
                         
 			$stmt = App::dbConnection()->getPDO()->prepare($sql);
 			
@@ -175,7 +175,12 @@ class Finder extends AbstractObject implements IteratorAggregate {
 			throw new Exception($msg);
 		}
 		
-		$stmt->setFetchMode(PDO::FETCH_CLASS, $this->recordClassName, array(false));
+		if(!isset($this->_query->fetchMode)){
+			$stmt->setFetchMode(PDO::FETCH_CLASS, $this->recordClassName, array(false));
+		}else
+		{
+			call_user_func_array([$stmt, 'setFetchMode'], $this->_query->fetchMode);
+		}
 		
 		return $stmt;
 	}

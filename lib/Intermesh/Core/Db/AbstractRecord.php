@@ -5,7 +5,7 @@ namespace Intermesh\Core\Db;
 use Exception;
 use Intermesh\Core\App;
 use Intermesh\Core\Db\Exception\DeleteRestrict;
-use Intermesh\Core\Model;
+use Intermesh\Core\AbstractModel;
 use Intermesh\Core\Util\String;
 use Intermesh\Core\Validate\AbstractValidationRule;
 use Intermesh\Core\Validate\ValidateUnique;
@@ -140,7 +140,7 @@ use Intermesh\Modules\Auth\Model\User;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-abstract class AbstractRecord extends Model {
+abstract class AbstractRecord extends AbstractModel {
 	
 	/**
 	 * When this is set to true the model will be deleted on save.
@@ -613,7 +613,7 @@ abstract class AbstractRecord extends Model {
 	 * Check is this model or model attribute name has modifications not saved to
 	 * the database yet.
 	 *
-	 * @param string/array $attributeName
+	 * @param string/array $attributeName If you pass an array then they are all checked
 	 * @return boolean
 	 */
 	public function isModified($attributeName = false) {
@@ -1418,9 +1418,9 @@ abstract class AbstractRecord extends Model {
 		$partCount = count($parts);
 		foreach($parts as $part) {	
 //			echo $part."\n-";
-			if(!isset($return['attributes'])){
-				$return['attributes'] = [];
-			}
+//			if(!isset($return['attributes'])){
+//				$return['attributes'] = [];
+//			}
 			
 			$level++;
 			
@@ -1433,26 +1433,20 @@ abstract class AbstractRecord extends Model {
 				if(!$model){
 					
 					//relation doesn't exist so we can't go further.
-					$return['attributes'][$part] = false;
+					$return[$part] = false;
 					break;
 				}
-				
-//				if(!is_a($model,"\Intermesh\Core\Db\AbstractRecord")){
-//					throw new Exception("Invalid attributes specification '$path' in model '".$this->className().'" '.var_export($model, true));
-//				}
 					
-				if(!isset($return['attributes'][$part])){
-					$return['attributes'][$part] = [];
+				if(!isset($return[$part])){
+					$return[$part] = [];
 				}
 			}else
-			{
-				
-				
+			{				
 				$this->_getLastAttributePart($model, $part, $return);
 			}			
 			
 			if(!$isLastPart){				
-				$return = &$return['attributes'][$part];				
+				$return = &$return[$part];				
 			}			
 		}
 	}
@@ -1484,7 +1478,7 @@ abstract class AbstractRecord extends Model {
 	private function _getLastAttributePart(AbstractRecord $model, $part, &$return){		
 		
 		if($part === '*'){
-			$return['attributes'] = array_merge($return['attributes'], $model->getAttributes());
+			$return = array_merge($return, $model->getAttributes());
 		}else
 		{
 			$attributes = $this->_extractAttributesFromLastPart($part);
@@ -1496,11 +1490,11 @@ abstract class AbstractRecord extends Model {
 			if($attr instanceof AbstractRecord || $attr instanceof Finder || (is_array($attr) && isset($attr[0]) && $attr[0] instanceof AbstractRecord)){
 				
 				//attributes and relation part				
-				$return['attributes'][$part] = $this->_relationToAttributeArray($attr, $attributes);			
+				$return[$part] = $this->_relationToAttributeArray($attr, $attributes);			
 			}else
 			{
 				//just plain single attribute
-				$return['attributes'][$part] = $attr;
+				$return[$part] = $attr;
 			}
 		}
 	}
@@ -1523,20 +1517,12 @@ abstract class AbstractRecord extends Model {
 		{			
 			$return = [];
 			
-			foreach ($relation as $index => $relatedModel) {
+			foreach ($relation as $index => $relatedModel) {				
 				
-//				if(!method_exists($relatedModel, 'toArray')){
-//					var_dump($this);
-//					
-//					throw new \Exception('here');
-//				}
-				
-				if(is_array($relatedModel)){
-					
+				if(is_array($relatedModel)){					
 					//Can be an array when a relation was set with the JSON API and the save failed.
-					//In that case we just pass it back.
-					
-					$return[$index] = ['attributes' => $relatedModel];
+					//In that case we just pass it back.					
+					$return[$index] = $relatedModel;
 				}else{
 				
 					$return[$index] = isset($attributes) ? $relatedModel->toArray($attributes) : $relatedModel->toArray();		
@@ -1549,19 +1535,16 @@ abstract class AbstractRecord extends Model {
 	
 	/**
 	 * By default all fields except the ones that start with an underscore are returned.
+	 * 
 	 * @return array
 	 */
-	protected function getDefaultReturnAttributes(){
-		$names = array_keys($this->_attributes);
+	protected function defaultReturnAttributes(){
+		$arr = array_filter(array_keys($this->_attributes), function($v){
+			//filter out private db attributes that start with underscore
+			return substr($v, 0, 1) != '_';
+		});		
 		
-		$arr = [];
-		foreach($names as $name){
-			if(substr($name, 0, 1) != '_'){
-				$arr[]=$name;
-			}
-		}
-		
-		return $arr;
+		return array_merge($arr, parent::defaultReturnAttributes());
 	}
 	
 
@@ -1590,7 +1573,7 @@ abstract class AbstractRecord extends Model {
 	public function getAttributes(array $returnAttributes = []) {		
 		
 		if (empty($returnAttributes)) {
-			$returnAttributes = $this->getDefaultReturnAttributes();
+			$returnAttributes = $this->defaultReturnAttributes();
 		}
 
 		$return = [];
@@ -1599,7 +1582,7 @@ abstract class AbstractRecord extends Model {
 			$this->_resolveAttribute($colName, $return);						
 		}
 		
-		return $return['attributes'];
+		return $return;
 	}
 	
 	
@@ -1643,14 +1626,12 @@ abstract class AbstractRecord extends Model {
 	 * When the API returns this model to the client in JSON format it uses 
 	 * this function to convert it into an array. 
 	 * 
-	 * @param array $returnAttributes The attributes that will be returned. Note that the primary key will always be returned.
+	 * @param array $returnAttributes The attributes that will be returned. Note that the primary key and className will always be returned.
 	 * @return array
 	 */
 	public function toArray(array $returnAttributes = []){
 		
-		$array =  [
-			'attributes' => $this->getAttributes($returnAttributes)
-		];
+		$array =  $this->getAttributes($returnAttributes);
 		
 		//check if primary key is present. And if not then add it.
 		$pks = $this->primaryKeyColumn();
@@ -1660,20 +1641,24 @@ abstract class AbstractRecord extends Model {
 		}
 		
 		foreach($pks as $pk){
-			if(!in_array($pk, $array['attributes'])){
-				$array['attributes'][$pk] = $this->$pk;
+			if(!in_array($pk, $array)){
+				$array[$pk] = $this->$pk;
 			}
-		}		
+		}
+		
+		if(!isset($array['className'])) {
+			$array['className'] = $this->className;
+		}
 		
 		if(isset($this->ownerUserId)){
 			$array['isOwner'] = User::current()->id === $this->ownerUserId;
 		}
 		
-		$array['success'] = !$this->hasValidationErrors();
+//		$array['success'] = !$this->hasValidationErrors();
 
-		if(!$array['success']){
-			$array['validationErrors'] = $this->getValidationErrors();
-		}
+//		if(!$array['success']){
+//			$array['validationErrors'] = $this->getValidationErrors();
+//		}
 		
 		return $array;
 	}
@@ -1691,6 +1676,6 @@ abstract class AbstractRecord extends Model {
 	
 	
 	public function getETag(){
-		return $this->modifiedAt;
+		return isset($this->modifiedAt) ? $this->modifiedAt : null;
 	}
 }

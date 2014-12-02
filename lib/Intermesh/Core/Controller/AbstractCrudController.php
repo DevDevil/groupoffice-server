@@ -72,8 +72,8 @@ abstract class AbstractCrudController extends AbstractRESTController{
 	 */
 	public function httpPost() {
 		
-		if(!isset(App::request()->payload['data']['attributes'])){
-			throw new HttpException(400, 'Missing data.attributes in payload');
+		if(!isset(App::request()->payload['data'])){
+			throw new HttpException(400, 'Missing data in payload');
 		}
 
 		return $this->callMethodWithParams('actionCreate');
@@ -96,8 +96,8 @@ abstract class AbstractCrudController extends AbstractRESTController{
 	 */
 	public function httpPut() {
 
-		if(!isset(App::request()->payload['data']['attributes'])){
-			throw new HttpException(400, 'Missing data.attributes in payload');
+		if(!isset(App::request()->payload['data'])){
+			throw new HttpException(400, 'Missing data in payload');
 		}
 
 		return $this->callMethodWithParams('actionUpdate');

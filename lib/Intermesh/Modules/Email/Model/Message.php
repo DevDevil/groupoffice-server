@@ -36,7 +36,7 @@ use Intermesh\Modules\Timeline\Model\Item;
  * @property string $contentType
  * @property string $messageId
  * @property int $imapUid
- * @property Folder $folder;
+ * @property Folder $folder
  *
  * 
  * @property Item[] $timelineItems
@@ -302,6 +302,52 @@ class Message extends AbstractRecord {
 		$this->answered = $imapMessage->getAnswered();
 		$this->forwarded = $imapMessage->getForwarded();
 		$this->seen = $imapMessage->getSeen();
+	}
+	
+	private function _saveFlags(){
+		
+		$flags = ['answered' => '\\Answered', 'forwarded' => '$Forwarded', 'seen' => '\\Seen', 'flagged' => '\\Flagged'];
+		
+		$clearFlags = [];
+		$setFlags = [];
+		foreach($flags as $flag => $imapFlag){
+			if($this->isModified($flag)){
+				if(!$this->$flag){
+					$clearFlags[] = $imapFlag;
+				}else
+				{
+					$setFlags[] = $imapFlag;
+				}
+			}
+		}
+		
+		if(!empty($setFlags)){
+			if(!$this->folder->getImapMailbox()->setFlags($this->imapUid, $setFlags)){
+				throw new \Exception("Could not set flags on IMAP server");
+			}
+		}
+		if(!empty($clearFlags)){
+			if(!$this->folder->getImapMailbox()->setFlags($this->imapUid, $clearFlags, true)){
+				throw new \Exception("Could not clear flags on IMAP server");
+			}
+		}
+	}
+	
+	public function save() {
+		
+	
+		$this->_saveFlags();
+		
+		return parent::save();
+	}
+	
+	public function delete(){
+		
+		if(!$this->folder->getImapMailbox()->setFlags($this->imapUid, ['\\Deleted'])){
+			throw new \Exception("Could not set flags on IMAP server");
+		}
+		
+		return parent::delete();
 	}
 	
 	/**

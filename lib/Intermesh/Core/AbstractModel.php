@@ -2,7 +2,8 @@
 
 namespace Intermesh\Core;
 
-use ReflectionClass;
+use Intermesh\Core\AbstractObject;
+use ReflectionMethod;
 use ReflectionProperty;
 
 /**
@@ -12,7 +13,7 @@ use ReflectionProperty;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-abstract class Model extends AbstractObject {
+abstract class AbstractModel extends AbstractObject implements ArrayConvertableInterface{
 
 	private $_validationErrors = [];
 
@@ -77,6 +78,38 @@ abstract class Model extends AbstractObject {
 			return isset($validationErrors[$key]);
 		}
 	}
+	
+	
+	/**
+	 * By default all fields except the ones that start with an underscore are returned.
+	 * 
+	 * @return array
+	 */
+	protected function defaultReturnAttributes(){
+				
+		$reflectionObject = new \ReflectionClass($this);
+		$methods = $reflectionObject->getMethods(ReflectionMethod::IS_PUBLIC);
+		
+		foreach($methods as $method){
+			/* @var $method ReflectionMethod */
+			
+			if(!$method->isStatic() && empty($method->getParameters())){
+				if(substr($method->getName(), 0,3) == 'get'){
+					$arr[] = lcfirst(substr($method->getName(),3));
+				}
+			}
+		}
+		
+		$props = $reflectionObject->getProperties(ReflectionProperty::IS_PUBLIC);
+		
+		foreach($props as $prop){
+			if(!$prop->isStatic()){
+				$arr[]=$prop->getName();
+			}
+		}
+		
+		return $arr;
+	}
 
 	/**
 	 * Convert this model to an array for JSON output
@@ -86,7 +119,7 @@ abstract class Model extends AbstractObject {
 	 */
 	public function toArray(array $attributes = []) {
 
-		$arr = ['attributes' => []];
+		$arr = [];
 
 		if (empty($attributes) || ($asteriskKey = array_search('*', $attributes)) !== false) {
 			
@@ -94,43 +127,41 @@ abstract class Model extends AbstractObject {
 				unset($attributes[$asteriskKey]);
 			}
 			
-			$reflection = new ReflectionClass($this);
-			
-			$props = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
-			foreach($props as $prop){
-				
-				if(!$prop->isStatic()){
-					$attributes[] = $prop->getName();					
-				}
-			}
+			$attributes = array_unique(array_merge($attributes, $this->defaultReturnAttributes()));
 		} 
 		
 		foreach ($attributes as $attribute) {
 
 			$value = $this->$attribute;
 
-			if(is_object($value) && method_exists($value, 'toArray')){
+			if($value instanceof ArrayConvertableInterface){
 				$value = $value->toArray();
 			}
 			
 			if(is_array($value)){
-				if(isset($value[0]) && is_object($value[0]) && method_exists($value[0], 'toArray')){
+				if(isset($value[0]) && $value[0] instanceof ArrayConvertableInterface){
 					
-					$arr['attributes'][$attribute] = [];
+					$arr[$attribute] = [];
 					
 					foreach($value as $v){
-						$arr['attributes'][$attribute][] = $v->toArray();
+						$arr[$attribute][] = $v->toArray();
 					}
 					
 					continue;
 				}
 			}			
-			$arr['attributes'][$attribute] = $value;
-			
-		}
-		
+			$arr[$attribute] = $value;			
+		}		
 
 		return $arr;
+	}
+	
+	/**
+	 * Getter for the class name
+	 * @return string
+	 */
+	public function getClassName(){
+		return get_class($this);
 	}
 
 }

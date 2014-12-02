@@ -120,10 +120,10 @@ class Attachment extends AbstractRecord {
 	}
 	
 	public function getUrl(){
-		return App::router()->buildUrl('email/accounts/'.$this->message->accountId.'/threads/'.$this->message->threadId.'/attachments/'.$this->id);
+		return App::router()->buildUrl('email/accounts/'.$this->message->accountId.'/folders/'.$this->message->folderId.'/threads/'.$this->message->threadId.'/attachments/'.$this->id);
 	}
 	
-	public function toArray(array $returnAttributes = ['*', 'url']) {
-		return parent::toArray($returnAttributes);
-	}
+//	public function toArray(array $returnAttributes = ['*', 'url']) {
+//		return parent::toArray($returnAttributes);
+//	}
 }

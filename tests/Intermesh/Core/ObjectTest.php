@@ -2,9 +2,9 @@
 
 namespace Intermesh\Core;
 
-use Intermesh\Core\Model;
+use Intermesh\Core\AbstractModel;
 
-class TestModel extends Model{
+class TestModel extends AbstractModel{
 
 	private $_test;
 

@@ -1,7 +1,7 @@
 <?php
 namespace Intermesh\Modules\Files\Model;
 
-use Intermesh\Core\Model;
+use Intermesh\Core\AbstractModel;
 
 interface FileSystemObjectInterface {
 	

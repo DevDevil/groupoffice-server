@@ -32,6 +32,38 @@ class Query extends Criteria {
 	public $joinRelations = [];
 	
 	public $joinAdvanced = [];
+	
+	public $fetchMode;
+	
+	
+	/**
+	 * Set the PDO fetch mode
+	 * 
+	 * By default the model is returned. But in some cases it might be better to
+	 * fetch it as an array.
+	 * 
+	 * The arg1 and arg2 param depends on the $mode argument. See the PHP documentation:
+	 * 
+	 * {@see http://php.net/manual/en/pdostatement.setfetchmode.php}
+	 * 
+	 * @param int $mode
+	 * @param mixed $arg1 
+	 * @param mixed $arg2
+	 * @return \Intermesh\Core\Db\Query
+	 */
+	public function setFetchMode($mode, $arg1 = null, $arg2 = null){
+		$this->fetchMode = [$mode];
+		
+		if(isset($arg1)){
+			$this->fetchMode[] = $arg1;
+			
+			if(isset($arg2)){
+				$this->fetchMode[] = $arg2;
+			}
+		}
+		
+		return $this;
+	}
 
 	/**
 	 * Set the Distinct select option

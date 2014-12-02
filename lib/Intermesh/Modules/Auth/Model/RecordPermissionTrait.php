@@ -243,13 +243,12 @@ trait RecordPermissionTrait {
 	/**
 	 * Get an array of all the permissions that a user has.
 	 * 
-	 * @param int $userId
 	 * @return array eg ['readAccess' => true, 'editAccess' => false, 'deleteAccess'=>false]
 	 */
-	public function getPermissions($userId=null){
-		if (!isset($userId)) {			
+	public function getPermissions(){
+//		if (!isset($userId)) {			
 			$userId = User::current()->id;
-		}
+//		}
 		if($this->getIsNew()){
 			return false;
 		}
@@ -301,7 +300,7 @@ trait RecordPermissionTrait {
 	 * 
 	 * @return bool
 	 */
-	public function currentUserCanManagePermissions(){
+	public function getCurrentUserCanManagePermissions(){
 		return isset($this->ownerUserId) ? $this->ownerUserId == User::current()->id : User::current()->id == 1;
 	}
 	
@@ -312,18 +311,18 @@ trait RecordPermissionTrait {
 	 * @param array $columns
 	 * @return array
 	 */
-	public function toArray(array $columns = array()){
-		
-		$record = parent::toArray($columns);
-		
-		if(User::current()){		
-			$record['permissions'] = $this->getPermissions();
-			$record['currentUserCanManagePermissions'] = $this->currentUserCanManagePermissions();
-		} else {
-			$record['permissions'] = false;
-			$record['currentUserCanManagePermissions'] = false;
-		}
-		
-		return $record;
-	}	
+//	public function toArray(array $columns = array()){
+//		
+//		$record = parent::toArray($columns);
+//		
+//		if(User::current()){		
+//			$record['permissions'] = $this->getPermissions();
+//			$record['currentUserCanManagePermissions'] = $this->currentUserCanManagePermissions();
+//		} else {
+//			$record['permissions'] = false;
+//			$record['currentUserCanManagePermissions'] = false;
+//		}
+//		
+//		return $record;
+//	}	
 }
