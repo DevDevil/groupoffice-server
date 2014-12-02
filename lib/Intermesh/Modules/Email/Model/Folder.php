@@ -74,7 +74,7 @@ class Folder extends AbstractRecord {
 	
 	public $syncComplete = false;
 	
-	private function getUidsToSync(){
+	private function uidsToSync(){
 
 		$highestSyncedUid = $this->getHighestSyncedUid();
 		
@@ -84,8 +84,18 @@ class Folder extends AbstractRecord {
 		
 		//uid search always returns the latest UID
 		if(empty($nextUids) || (count($nextUids) == 1 && $nextUids[0] == $highestSyncedUid)){
-			$this->syncComplete = true;
-			return [];
+			
+			
+			//do extra check on all uid's
+//			$dbUids = $this->allUidsFromDb();
+//			$imapUids = $this->imapMailbox()->search();
+//
+//			$nextUids = array_diff($dbUids, $imapUids);
+//			
+//			if(empty($nextUids)){
+				$this->syncComplete = true;
+				return [];
+//			}
 		}
 		
 //		sort($nextUids);
@@ -109,7 +119,7 @@ class Folder extends AbstractRecord {
 	 * @return Message[]
 	 */
 	public function messagesToSync(){
-		$uids = $this->getUidsToSync();		
+		$uids = $this->uidsToSync();		
 
 		return $this->imapMailbox()->getMessagesUnsorted($uids);
 	}

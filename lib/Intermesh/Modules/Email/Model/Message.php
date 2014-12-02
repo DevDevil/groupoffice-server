@@ -392,7 +392,7 @@ class Message extends AbstractRecord {
 			}else
 			{
 				$parts = explode(' ', $names);
-				$name = array_shift($parts);
+				$name = trim(array_shift($parts),',;');
 			}
 			
 			$str .= $name.', ';

@@ -105,28 +105,30 @@ class Account extends AbstractRecord {
 				$folder = new Folder();
 				$folder->accountId = $this->id;
 				$folder->name = $mailbox->name;
+				$folder->uidValidity = $mailbox->getUidValidity();
 			}
+			
 			if (!isset($folder->highestModSeq)) {
 				$folder->highestModSeq = $mailbox->getHighestModSeq();
 			}
-			if (!isset($folder->uidValidity)) {
-				$folder->uidValidity = $mailbox->getUidValidity();
-			} else {
-				if ($folder->uidValidity != $mailbox->getUidValidity()) {
-					//UID's not valid anymore! Set all uid's to null.					
-					App::dbConnection()->getPDO()->query('update emailMessage set imapUid=null, folderId=null where folderId=' . $folder->id);
+			if ($folder->uidValidity != $mailbox->getUidValidity()) {
+				//UID's not valid anymore! Set all uid's to null.					
+				App::dbConnection()->getPDO()->query('update emailMessage set imapUid=null, folderId=null, threadId=null where folderId=' . $folder->id);
 
-					App::debug('UID\'s not valid anymore for folder: ' . $folder->name, 'imapsync');
-				}
-
-				$folder->uidValidity = $mailbox->getUidValidity();
+				App::debug('UID\'s not valid anymore for folder: ' . $folder->name, 'imapsync');
 			}
+
+			$folder->uidValidity = $mailbox->getUidValidity();
+			
 
 			$folder->save();
 
 			$folders[] = $folder;
-
-			$this->syncResponse['imapCount'] += $mailbox->getMessagesCount();
+			$imapCount = $mailbox->getMessagesCount();
+			
+			$this->syncResponse['folders'][$folder->name]=['imapCount' => $imapCount, 'dbCount' => $folder->getMessagesCount()];
+			
+			$this->syncResponse['imapCount'] += $imapCount;
 		}
 		
 		foreach($this->folders as $folder){
@@ -140,13 +142,18 @@ class Account extends AbstractRecord {
 
 	public function resync() {
 
-		App::dbConnection()->getPDO()->query('delete from emailFolder where accountId=' . intval($this->id));
+//		App::dbConnection()->getPDO()->query('delete from emailFolder where accountId=' . intval($this->id));
 //		App::dbConnection()->getPDO()->query('delete from emailMessage where accountId='.intval($this->id));
-//		App::dbConnection()->getPDO()->query('update emailFolder set highestSyncedUid = null');
+		App::dbConnection()->getPDO()->query('update emailFolder set uidValidity = null where accountId='.$this->id);
 	}
 	
 	public function getMessagesCount(){
-		return (int) $this->messages(Query::newInstance()->select('count(*) AS count')->setFetchMode(\PDO::FETCH_COLUMN, 0))->single();		
+		return (int) $this->messages(
+				Query::newInstance()
+				->select('count(*) AS count')
+				->where(['!=', ['imapUid' => null]])
+				->setFetchMode(\PDO::FETCH_COLUMN, 0)
+				)->single();		
 	}
 	
 	private $syncResponse;
@@ -161,16 +168,19 @@ class Account extends AbstractRecord {
 
 		$this->syncStartTime = time();
 
-		$this->syncResponse = ['stage' => 'new', 'dbCount' => 0, 'imapCount' => 0];
+		$this->syncResponse = ['stage' => 'new', 'dbCount' => 0, 'imapCount' => 0, 'mailboxes' => []];
 
 		$folders = $this->_syncMailboxes();
 
 		App::debugger()->debugTiming("Mailboxes synced");
 
 		if($this->_syncGetNew($folders)){
+			$this->syncResponse['stage'] = 'update';
 			if($this->_syncUpdate($folders)){
+				$this->syncResponse['stage'] = 'delete';
 				if($this->_syncDelete($folders)){
 					App::debugger()->debugTiming("Start thread index");
+					$this->syncResponse['stage'] = 'thread';
 					$this->_updateThreads();
 					App::debugger()->debugTiming("End thread index");
 				}
@@ -264,6 +274,9 @@ class Account extends AbstractRecord {
 				}
 			}
 		}
+		
+		//Clean up old cache
+		App::dbConnection()->getPDO()->query('DELETE FROM emailMessage WHERE imapUid=null AND folderId=null AND accountId=' . $this->id);
 		
 		return true;
 	}
