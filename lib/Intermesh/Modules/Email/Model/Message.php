@@ -187,7 +187,7 @@ class Message extends AbstractRecord {
 	 * @return boolean
 	 */
 	public function getIsSentByCurrentUser(){
-		return User::current()->contact->emailAddresses(Query::newInstance()->where(['email' => $this->fromEmail]))->single() != false;
+		return User::current()->contact ? User::current()->contact->emailAddresses(Query::newInstance()->where(['email' => $this->fromEmail]))->single() != false : false;
 	}
 
 	
