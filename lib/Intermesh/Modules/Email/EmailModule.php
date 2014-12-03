@@ -7,6 +7,7 @@ use Intermesh\Modules\Email\Controller\AccountController;
 use Intermesh\Modules\Email\Controller\AttachmentController;
 use Intermesh\Modules\Email\Controller\ImapMessageController;
 use Intermesh\Modules\Email\Controller\SyncController;
+use Intermesh\Modules\Email\Controller\TestController;
 use Intermesh\Modules\Email\Controller\ThreadController;
 
 
@@ -16,6 +17,11 @@ class EmailModule extends AbstractModule {
 		return [
 			'email' => [
 				'children' => [
+					
+					'test' =>[
+							'controller' => TestController::className(),
+					],
+					
 					'sync' => [
 						'routeParams' => ['accountId'],
 						'controller' => SyncController::className(),

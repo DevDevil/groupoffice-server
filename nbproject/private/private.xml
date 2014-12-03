@@ -7,19 +7,12 @@
             <file>file:/Users/mschering/Sites/groupoffice-server/lib/Intermesh/Modules/Email/Model/Folder.php</file>
         </group>
         <group name="PocketOffice">
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Imap/Mailbox.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Controller/AccountController.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Controller/SyncController.php</file>
             <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Message.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Controller/MessageController.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Controller/ThreadController.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Attachment.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Core/Db/AbstractRecord.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Core/Controller/AbstractRESTController.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Imap/Message.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Contacts/Model/Contact.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Controller/TestController.php</file>
             <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Folder.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Core/Model.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Auth/Model/RecordPermissionTrait.php</file>
-            <file>file:/var/www/html/groupoffice-server/tests/Intermesh/Core/Db/ActiveRecordTest.php</file>
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Account.php</file>
         </group>
     </open-files>
 </project-private>

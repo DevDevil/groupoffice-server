@@ -150,9 +150,9 @@ class Account extends AbstractRecord {
 	public function getMessagesCount(){
 		return (int) $this->messages(
 				Query::newInstance()
-				->select('count(*) AS count')
-				->where(['!=', ['imapUid' => null]])
-				->setFetchMode(\PDO::FETCH_COLUMN, 0)
+					->select('count(*) AS count')
+					->where(['!=', ['imapUid' => null]])
+					->setFetchMode(\PDO::FETCH_COLUMN, 0)
 				)->single();		
 	}
 	

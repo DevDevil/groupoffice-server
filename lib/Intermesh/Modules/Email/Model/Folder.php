@@ -87,15 +87,15 @@ class Folder extends AbstractRecord {
 			
 			
 			//do extra check on all uid's
-//			$dbUids = $this->allUidsFromDb();
-//			$imapUids = $this->imapMailbox()->search();
-//
-//			$nextUids = array_diff($dbUids, $imapUids);
+			$dbUids = $this->allUidsFromDb();
+			$imapUids = $this->imapMailbox()->search();
+
+			$nextUids = array_diff($imapUids, $dbUids);
 //			
-//			if(empty($nextUids)){
+			if(empty($nextUids)){
 				$this->syncComplete = true;
 				return [];
-//			}
+			}
 		}
 		
 //		sort($nextUids);
