@@ -38,6 +38,35 @@ class Folder extends AbstractRecord {
 		];
 	}
 	
+	public function save() {
+		
+		switch($this->name){
+			
+			case 'INBOX':
+				$this->sortOrder = 0;
+				break;
+			
+			case 'Drafts':
+				$this->sortOrder = 1;
+				break;
+			
+			case 'Sent':
+				$this->sortOrder = 2;
+				break;
+			
+			case 'Trash':
+				$this->sortOrder = 3;
+				break;
+			
+			case 'Spam':
+				$this->sortOrder = 4;
+				break;
+	
+		}
+		
+		return parent::save();
+	}
+	
 	
 	/**
 	 * Get the IMAP mailbox
@@ -75,6 +104,11 @@ class Folder extends AbstractRecord {
 	public $syncComplete = false;
 	
 	private function uidsToSync(){
+		
+		if($this->imapMailbox()->noSelect){
+			$this->syncComplete = true;
+			return [];
+		}
 
 		$highestSyncedUid = $this->getHighestSyncedUid();
 		
@@ -87,15 +121,20 @@ class Folder extends AbstractRecord {
 			
 			
 			//do extra check on all uid's
-			$dbUids = $this->allUidsFromDb();
-			$imapUids = $this->imapMailbox()->search();
-
-			$nextUids = array_diff($imapUids, $dbUids);
-//			
-			if(empty($nextUids)){
+			
+			
+			
+//			$dbUids = $this->allUidsFromDb();
+//			$imapUids = $this->imapMailbox()->search();
+//
+//			$nextUids = array_diff($imapUids, $dbUids);
+////			
+//			if(empty($nextUids)){
 				$this->syncComplete = true;
 				return [];
-			}
+//			}  else {
+//				App::debug("Fetched missing UID's: ".var_export($nextUids, true));
+//			}
 		}
 		
 //		sort($nextUids);

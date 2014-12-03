@@ -39,6 +39,7 @@ use Intermesh\Core\AbstractModel;
  * 
  * </code>
  *
+ * @property boolean $noSelect Mailbox is virtual and can't be selected
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -78,7 +79,9 @@ class Mailbox extends AbstractModel {
 	/**
 	 * Array of mailbox flags
 	 * 
-	 * eg. NoInferiors, HasChildren
+	 * They are all lower case and with a leading slash eg.:
+	 * 
+	 * noinferiors, haschildren, noselect, hasnochildren
 	 * 
 	 * @var string 
 	 */
@@ -169,7 +172,7 @@ class Mailbox extends AbstractModel {
 	 * the IMAP response.
 	 * 
 	 * @param Connection $connection
-	 * @param array $lineParts
+	 * @param string $responseLine
 	 * @return Mailbox
 	 */
 	public static function createFromImapListResponse(Connection $connection, $responseLine){
@@ -343,13 +346,25 @@ class Mailbox extends AbstractModel {
 	 * @return int
 	 */
 	public function getMessagesCount(){
+		
+		
+		
 		if(!isset($this->_messagesCount)){
-			$status = $this->getStatus(['MESSAGES']);
 			
-			$this->_messagesCount = $status['MESSAGES'];
+			if(!$this->noSelect){
+				$status = $this->getStatus(['MESSAGES']);
+
+				$this->_messagesCount = $status['MESSAGES'];
+			}  else {
+			
+			}$this->_messagesCount = 0;
 		}
 		
 		return $this->_messagesCount;
+	}
+	
+	public function getNoSelect(){
+		return in_array('noselect', $this->flags);
 	}
 	
 	/**
@@ -1023,7 +1038,7 @@ class Mailbox extends AbstractModel {
 	
 	
 	/**
-	 * Set or clear flags for an UID range. 
+	 * Set or clear flags on messages in this mailbox 
 	 * 
 	 * Flags can be:
 	 *
@@ -1034,7 +1049,7 @@ class Mailbox extends AbstractModel {
 	 * $Forwarded
 	 * other custom flags
 	 *
-	 * @param string $uidSequence
+	 * @param string $uidSequence UID's eg: 1:* OR 1:5 OR 1,2,3
 	 * @param array $flags
 	 * @param boolean $clear
 	 * @return boolean

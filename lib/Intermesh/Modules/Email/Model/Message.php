@@ -346,6 +346,10 @@ class Message extends AbstractRecord {
 		
 		if($this->saveToImap){
 			$this->_saveFlags();
+		}		
+		
+		if(empty($this->accountId) && $this->folder){
+			$this->accountId = $this->folder->accountId;
 		}
 		
 		return parent::save();

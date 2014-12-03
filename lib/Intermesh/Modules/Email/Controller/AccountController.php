@@ -6,6 +6,7 @@ use Intermesh\Core\Controller\AbstractCrudController;
 use Intermesh\Core\Data\Store;
 use Intermesh\Core\Db\Query;
 use Intermesh\Core\Exception\NotFound;
+use Intermesh\Modules\Auth\Model\User;
 use Intermesh\Modules\Email\Model\Account;
 
 
@@ -37,6 +38,7 @@ class AccountController extends AbstractCrudController {
 								->limit($limit)
 								->offset($offset)
 								->search($searchQuery, array('t.accountname'))
+								->where(['ownerUserId'=>User::current()->id])
 		);
 
 		$store = new Store($accounts);

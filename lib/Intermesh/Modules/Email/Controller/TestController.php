@@ -25,13 +25,32 @@ class TestController extends AbstractRESTController {
 //		exit();
 		
 		$nextUids = array_diff($imapUids, $dbUids);
+		
+//		$uid = array_shift($nextUids);
+		
+//		$dbMessage = \Intermesh\Modules\Email\Model\Message::find(['imapUid' => $uid])->single();
 
+//		var_dump($dbMessage ? $dbMessage->toArray() : false);
 
-		var_dump($nextUids);
+//		var_dump($nextUids);
+		
+		foreach($nextUids as $missingUid){
+			$key = array_search($missingUid, $imapUids);
+			
+			echo $key."\n";
+		}
 
-		$message = $folder->imapMailbox()->getMessage(array_shift($nextUids));
+//		$imapMessage = $folder->imapMailbox()->getMessage($uid);
+//		
+//		$dbMessage = new \Intermesh\Modules\Email\Model\Message();
+//		$dbMessage->folder = $folder;
+//		$dbMessage->account = $folder->account;
+//		$dbMessage->setFromImapMessage($imapMessage);
+//		if(!$dbMessage->save()){
+//			var_dump($dbMessage->getValidationErrors());
+//		}
 
-		echo $message->subject . ' - ' . $message->from->email.'-'.$message->uid;
+//		echo $imapMessage->subject . ' - ' . $imapMessage->from->email.'-'.$imapMessage->uid;
 		
 		return $this->renderJson();
 	}

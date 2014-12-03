@@ -58,9 +58,7 @@ class ThreadController extends AbstractCrudController {
 								->orderBy(['date' => 'DESC'])
 								->limit($limit)
 								->offset($offset)
-								->where(['threadId' => $threadId])
-								
-								
+								->where(['threadId' => $threadId])							
 				);
 								
 

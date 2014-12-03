@@ -41,7 +41,7 @@ class Account extends AbstractRecord {
 	protected static function defineRelations(RelationFactory $r) {
 		return [
 			$r->belongsTo('owner', User::className(), 'ownerUserId'),
-			$r->hasMany('folders', Folder::className(), 'accountId'),
+			$r->hasMany('folders', Folder::className(), 'accountId')->setQuery(Query::newInstance()->orderBy(['sortOrder' => 'ASC'])),
 			$r->hasMany('messages', Message::className(), 'accountId')
 		];
 	}
@@ -105,20 +105,24 @@ class Account extends AbstractRecord {
 				$folder = new Folder();
 				$folder->accountId = $this->id;
 				$folder->name = $mailbox->name;
-				$folder->uidValidity = $mailbox->getUidValidity();
+				if(!$mailbox->noSelect){
+					$folder->uidValidity = $mailbox->getUidValidity();
+				}
 			}
 			
-			if (!isset($folder->highestModSeq)) {
-				$folder->highestModSeq = $mailbox->getHighestModSeq();
-			}
-			if ($folder->uidValidity != $mailbox->getUidValidity()) {
-				//UID's not valid anymore! Set all uid's to null.					
-				App::dbConnection()->getPDO()->query('update emailMessage set imapUid=null, folderId=null, threadId=null where folderId=' . $folder->id);
+			if(!$mailbox->noSelect){
+				if (!isset($folder->highestModSeq)) {
+					$folder->highestModSeq = $mailbox->getHighestModSeq();
+				}
+				if ($folder->uidValidity != $mailbox->getUidValidity()) {
+					//UID's not valid anymore! Set all uid's to null.					
+					App::dbConnection()->getPDO()->query('update emailMessage set imapUid=null, folderId=null, threadId=null where folderId=' . $folder->id);
 
-				App::debug('UID\'s not valid anymore for folder: ' . $folder->name, 'imapsync');
-			}
+					App::debug('UID\'s not valid anymore for folder: ' . $folder->name, 'imapsync');
+				}
 
-			$folder->uidValidity = $mailbox->getUidValidity();
+				$folder->uidValidity = $mailbox->getUidValidity();
+			}
 			
 
 			$folder->save();
@@ -204,7 +208,7 @@ class Account extends AbstractRecord {
 
 		foreach ($folders as $folder) {
 
-			if (!$folder->imapMailbox()) {
+			if (!$folder->imapMailbox() || $folder->imapMailbox()->noSelect) {
 				continue;
 			}			
 
@@ -219,7 +223,9 @@ class Account extends AbstractRecord {
 				while ($imapMessage = array_shift($messages)) {
 					/* @var $imapMessage \Intermesh\Modules\Email\Imap\Message */
 
-					$message = Message::find(['messageId' => $imapMessage->messageId, 'accountId' => $this->id])->single();
+					//Find existing cached message. It may not have an imapUid already. 
+					//In some cases there can be duplicate MessageId values when you send a mail to yourself for example.
+					$message = Message::find(['messageId' => $imapMessage->messageId, 'accountId' => $this->id, 'imapUid' => null])->single();
 					if (!$message) {
 						$message = new Message();
 						$message->account = $this;
@@ -253,7 +259,7 @@ class Account extends AbstractRecord {
 	private function _syncDelete(array $folders) {
 
 		foreach ($folders as $folder) {
-			if (!$folder->imapMailbox()) {
+			if (!$folder->imapMailbox() || $folder->imapMailbox()->noSelect) {
 				continue;
 			}
 
@@ -288,7 +294,7 @@ class Account extends AbstractRecord {
 	private function _syncUpdate(array $folders) {
 		foreach ($folders as $folder) {
 
-			if (!$folder->imapMailbox()) {
+			if (!$folder->imapMailbox() || $folder->imapMailbox()->noSelect) {
 				continue;
 			}
 
