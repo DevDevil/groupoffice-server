@@ -1,12 +1,13 @@
 <?php
 namespace Intermesh\Modules\Email\Controller;
 
+use Intermesh\Core\App;
 use Intermesh\Core\Controller\AbstractCrudController;
 use Intermesh\Core\Data\Store;
-use Intermesh\Core\Db\Criteria;
 use Intermesh\Core\Db\Query;
-use Intermesh\Modules\Email\Model\Folder;
+use Intermesh\Core\Exception\NotFound;
 use Intermesh\Modules\Email\Model\Message;
+use Intermesh\Modules\Email\Model\Thread;
 
 class ThreadController extends AbstractCrudController {
 
@@ -23,19 +24,23 @@ class ThreadController extends AbstractCrudController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($accountId, $folderId, $orderColumn = 'date', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = ['id', 'threadId', 'threadFrom', 'subject','excerpt','date', 'seen','answered','hasAttachments','forwarded']) {
+	protected function actionStore($accountId, $folderId, $orderColumn = 'date', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = ['*','from']) {
 
 //		$folder = Folder::find(['accountId' => $accountId, 'name' => 'INBOX'])->single();
 		
-		$accounts = Message::find(Query::newInstance()
+		$accounts = Thread::find(Query::newInstance()
 								->orderBy([$orderColumn => $orderDirection])
 								->limit($limit)
 								->offset($offset)
-								->search($searchQuery, array('t.subject', 't._body'))								
-								->where(['folderId'=>$folderId])
-								->joinRaw('INNER JOIN (SELECT threadId, MAX(`date`) maxDate FROM emailMessage WHERE folderId=:folderId GROUP BY threadId) m ON t.threadId=m.threadId AND t.`date` = m.maxDate')
-								->addBindParameter(':folderId', $folderId)
-								->groupBy(['threadId'])
+								->search($searchQuery, array('messages.subject', 'messages._body'))								
+								->joinRelation('messages', false)
+								->where(['messages.folderId'=>$folderId])
+								->groupBy(['t.id'])
+				
+				
+//								->joinRaw('INNER JOIN (SELECT threadId, MAX(`date`) maxDate FROM emailMessage WHERE folderId=:folderId GROUP BY threadId) m ON t.threadId=m.threadId AND t.`date` = m.maxDate')
+//								->addBindParameter(':folderId', $folderId)
+//								->groupBy(['threadId'])
 		);
 
 		$store = new Store($accounts);
@@ -52,7 +57,7 @@ class ThreadController extends AbstractCrudController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($threadId, $limit = 10, $offset = 0, $returnAttributes = ["*", "sourceUrl", "syncUrl", "isSentByCurrentUser", "body", "quote", "attachments", "toAddresses", "ccAddresses"]) {
+	protected function actionRead($threadId, $limit = 10, $offset = 0, $returnAttributes = ["*", "sourceUrl", "syncUrl", "body", "quote", "attachments", "to", "cc", "from"]) {
 		
 		$accounts = Message::find(Query::newInstance()
 								->orderBy(['date' => 'DESC'])
@@ -66,6 +71,36 @@ class ThreadController extends AbstractCrudController {
 		$store->setReturnAttributes($returnAttributes);
 
 		return $this->renderStore($store);
+	}
+	
+	
+	/**
+	 * Update a field. Use GET to fetch the default attributes or POST to add a new field.
+	 *
+	 * The attributes of this field should be posted as JSON in a field object
+	 *
+	 * <p>Example for POST and return data:</p>
+	 * <code>
+	 * {"data":{"attributes":{"fieldname":"test",...}}}
+	 * </code>
+	 * 
+	 * @param int $threadId The ID of the field
+	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
+	 * @return JSON Model data
+	 * @throws NotFound
+	 */
+	public function actionUpdate($threadId, $returnAttributes = []) {
+
+		$thread = Thread::findByPk($threadId);		
+
+		if (!$thread) {
+			throw new NotFound();
+		}
+
+		$thread->setAttributes(App::request()->payload['data']);
+		$thread->save();
+		
+		return $this->renderModel($thread, $returnAttributes);
 	}
 	
 }

@@ -13,6 +13,7 @@ use Intermesh\Core\Db\RelationFactory;
  * @property int $messageId
  * @property string $email
  * @property string $personal
+ * @property int $type See TYPE_* constants
  * 
  * @property Message $message
  *
@@ -20,7 +21,12 @@ use Intermesh\Core\Db\RelationFactory;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class ToAddress extends AbstractRecord {	
+class Address extends AbstractRecord {	
+	
+	const TYPE_FROM = 0;
+	const TYPE_TO = 1;
+	const TYPE_CC = 2;
+	const TYPE_BCC = 3;
 	
 	use \Intermesh\Core\Db\TruncateAttributesTrait;
 	

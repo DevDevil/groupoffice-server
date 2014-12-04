@@ -692,7 +692,7 @@ abstract class AbstractRecord extends AbstractModel {
 	 *
 	 * @return array
 	 */
-	public function getModifiedAttributes() {
+	public function modifiedAttributes() {
 		return $this->_modifiedAttributes;
 	}
 
@@ -978,7 +978,7 @@ abstract class AbstractRecord extends AbstractModel {
 			$tag = ':attr'.$i;
 			$updates[] = "`$colName` = " . $tag;
 			
-			$tags[$colName] = $tag;
+			$tags[$tag] = $colName;
 		}
 
 		$sql = "UPDATE `{$this->tableName()}` SET " . implode(',', $updates) . " WHERE ";
@@ -1002,14 +1002,14 @@ abstract class AbstractRecord extends AbstractModel {
 
 				$sql .= "`" . $colName . "`= " . $tag;
 				
-				$tags[$colName] = $tag;
+				$tags[$tag] = $colName;
 			}
 			
 		}else {
 			$i++;
 			$tag = ':attr'.$i;
 			$sql .= "`" . $this->primaryKeyColumn() . "`=" . $tag ;
-			$tags[$this->primaryKeyColumn()] = $tag;
+			$tags[$tag] = $this->primaryKeyColumn();
 		}
 
 		try {
@@ -1017,12 +1017,14 @@ abstract class AbstractRecord extends AbstractModel {
 
 			$pks = is_array($this->primaryKeyColumn()) ? $this->primaryKeyColumn() : [$this->primaryKeyColumn()];
 
-			foreach ($this->columns as $colName => $column) {
+			foreach ($tags as $tag => $colName) {
+				
+				$column = $this->getColumn($colName);
 
-				if ($this->isModified($colName) || in_array($colName, $pks)) {
-					$bindParams[$tags[$colName]] = $this->_attributes[$colName];
-					$stmt->bindParam($tags[$colName], $this->_attributes[$colName], $column->pdoType, empty($column->length) ? null : $column->length);
-				}
+
+					$bindParams[$tag] = $this->_attributes[$colName];
+					$stmt->bindParam($tag, $this->_attributes[$colName], $column->pdoType, empty($column->length) ? null : $column->length);
+				
 			}
 
 			App::debugger()->debugSql($sql, $bindParams);
@@ -1210,7 +1212,7 @@ abstract class AbstractRecord extends AbstractModel {
 			$fieldsToCheck = array_keys($this->getColumns());
 		} else {
 			//validate modified columns
-			$fieldsToCheck = array_keys($this->getModifiedAttributes());
+			$fieldsToCheck = array_keys($this->modifiedAttributes());
 		}
 		
 		$uniqueKeysToCheck = [];
@@ -1674,8 +1676,14 @@ abstract class AbstractRecord extends AbstractModel {
 		return App::dbConnection()->getPDO()->query("LOCK TABLES `".static::tableName()."`  $mode, `".static::tableName()."` AS t $mode");
 	}
 	
-	
-	public function getETag(){
+	/**
+	 * Get etag for model
+	 * 
+	 * A modifiedAt timestamp is returned by default if present in the database
+	 * 
+	 * @return string
+	 */
+	public function eTag(){
 		return isset($this->modifiedAt) ? $this->modifiedAt : null;
 	}
 }

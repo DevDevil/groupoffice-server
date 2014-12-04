@@ -72,19 +72,23 @@ class RelationFactory{
 	 * @param string $mainTableColumn The column of link model that points to the main model.
 	 * @return ManyManyRelation
 	 */
-	public function manyMany($name, $relatedModelName, $linkModelName, $mainTableColumn){
-
-
-
-		$primaryKeys = $linkModelName::primaryKeyColumn();
-		if(!is_array($primaryKeys)){
-			throw new \Exception ("Fatal error: Primary key of linkModel '".$linkModelName."' should be an array if used in a many many relation.");
-		}
+	public function manyMany($name, $relatedModelName, $linkModelName, $mainTableColumn, $foreignTableColumn = null){
+		
+		
 
 		//eg. roleId
-		$foreignKey = $primaryKeys[0]==$mainTableColumn ? $primaryKeys[1] : $primaryKeys[0];
+		
+		if(!isset($foreignTableColumn)){
+			
+			$primaryKeys = $linkModelName::primaryKeyColumn();
+			if(!is_array($primaryKeys)){
+				throw new \Exception ("Fatal error: Primary key of linkModel '".$linkModelName."' should be an array if used in a many many relation.");
+			}
 
-		$r = new ManyManyRelation($name, Relation::TYPE_MANY_MANY, $this->_modelClassName, $relatedModelName, $mainTableColumn, $foreignKey);
+			$foreignTableColumn = $primaryKeys[0]==$mainTableColumn ? $primaryKeys[1] : $primaryKeys[0];
+		}
+
+		$r = new ManyManyRelation($name, Relation::TYPE_MANY_MANY, $this->_modelClassName, $relatedModelName, $mainTableColumn, $foreignTableColumn);
 		$r->setLinkModel($linkModelName);
 
 		return $r;

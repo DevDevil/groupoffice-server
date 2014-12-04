@@ -736,5 +736,14 @@ class Message extends AbstractModel {
 	public function getSeen() {
 		return in_array('\Seen', $this->flags);
 	}
+	
+	/**
+	 * True if message is flagged
+	 * 
+	 * @return boolean
+	 */
+	public function getFlagged() {
+		return in_array('\Flagged', $this->flags);
+	}
 
 }

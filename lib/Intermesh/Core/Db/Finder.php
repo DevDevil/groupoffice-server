@@ -648,7 +648,12 @@ class Finder extends AbstractObject implements IteratorAggregate {
 		
 		if(isset($relation->query)){
 			//TODO Perhaps a better way for string replace?
-			$joinSql .= ' AND ('.str_replace('`t`', '`'.$relation->getName().'`', $this->_buildWhere($relation->query, "\t")).')';
+			
+			$where = str_replace('`t`', '`'.$relation->getName().'`', $this->_buildWhere($relation->query, "\t"));
+			
+			if(!empty($where)){
+				$joinSql .= ' AND ('.$where.')';
+			}
 		}
 		
 		if(isset($criteria)){

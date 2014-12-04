@@ -42,7 +42,8 @@ class Account extends AbstractRecord {
 		return [
 			$r->belongsTo('owner', User::className(), 'ownerUserId'),
 			$r->hasMany('folders', Folder::className(), 'accountId')->setQuery(Query::newInstance()->orderBy(['sortOrder' => 'ASC'])),
-			$r->hasMany('messages', Message::className(), 'accountId')
+			$r->hasMany('messages', Message::className(), 'accountId'),
+			$r->hasMany('threads', Thread::className(), 'accountId')
 		];
 	}
 
@@ -115,8 +116,10 @@ class Account extends AbstractRecord {
 					$folder->highestModSeq = $mailbox->getHighestModSeq();
 				}
 				if ($folder->uidValidity != $mailbox->getUidValidity()) {
-					//UID's not valid anymore! Set all uid's to null.					
-					App::dbConnection()->getPDO()->query('update emailMessage set imapUid=null, folderId=null, threadId=null where folderId=' . $folder->id);
+					//UID's not valid anymore! Set all uid's to null.	
+					//Also set folderId = null. This way we can also detect moves of mail because we search by messageId
+					App::dbConnection()->getPDO()->query('update emailMessage set imapUid=null, folderId=null where folderId=' . $folder->id);
+					App::dbConnection()->getPDO()->query('delete from emailThread where id IN (SELECT threadId FROM emailMessage WHERE folderId='.$folder->id.')');
 
 					App::debug('UID\'s not valid anymore for folder: ' . $folder->name, 'imapsync');
 				}
@@ -148,6 +151,8 @@ class Account extends AbstractRecord {
 
 //		App::dbConnection()->getPDO()->query('delete from emailFolder where accountId=' . intval($this->id));
 //		App::dbConnection()->getPDO()->query('delete from emailMessage where accountId='.intval($this->id));
+		
+		//This uidValidity value is checked in _syncMailboxes
 		App::dbConnection()->getPDO()->query('update emailFolder set uidValidity = null where accountId='.$this->id);
 	}
 	
@@ -232,6 +237,7 @@ class Account extends AbstractRecord {
 						$message->setFromImapMessage($imapMessage);
 					} else {
 						$message->updateFromImapMessage($imapMessage);
+//						$message->setFromImapMessage($imapMessage);
 					}
 
 					$message->folder = $folder;
@@ -390,18 +396,26 @@ class Account extends AbstractRecord {
 //			}
 
 			if ($orgMessage) {
-
-				if ($orgMessage->threadId == null) {
-					$orgMessage->threadId = $orgMessage->id;
-					$orgMessage->save();
+				if ($orgMessage->threadId == null) {					
+					$thread = $orgMessage->createThread();
 				}
 
-				$message->threadId = $orgMessage->threadId;
+				$message->threadId = $thread->id;
 				$message->save();
+			}else
+			{
+				$message->createThread();
+			}
+		}
+		
+		foreach($this->threads as $thread){
+			if(!$thread->sync()){
+				var_dump($thread->getValidationErrors());
+				exit();
 			}
 		}
 
-		App::dbConnection()->getPDO()->query('update emailMessage set threadId=id where `threadId` IS NULL');
+		//App::dbConnection()->getPDO()->query('update emailMessage set threadId=id where `threadId` IS NULL');
 	}
 
 }

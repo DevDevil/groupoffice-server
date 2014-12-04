@@ -118,8 +118,9 @@ END;
 			$maxlength -= strlen($append);
 
 			$temp = $substrFunc($string, 0, $maxlength);
+			
 			if ($cut_whole_words) {
-				if ($pos = strrpos($temp, ' ')) {
+				if (($pos = strrpos($temp, ' '))) {
 					return $substrFunc($temp, 0, $pos) . $append;
 				} else {
 					return $temp = $substrFunc($string, 0, $maxlength) . $append;

@@ -6,13 +6,6 @@
         <group>
             <file>file:/Users/mschering/Sites/groupoffice-server/lib/Intermesh/Modules/Email/Model/Folder.php</file>
         </group>
-        <group name="PocketOffice">
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Controller/AccountController.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Controller/SyncController.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Message.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Controller/TestController.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Folder.php</file>
-            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Email/Model/Account.php</file>
-        </group>
+        <group name="PocketOffice"/>
     </open-files>
 </project-private>

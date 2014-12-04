@@ -292,7 +292,7 @@ abstract class AbstractRESTController extends AbstractObject {
 
 		if (App::request()->getMethod() == 'GET' && isset($model->modifiedAt)) {
 			$lastModified = new DateTime($model->modifiedAt);
-			$this->cacheHeaders($lastModified, $model->getETag());
+			$this->cacheHeaders($lastModified, $model->eTag());
 		}
 
 		$response = ['data' => []];

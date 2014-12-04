@@ -11,8 +11,7 @@ use Intermesh\Modules\Auth\Model\User;
 use Intermesh\Modules\Email\Imap\Message as ImapMessage;
 use Intermesh\Modules\Email\Model\Account;
 use Intermesh\Modules\Email\Model\Attachment;
-use Intermesh\Modules\Email\Model\CcAddress;
-use Intermesh\Modules\Email\Model\ToAddress;
+use Intermesh\Modules\Email\Model\Address;
 use Intermesh\Modules\Timeline\Model\Item;
 
 
@@ -28,15 +27,23 @@ use Intermesh\Modules\Timeline\Model\Item;
  * @property User $owner
  * @property string $date
  * @property string $subject
- * @property array $fromPersonal
- * @property array $fromEmail
- * @property ToAddress[] $to
- * @property CcAddress[] $cc
+ * @property Address $from
+ * @property Address[] $to
+ * @property Address[] $cc
+ * @property Address[] $bcc
+ * 
+ * @property Address[] $addresses All addresses from, to, cc and bcc
  * @property string $body
  * @property string $contentType
  * @property string $messageId
  * @property int $imapUid
  * @property Folder $folder
+ * 
+ * @property boolean $seen
+ * @property boolean $answered
+ * @property boolean $flagged
+ * @property boolean $forwarded
+ *
  *
  * 
  * @property Item[] $timelineItems
@@ -57,7 +64,7 @@ class Message extends AbstractRecord {
 	 * 
 	 * @var boolean 
 	 */
-	public $saveToImap = true;
+	public $saveToImap = false;
 	
 	protected static function defineRelations(RelationFactory $r) {
 		return [
@@ -66,8 +73,13 @@ class Message extends AbstractRecord {
 			$r->belongsTo('account', Account::className(), 'accountId'),
 			$r->belongsTo('folder', Folder::className(), 'folderId'),
 			$r->hasMany('attachments', Attachment::className(), 'messageId'),
-			$r->hasMany('toAddresses', ToAddress::className(), 'messageId'),
-			$r->hasMany('ccAddresses', CcAddress::className(), 'messageId'),
+			$r->hasOne('from', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_FROM])),
+			$r->hasMany('to', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_TO])),
+			$r->hasMany('cc', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_CC])),
+			$r->hasMany('bcc', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_BCC])),
+			
+			$r->hasMany('addresses', Address::className(), 'messageId'),
+			
 			$r->hasMany('threadMessages', Message::className(), 'threadId', 'threadId'),
 		];
 	}
@@ -186,9 +198,9 @@ class Message extends AbstractRecord {
 	 * 
 	 * @return boolean
 	 */
-	public function getIsSentByCurrentUser(){
-		return User::current()->contact ? User::current()->contact->emailAddresses(Query::newInstance()->where(['email' => $this->fromEmail]))->single() != false : false;
-	}
+//	public function getIsSentByCurrentUser(){
+//		return User::current()->contact ? User::current()->contact->emailAddresses(Query::newInstance()->where(['email' => $this->fromEmail]))->single() != false : false;
+//	}
 
 	
 	/**
@@ -208,7 +220,7 @@ class Message extends AbstractRecord {
 			$text = html_entity_decode($text);			
 			
 			$text = trim(preg_replace('/[\s]+/u',' ', $text));			
-			$text = String::cutString($text, 0, $length);			
+			$text = String::cutString($text, $length, true);			
 		}else
 		{
 			$text = null;
@@ -379,31 +391,31 @@ class Message extends AbstractRecord {
 	}
 	
 	
-	public function getThreadFrom(){
-		$messages = $this->threadMessages(Query::newInstance()->select('t.fromPersonal, t.fromEmail')->groupBy(['fromEmail']))->all();
-		
-//		$total = count($messages);
+//	public function getThreadFrom(){
+//		$messages = $this->threadMessages(Query::newInstance()->select('t.fromPersonal, t.fromEmail')->groupBy(['fromEmail']))->all();
 //		
-//		$max = 3;
-		
-		$str = '';
-		
-		foreach($messages as $message){
-			$names = !empty($message->fromPersonal) ? $message->fromPersonal : $message->fromEmail;
-			
-			if($message->fromEmail == $this->account->fromEmail) {
-				$name = 'me';
-			}else
-			{
-				$parts = explode(' ', $names);
-				$name = trim(array_shift($parts),',;');
-			}
-			
-			$str .= $name.', ';
-		}
-		
-		return rtrim($str, ' ,');
-	}
+////		$total = count($messages);
+////		
+////		$max = 3;
+//		
+//		$str = '';
+//		
+//		foreach($messages as $message){
+//			$names = !empty($message->fromPersonal) ? $message->fromPersonal : $message->fromEmail;
+//			
+//			if($message->fromEmail == $this->account->fromEmail) {
+//				$name = 'me';
+//			}else
+//			{
+//				$parts = explode(' ', $names);
+//				$name = trim(array_shift($parts),',;');
+//			}
+//			
+//			$str .= $name.', ';
+//		}
+//		
+//		return rtrim($str, ' ,');
+//	}
 	
 	/**
 	 * Set's all attributes from an IMAP message
@@ -416,35 +428,34 @@ class Message extends AbstractRecord {
 		
 		$this->date = $imapMessage->date;
 		$this->subject = $imapMessage->subject;
-		$this->fromPersonal = $imapMessage->from->personal;
-		$this->fromEmail = $imapMessage->from->email;
 		
-		if(!$this->getIsNew()){
-			foreach($this->toAddresses as $a){
-				$a->delete();
-			}
-			
-			foreach($this->ccAddresses as $a){
+		if(!$this->getIsNew()){	
+			foreach($this->addresses as $a){
 				$a->delete();
 			}
 		}
+		
+		$addresses = [Address::newInstance()->setAttributes(['personal'=>$imapMessage->from->personal, 'email'=>$imapMessage->from->email, 'type'=>Address::TYPE_FROM])];
 		
 		if(isset($imapMessage->to)) {
-			$toAddresses=[];
 			foreach($imapMessage->to as $to){
-				$toAddresses[] = ToAddress::newInstance()->setAttributes(['personal'=>$to->personal, 'email'=>$to->email]);
-			}
-			$this->toAddresses = $toAddresses;
-		}
-		
+				$addresses[] = Address::newInstance()->setAttributes(['personal'=>$to->personal, 'email'=>$to->email, 'type'=>Address::TYPE_TO]);
+			}			
+		}		
 		
 		if(isset($imapMessage->cc)) {
-			$ccAddresses=[];
 			foreach($imapMessage->cc as $to){
-				$ccAddresses[] = CcAddress::newInstance()->setAttributes(['personal'=>$to->personal, 'email'=>$to->email]);
-			}
-			$this->ccAddresses = $ccAddresses;
+				$addresses[] = Address::newInstance()->setAttributes(['personal'=>$to->personal, 'email'=>$to->email, 'type'=>Address::TYPE_CC]);
+			}			
 		}
+		
+		if(isset($imapMessage->bcc)) {
+			foreach($imapMessage->bcc as $to){
+				$addresses[] = Address::newInstance()->setAttributes(['personal'=>$to->personal, 'email'=>$to->email, 'type'=>Address::TYPE_BCC]);
+			}			
+		}
+		
+		$this->addresses = $addresses;
 
 		$this->messageId = $imapMessage->messageId;
 		$this->inReplyTo = $imapMessage->inReplyTo;
@@ -454,12 +465,6 @@ class Message extends AbstractRecord {
 		}
 		
 		$this->imapUid = $imapMessage->uid;
-//		$this->imapMailbox = (string) $imapMessage->mailbox;
-		
-//		$threadId = self::findThreadId($imapMessage->inReplyTo);
-		
-		//When null is set then the threadId automatically sets to $this->id in the save() function
-//		$this->threadId = $threadId;
 
 		$this->_body = null; // $imapMessage->getBody();
 		$this->_quote = null; //$imapMessage->getQuote();
@@ -467,8 +472,7 @@ class Message extends AbstractRecord {
 		$this->seen = $imapMessage->getSeen();
 		$this->answered = $imapMessage->getAnswered();
 		$this->forwarded = $imapMessage->getForwarded();
-		
-		
+		$this->flagged = $imapMessage->getFlagged();		
 
 		$imapAttachments = $imapMessage->getAttachments();
 		
@@ -508,6 +512,34 @@ class Message extends AbstractRecord {
 		$refs = empty($this->references) ? [] : explode(',', $this->references);
 		
 		return array_map('trim', $refs);
+	}
+	
+	/**
+	 * Create a new thread entry for this message
+	 * 
+	 * @return \Intermesh\Modules\Email\Model\Thread
+	 */
+	public function createThread(){		
+		$thread = new Thread();
+		$thread->accountId = $this->accountId;
+		$thread->save();
+		
+		$this->threadId = $thread->id;
+		$this->save();
+		
+		return $thread;
+	}
+	
+	protected function defaultReturnAttributes() {
+		$attr = parent::defaultReturnAttributes();
+		
+		$attr[] = 'to';
+		$attr[] = 'cc';
+		$attr[] = 'from';
+		
+		return $attr;
+		
+//		"*", "sourceUrl", "syncUrl", "body", "quote", "attachments", "to", "cc", "from"
 	}
 	
 	
