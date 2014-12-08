@@ -41,9 +41,19 @@ is correct:
 6. Create a MySQL database called "go7" and load "go7.sql" into it.
 7. Copy config.php.example to config.php and adjust it with the correct database parameters.
 
-Now it should work. Do a system test:
+Now it should work. Launch index.php:
 
-/index.php?r=system/check
+/index.php
+
+This will redirect to a system test page:
+
+/index.php/system/check
+
+Optionally you can create an alias for apache:
+
+Alias /api /path/to/index.php
+
+This allows pretty URL's like /api/system/check
 
 It should output that all is OK ;). It doesn't look pretty but it's not meant to
 be because it's just an API.
@@ -53,4 +63,7 @@ The default login is:
 Username: admin
 Password: Admin1!
 
-You'll need the angularjs example to connect to it.
+
+
+
+

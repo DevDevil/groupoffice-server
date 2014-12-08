@@ -6,6 +6,8 @@
         <group>
             <file>file:/Users/mschering/Sites/groupoffice-server/lib/Intermesh/Modules/Email/Model/Folder.php</file>
         </group>
-        <group name="PocketOffice"/>
+        <group name="PocketOffice">
+            <file>file:/var/www/html/groupoffice-server/lib/Intermesh/Modules/Auth/Controller/AuthController.php</file>
+        </group>
     </open-files>
 </project-private>

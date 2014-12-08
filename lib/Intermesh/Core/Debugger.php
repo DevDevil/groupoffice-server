@@ -25,20 +25,6 @@ class Debugger extends AbstractObject{
 	public $entries = [];
 	
 	
-	/**
-	 * Start of the request in Milliseconds since epoch
-	 * 
-	 * @var int
-	 */
-	public $requestStart;
-	
-	
-	public function init(){
-		if($this->enabled){
-			$this->requestStart = $this->getMicroTime();			
-		}
-	}
-	
 	private function getMicroTime(){
 		list ($usec, $sec) = explode(" ", microtime());
 		return ((float) $usec + (float) $sec);
@@ -65,7 +51,7 @@ class Debugger extends AbstractObject{
 	 * @param string $message
 	 */
 	public function debugTiming($message){
-		$this->debug(($this->getMicroTime() - $this->requestStart).'ms '.$message, 'timing');				
+		$this->debug(($this->getMicroTime() -  $_SERVER["REQUEST_TIME_FLOAT"]*1000).'ms '.$message, 'timing');				
 	}
 
 
@@ -95,6 +81,6 @@ class Debugger extends AbstractObject{
 			$sql = str_replace($key, $queryValue, $sql);
 		}
 
-		$this->debug('['.($this->getMicroTime() - $this->requestStart).'ms] '.$sql, 'sql');
+		$this->debug('['.($this->getMicroTime() - $_SERVER["REQUEST_TIME_FLOAT"]*1000).'ms] '.$sql, 'sql');
 	}
 }

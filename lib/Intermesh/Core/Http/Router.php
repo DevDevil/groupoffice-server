@@ -91,12 +91,16 @@ class Router {
 	 * Finds the controller that matches the route and runs it.
 	 */
 	public function run() {
-
+		
 //		try {
+		
+			if(!isset($_SERVER['PATH_INFO'])){
+				App::request()->redirect($this->buildUrl('system/check'));
+			}
+		
+			$this->route = ltrim($_SERVER['PATH_INFO'],'/');
 
-			$this->route = isset(App::request()->get['r']) ? App::request()->get['r'] : false;
-
-			$this->_routeParts = explode('/', $this->route);
+			$this->_routeParts = explode('/', $this->route);			
 
 			$module = ucfirst($this->_routeParts[0]);
 
@@ -193,7 +197,7 @@ class Router {
 		if ((!$https && $_SERVER["SERVER_PORT"] != 80) || ($https && $_SERVER["SERVER_PORT"] != 443)){
 			$url .= ":".$_SERVER["SERVER_PORT"];
 		}
-		$url .= $_SERVER['PHP_SELF'];
+		$url .= $_SERVER['SCRIPT_NAME'].'/';
 
 		return $url;
 	}
@@ -203,7 +207,7 @@ class Router {
 	 * 
 	 * eg. buildUrl('auth/users', ['sortDirection' => 'DESC']); will build:
 	 * 
-	 * "/index.php?r=auth/users&sortDirection=DESC"
+	 * "/(path/to/index.php|aliastoindexphp)/auth/users&sortDirection=DESC"
 	 *
 	 * @param string $route To controller. eg. addressbook/contact/submit
 	 * @param array $params eg. ['id' => 1, 'someVar' => 'someValue']
@@ -214,7 +218,7 @@ class Router {
 		$url = $this->getBaseUrl();
 
 		if (!empty($route)) {
-			$url .= '?r='.$route;
+			$url .= $route;
 		}
 
 		if (count($params)) {

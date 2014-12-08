@@ -74,8 +74,6 @@ class App {
 		if(isset(App::config()->defaultTimeZone)) {
 				date_default_timezone_set(App::config()->defaultTimeZone);
 		}
-		
-		App::debugger()->init();
 	}
 
 	private static $_lastReportedError;
