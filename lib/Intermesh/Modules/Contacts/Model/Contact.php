@@ -27,7 +27,7 @@ use Intermesh\Modules\Timeline\Model\Item;
  * @property string $suffixes
  * @property string $gender
  * @property string $birthDay
- * @property string $photoFilePath
+ * @property string $_photoFilePath
  *
  * @property User $owner
  * @property ContactEmailAddress[] $emailAddresses
@@ -98,45 +98,39 @@ class Contact extends AbstractRecord {
 	 *
 	 * @return File
 	 */
-	public function getPhotoFile(){
-		if(empty($this->photoFilePath)){
+	public function photoFile(){
+		if(empty($this->_photoFilePath)){
 			
 			$gender= $this->gender =='M' ? 'male' : 'female';
 			
 			return new File(App::config()->getLibPath().'/Modules/Contacts/Resources/'.$gender.'.png');
-		}else
-		{
-			return new File(self::getPhotosFolder().'/'.$this->photoFilePath);
 		}
+		
+		return new File(self::getPhotosFolder().'/'.$this->_photoFilePath);
+		
 	}
 	
-	public function getThumbUrl(){
-		
+	public function getPhoto(){		
 		//Added modified at so browser will reload when dynamically changed with js
 		return App::router()->buildUrl("contacts/".$this->id."/thumb", ['modifiedAt' => $this->modifiedAt]); 
-		
 	}
 
 	/**
 	 * Set a photo
 	 *
-	 * @param File $file
+	 * @param string $temporaryImagePath
 	 */
-	public function setPhotoTempPath($temporaryImagePath, $save=false) {
+	public function setPhoto($temporaryImagePath) {
 
 		$photosFolder = self::getPhotosFolder();
 		
 		$file = new File(App::session()->getTempFolder().'/'.$temporaryImagePath);
 		
-		$destinationFile = $photosFolder->createFile($this->id.'.'.$file->getExtension());
+		$destinationFile = $photosFolder->createFile(uniqid().'.'.$file->getExtension());
 		$destinationFile->delete();
 
 		$file->move($destinationFile);
-		$this->photoFilePath = $file->getRelativePath($photosFolder);
-		if($save){
-			$this->save();
-		}
-
+		$this->_photoFilePath = $file->getRelativePath($photosFolder);
 	}
 	
 	public function validate() {
@@ -159,8 +153,8 @@ class Contact extends AbstractRecord {
 
 		$wasNew = $this->getIsNew();		
 		
-		if($this->isModified('photoFilePath') && $this->photoFilePath==""){
-			//remove photo file
+		if($this->isModified('_photoFilePath') && $this->_photoFilePath==""){
+			//remove photo file after save
 			$photoFile = $this->getPhotoFile();
 		}
 

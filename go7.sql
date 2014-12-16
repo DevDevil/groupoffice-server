@@ -1114,3 +1114,10 @@ INSERT INTO `modulesModuleRole` (`moduleId`, `roleId`, `useAccess`, `createAcces
 (9, 1, 1, 1),
 (10, 1, 1, 1),
 (10, 2, 1, 0);
+
+
+
+
+
+
+ALTER TABLE `contactsContact` CHANGE `photoFilePath` `_photoFilePath` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT ''; 

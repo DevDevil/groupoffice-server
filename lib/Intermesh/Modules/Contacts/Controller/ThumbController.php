@@ -45,7 +45,7 @@ class ThumbController extends AbstractThumbController {
 				throw new Forbidden();
 			}
 
-			return $contact->getPhotoFile();
+			return $contact->photoFile();
 		}
 
 
