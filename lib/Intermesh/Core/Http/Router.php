@@ -221,15 +221,14 @@ class Router {
 			$url .= $route;
 		}
 
-		if (count($params)) {
-			$queryParams = empty($route) ? '?' : '&';
+		if (!empty($params)) {
+			
+			$sep = '?';
 
-			foreach ($params as $key => $value) {
-				
-				$queryParams .= $key . '=' . urlencode($value) . '&';
+			foreach ($params as $key => $value) {				
+				$url .= $sep.$key . '=' . urlencode($value);				
+				$sep ='&';
 			}
-
-			$url .= rtrim($queryParams, '&');
 		}
 
 		return $url;
