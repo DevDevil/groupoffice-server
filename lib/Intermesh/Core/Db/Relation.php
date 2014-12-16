@@ -295,10 +295,10 @@ class Relation {
 				//will be set immediately in the model. save not needed here.
 				
 				if(is_array($value)){
-					if(!isset($value['attributes'][$this->foreignKey])){
+					if(!isset($value[$this->foreignKey])){
 						$rmn = $this->relatedModelName;
 						$belongsTo = new $rmn;
-						$belongsTo->setAttributes($value['attributes']);
+						$belongsTo->setAttributes($value);
 					
 						if(!$belongsTo->save()){							
 							
@@ -312,7 +312,7 @@ class Relation {
 						}					
 					}else
 					{
-						$model->{$this->key} = $value['attributes'][$this->foreignKey];
+						$model->{$this->key} = $value[$this->foreignKey];
 					}
 				}elseif(is_a($value, AbstractRecord::className()))
 				{
