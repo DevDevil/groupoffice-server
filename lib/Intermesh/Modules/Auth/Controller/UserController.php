@@ -35,14 +35,29 @@ class UserController extends AbstractCrudController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'username', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = []) {
+	protected function actionStore($orderColumn = 'username', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = [], $where = null) {
 
-		$users = User::find(Query::newInstance()
+		$query = Query::newInstance()
 								->orderBy([$orderColumn => $orderDirection])
 								->limit($limit)
-								->offset($offset)
-								->search($searchQuery, array('t.username'))
-		);
+								->offset($offset);
+		
+		if (!empty($searchQuery)) {			
+			$query->search($searchQuery, ['t.username']);
+		}
+
+		if (!empty($where)) {
+
+			$where = json_decode($where, true);
+
+			if (count($where)) {
+				$query
+						->groupBy(['t.id'])
+						->whereSafe($where);
+			}
+		}
+		
+		$users = User::find($query);
 
 		$store = new Store($users);
 		$store->setReturnAttributes($returnAttributes);
