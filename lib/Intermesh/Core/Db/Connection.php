@@ -72,6 +72,12 @@ class Connection extends AbstractObject{
 		$this->_pdo = new PDO("mysql:host=$this->host;dbname=$this->database;port=$this->port", $this->user, $this->pass, $this->options);
 	}	
 	
+	
+	public function query($statement){
+		\Intermesh\Core\App::debug($statement, 'sql');
+		return $this->pdo->query($statement);
+	}
+	
 	/**
 	 * UNLOCK TABLES explicitly releases any table locks held by the current session
 	 */
