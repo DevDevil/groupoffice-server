@@ -1,6 +1,7 @@
 <?php
 namespace Intermesh\Modules\Modules;
 
+use Intermesh\Core\AbstractModule;
 use Intermesh\Core\App;
 use Intermesh\Core\Fs\Folder;
 
@@ -33,6 +34,27 @@ class ModuleUtils{
 		}
 		
 		return $modulesFolders;
+	}
+	
+	/**
+	 * Get's all module class files
+	 * 
+	 * @return AbstractModule[];
+	 */
+	public static function getModules(){
+		$folders = self::getModuleFolders();
+		
+		$managers = [];
+		foreach($folders as $prefix => $folder){
+			$moduleManagerClass = $prefix.$folder->getName().'Module';
+			
+			if(class_exists($moduleManagerClass)){
+				$managers[] = new $moduleManagerClass;
+				
+			}
+		}
+		
+		return $managers;
 	}
 	
 	

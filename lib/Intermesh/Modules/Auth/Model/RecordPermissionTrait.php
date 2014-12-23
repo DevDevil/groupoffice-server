@@ -247,7 +247,7 @@ trait RecordPermissionTrait {
 	 */
 	public function getPermissions(){
 //		if (!isset($userId)) {			
-			$userId = User::current()->id;
+			
 //		}
 		if($this->getIsNew()){
 			return false;
@@ -266,29 +266,33 @@ trait RecordPermissionTrait {
 			$return[$col->name] = false;
 		}
 		
-		$query = Query::newInstance()
-				->joinRelation('users', false);
-		
-		$query->where([
-			$roleModelName::resourceKey() => $this->{$this->primaryKeyColumn()},
-			'users.userId' => $userId
-		]);
-		
-		$roles = $roleModelName::find($query);
-		
-		$enabledCount = 0;
-		foreach($roles as $role){
-			foreach($return as $key => $value) {
-				
-				if(!$value && $role->{$key}){
-					$return[$key] = true;
-					$enabledCount++;
-					
-					if($colCount == $enabledCount){
-						//All permissions enabled so we can stop here
-						return $return;
-					}							
-				}				
+		if(User::current()) {
+			$userId = User::current()->id;
+
+			$query = Query::newInstance()
+					->joinRelation('users', false);
+
+			$query->where([
+				$roleModelName::resourceKey() => $this->{$this->primaryKeyColumn()},
+				'users.userId' => $userId
+			]);
+
+			$roles = $roleModelName::find($query);
+
+			$enabledCount = 0;
+			foreach($roles as $role){
+				foreach($return as $key => $value) {
+
+					if(!$value && $role->{$key}){
+						$return[$key] = true;
+						$enabledCount++;
+
+						if($colCount == $enabledCount){
+							//All permissions enabled so we can stop here
+							return $return;
+						}							
+					}				
+				}
 			}
 		}
 		
@@ -301,6 +305,10 @@ trait RecordPermissionTrait {
 	 * @return bool
 	 */
 	public function getCurrentUserCanManagePermissions(){
+		
+		if(!User::current()){
+			return false;
+		}
 		return isset($this->ownerUserId) ? $this->ownerUserId == User::current()->id : User::current()->id == 1;
 	}
 	

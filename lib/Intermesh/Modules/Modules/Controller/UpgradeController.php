@@ -5,9 +5,9 @@ namespace Intermesh\Modules\Modules\Controller;
 use Intermesh\Core\Controller\AbstractRESTController;
 use Intermesh\Core\Db\Utils;
 use Intermesh\Core\Fs\File;
-use Intermesh\Modules\Contacts\ContactsModule;
 use Intermesh\Modules\Modules\Model\Module;
 use Intermesh\Modules\Modules\ModulesModule;
+use Intermesh\Modules\Modules\ModuleUtils;
 
 /**
  * Perform system check
@@ -37,11 +37,17 @@ class UpgradeController extends AbstractRESTController {
 	public function httpGet() {
 		
 		$this->initDatabase();
+	
 		
-//		$module = new Module();
-//		$module->name = ContactsModule::className();
-//		$module->save();
-
+		$modules = ModuleUtils::getModules();
+		
+		foreach($modules as $module){
+			if($module->autoInstall()){
+				$module->install();
+			}
+		}
+						
+		
 		Module::runModuleUpdates();
 	
 		return $this->renderJson($this->response);
