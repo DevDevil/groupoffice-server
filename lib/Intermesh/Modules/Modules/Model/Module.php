@@ -179,7 +179,8 @@ class Module extends AbstractRecord{
 			}
 
 		}
-
+		
+		ksort($updates);
 
 		return array_values($updates);
 	}

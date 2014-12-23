@@ -55,12 +55,15 @@ abstract class AbstractModule extends AbstractObject {
 			
 			$files = $dbFolder->getChildren(true, false);
 			
-			//echo $this->moduleName();
+			usort($files, function($file1, $file2){
+				return $file1->getName() > $file2->getName();
+			});
+			
 			
 			$module = $this->model();
 			
-			if($module){
-				$files = array_slice($files, $module->version);
+			if($module){				
+				$files = array_slice($files, $module->version);				
 			}
 			
 			
