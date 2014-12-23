@@ -20,7 +20,7 @@ use Intermesh\Core\Db\SoftDeleteTrait;
 
 class Task extends AbstractRecord{
 	
-	use RecordPermissionTrait;
+//	use RecordPermissionTrait;
 	
 	use SoftDeleteTrait {
 		delete as softDelete;
