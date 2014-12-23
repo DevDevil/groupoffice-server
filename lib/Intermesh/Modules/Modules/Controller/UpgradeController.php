@@ -38,9 +38,9 @@ class UpgradeController extends AbstractRESTController {
 		
 		$this->initDatabase();
 		
-		$module = new Module();
-		$module->name = ContactsModule::className();
-		$module->save();
+//		$module = new Module();
+//		$module->name = ContactsModule::className();
+//		$module->save();
 
 		Module::runModuleUpdates();
 	
