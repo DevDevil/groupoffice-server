@@ -1,8 +1,13 @@
 <?php
 
-use Intermesh\Core\AbstractObject;
-
 namespace Intermesh\Core;
+
+use Exception;
+use Intermesh\Core\Fs\File;
+use Intermesh\Core\Fs\Folder;
+use Intermesh\Modules\Modules\Model\Module;
+use Intermesh\Modules\Modules\ModulesModule;
+use ReflectionClass;
 
 abstract class AbstractModule extends AbstractObject {
 
@@ -27,7 +32,7 @@ abstract class AbstractModule extends AbstractObject {
 	}
 	
 	public function path(){
-		$r = new \ReflectionClass($this);
+		$r = new ReflectionClass($this);
 		
 		return dirname($r->getFileName());
 	}
@@ -37,11 +42,11 @@ abstract class AbstractModule extends AbstractObject {
 	 * Get update files.
 	 * Can be SQL or PHP scripts.
 	 * 
-	 * @return Fs\File[] The array has the filename date stamp as key so it can be sorted
+	 * @return File[] The array has the filename date stamp as key so it can be sorted
 	 */
 	public function databaseUpdates(){
 		
-		$folder = new Fs\Folder($this->path());		
+		$folder = new Folder($this->path());		
 		$dbFolder = $folder->createFolder('Install/Database');		
 		if(!$dbFolder->exists()){
 			return [];
@@ -52,7 +57,7 @@ abstract class AbstractModule extends AbstractObject {
 			
 			//echo $this->moduleName();
 			
-			$module = \Intermesh\Modules\Modules\Model\Module::find(['name' => $this->className()])->single();
+			$module = $this->model();
 			
 			if($module){
 				$files = array_slice($files, $module->version);
@@ -62,7 +67,7 @@ abstract class AbstractModule extends AbstractObject {
 			$regex = '/[0-9]{8}-[0-9]{4}\.(sql|php)/';
 			foreach($files as $file){				
 				if(!preg_match($regex, $file->getName())){
-					throw new \Exception("The upgrade file '".$file->getName()."' is not in the right filename format. It should be YYYYMMDD-HHMM.sql or YYYYMMDD-HHMM.php");
+					throw new Exception("The upgrade file '".$file->getName()."' is not in the right filename format. It should be YYYYMMDD-HHMM.sql or YYYYMMDD-HHMM.php");
 				}
 			}
 			
@@ -85,7 +90,21 @@ abstract class AbstractModule extends AbstractObject {
 	}
 	
 	
+	/**
+	 * Get the module model
+	 * 
+	 * @return Module
+	 */
+	public static function model(){
+		return Module::find(['name' => static::className()])->single();
+	}
+
 	
+	/**
+	 * Get's all modules that depend on eachother including this module class
+	 * 
+	 * @return string[]
+	 */
 	public function getRecursiveDependencies(){
 		$depends = $this->depends();
 		

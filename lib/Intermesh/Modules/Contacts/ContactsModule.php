@@ -40,6 +40,7 @@ class ContactsModule extends AbstractModule{
 		];
 	}
 	
+	
 	public function depends() {
 		return [
 			FilesModule::className(),

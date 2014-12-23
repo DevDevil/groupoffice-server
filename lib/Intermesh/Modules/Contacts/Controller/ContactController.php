@@ -9,8 +9,8 @@ use Intermesh\Core\Db\Query;
 use Intermesh\Core\Exception\Forbidden;
 use Intermesh\Core\Exception\NotFound;
 use Intermesh\Modules\Auth\Model\User;
+use Intermesh\Modules\Contacts\ContactsModule;
 use Intermesh\Modules\Contacts\Model\Contact;
-use Intermesh\Modules\Modules\Model\Module;
 /**
  * The controller for address books
  *
@@ -171,7 +171,7 @@ class ContactController extends AbstractCrudController {
 	public function actionCreate($returnAttributes = []) {
 		
 		
-		if (!Module::find(['name' => 'contacts'])->single()->checkPermission('createAccess')) {
+		if (ContactsModule::model()->checkPermission('createAccess')) {
 			throw new Forbidden();
 		}
 
