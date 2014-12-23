@@ -8,8 +8,8 @@ use Intermesh\Core\Db\Query;
 use Intermesh\Core\Exception\Forbidden;
 use Intermesh\Core\Exception\NotFound;
 use Intermesh\Modules\Auth\Model\User;
-use Intermesh\Modules\Modules\Model\Module;
 use Intermesh\Modules\Projects\Model\Project;
+use Intermesh\Modules\Projects\ProjectsModule;
 
 /*
  * The controller for the projects module
@@ -121,7 +121,7 @@ class ProjectController extends AbstractCrudController{
 	public function actionCreate($returnAttributes = []) {
 		
 		
-		if (!Module::find(['name' => 'projects'])->single()->checkPermission('createAccess')) {
+		if (!ProjectsModule::model()>single()->checkPermission('createAccess')) {
 			throw new Forbidden();
 		}
 

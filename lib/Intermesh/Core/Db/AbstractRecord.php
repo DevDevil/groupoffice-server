@@ -1331,6 +1331,7 @@ abstract class AbstractRecord extends AbstractModel {
 	 * $model->delete();
 	 * </code>
 	 *
+	 * @todo Transactions when cascading relations!
 	 * @return boolean
 	 */
 	public function delete() {

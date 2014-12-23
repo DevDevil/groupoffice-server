@@ -1,5 +1,5 @@
 <?php
-namespace Intermesh\Modules\System\Controller;
+namespace Intermesh\Modules\Modules\Controller;
 
 use Intermesh\Core\App;
 use Intermesh\Core\Controller\AbstractRESTController;

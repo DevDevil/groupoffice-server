@@ -161,7 +161,7 @@ class Finder extends AbstractObject implements IteratorAggregate {
 
 			$stmt->execute();
 			
-		} catch (Exception $e) {
+		} catch (\PDOException $e) {
 			$msg = $e->getMessage();
 
 			if (App::debugger()->enabled) {
@@ -172,7 +172,7 @@ class Finder extends AbstractObject implements IteratorAggregate {
 				App::debug($msg);
 			}
 
-			throw new Exception($msg);
+			throw $e;
 		}
 		
 		if(!isset($this->_query->fetchMode)){

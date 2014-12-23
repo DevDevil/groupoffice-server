@@ -4,8 +4,11 @@ namespace Intermesh\Core;
 use Intermesh\Core\Fs\Folder;
 
 /**
- * Config class with all configuration options. It can configure all objects
- * that extend the AbstractObject class.
+ * Config class with all configuration options. 
+ * 
+ * It can configure all objects that extend the AbstractObject class.
+ * 
+ * You can also set any value to it and it will be stored in the database.
  *
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -112,5 +115,38 @@ class Config {
 	 */
 	public function getDataFolder() {
 		return new Folder($this->dataFolder);
+	}
+	
+	
+	public function __set($name, $value) {
+		$model = Model\Config::findByPk($name);
+		if (!$model) {
+			$model = new Model\Config;
+			$model->name = $name;
+		}
+		
+		$model->value = $value;	
+
+		$success = $model->save();	
+		
+		return $success !== false;
+	}
+	
+	public function __get($name) {
+		$model = Model\Config::findByPk($name);
+		
+		return $model ? $model->value : null;
+	}
+	
+	public function __isset($name) {
+		$model = Model\Config::findByPk($name);
+		return $model !== false;
+	}
+	
+	public function __unset($name) {
+		$model = Model\Config::findByPk($name);
+		if($model){
+			$model->delete();
+		}
 	}
 }

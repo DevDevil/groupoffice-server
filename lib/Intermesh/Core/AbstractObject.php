@@ -57,9 +57,13 @@ abstract class AbstractObject {
 	 * @return string
 	 */
 	public static function moduleName(){
-		$parts = explode("\\", self::className());
+		$parts = explode("\\", static::className());
 		
-		return $parts[2];		
+		//eg.  Intermesh \    Modules \		Contacts  \\ ContactModule
+		$cls = $parts[0].'\\'.$parts[1].'\\'.$parts[2].'\\'.$parts[2].'Module';
+				
+		
+		return $cls;		
 	}
 	
 	/**

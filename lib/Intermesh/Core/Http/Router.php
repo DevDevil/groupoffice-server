@@ -69,6 +69,8 @@ class Router {
 	private function getModuleRoutes($module) {
 
 		$className = "\\Intermesh\\Modules\\" . $module . "\\" . $module . "Module";
+		
+		
 
 
 		if (!class_exists($className)) {
@@ -95,7 +97,7 @@ class Router {
 //		try {
 		
 			if(!isset($_SERVER['PATH_INFO'])){
-				App::request()->redirect($this->buildUrl('system/check'));
+				App::request()->redirect($this->buildUrl('core/check'));
 			}
 		
 			$this->route = ltrim($_SERVER['PATH_INFO'],'/');

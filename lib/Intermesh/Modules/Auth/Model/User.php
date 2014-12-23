@@ -230,9 +230,6 @@ class User extends AbstractRecord {
 	 * @inheritdoc
 	 */
 	public function delete() {
-		
-		echo 'ja';
-
 		if ($this->id === 1) {
 			$this->setValidationError('id', 'adminDeleteForbidden');
 			return false;
