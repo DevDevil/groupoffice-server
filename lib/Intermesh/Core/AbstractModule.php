@@ -16,21 +16,30 @@ abstract class AbstractModule extends AbstractObject {
 	}
 	
 	/**
+	 * Controls if the module is installed by default
 	 * 
-	 * @param string $moduleName
-	 * @return static|boolean
+	 * @return boolean
 	 */
-	public static function findByName($moduleName){		
-		$moduleName = ucfirst($moduleName);
-		$className = "\\Intermesh\\Modules\\" . $moduleName . "\\" . $moduleName . "Module";
-		
-		if (!class_exists($className)) {
-			return false;
-		} else {
-			return new $className;
-		}
+	public function autoInstall(){
+		return true;
 	}
 	
+	/**
+	 * Installs the module
+	 * 
+	 * @return Module
+	 */
+	public function install(){
+		$module = new Module();
+		$module->name = $this->className();
+		return $module->save();
+	}
+	
+	/**
+	 * Get the filesystem path of this module
+	 *  
+	 * @return string
+	 */
 	public function path(){
 		$r = new ReflectionClass($this);
 		
