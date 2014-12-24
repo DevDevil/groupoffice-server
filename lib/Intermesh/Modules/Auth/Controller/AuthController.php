@@ -1,4 +1,5 @@
 <?php
+
 namespace Intermesh\Modules\Auth\Controller;
 
 use Intermesh\Modules\Auth\Model\Token;
@@ -12,8 +13,8 @@ use Intermesh\Core\App;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class AuthController extends \Intermesh\Core\Controller\AbstractRESTController{
-	
+class AuthController extends \Intermesh\Core\Controller\AbstractRESTController {
+
 	protected function authenticate() {
 		return true;
 	}
@@ -21,10 +22,10 @@ class AuthController extends \Intermesh\Core\Controller\AbstractRESTController{
 	/**
 	 * Logs the current user out.
 	 */
-	protected function httpDelete(){
+	protected function httpDelete() {
 
 		App::session()->end();
-		
+
 		return $this->renderJson(['success' => true]);
 	}
 
@@ -35,31 +36,40 @@ class AuthController extends \Intermesh\Core\Controller\AbstractRESTController{
 	 *
 	 * <code>
 	 * {
-	 *	"username": "user",
-	 *	"password": "secret"
+	 * 	"username": "user",
+	 * 	"password": "secret"
 	 * }
 	 * </code>
 	 *
 	 * @returns JSON {"userId": "Current ID of user", "securityToken": "token required in each request"}
 	 */
-	public function httpPost(){
-		
-		
+	public function httpPost() {
+
+
 		$user = User::login(App::request()->payload['username'], App::request()->payload['password'], true);
-		
+
 		$response = [
-				'success'=>$user!==false
+			'success' => $user !== false
 		];
 
-		if($response['success']){	
+		if ($response['success']) {
 			//todo remember for different clients
-			if(App::request()->payload['remember']){				
-				Token::generateSeries($user->id);				
-			}			
+			if (App::request()->payload['remember']) {
+				Token::generateSeries($user->id);
+			}
 		}
-		
-		return $this->renderJson($response);
 
-		
+		return $this->renderJson($response);
 	}
+
+	public function httpGet() {
+		$user = User::current();
+
+		$response = [
+			'success' => $user !== false
+		];
+
+		return $this->renderJson($response);
+	}
+
 }
