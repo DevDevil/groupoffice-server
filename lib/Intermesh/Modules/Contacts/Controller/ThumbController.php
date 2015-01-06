@@ -39,14 +39,17 @@ class ThumbController extends AbstractThumbController {
 
 		$contact = Contact::findByPk($this->router->routeParams['contactId']);
 
-		if ($contact) {
-			
+		if (!$contact) {
+			$contact = new Contact();
+		}else
+		{			
 			if (!$contact->checkPermission('readAccess')) {
 				throw new Forbidden();
 			}
-
-			return $contact->photoFile();
 		}
+
+		return $contact->photoFile();
+
 
 
 		return false;

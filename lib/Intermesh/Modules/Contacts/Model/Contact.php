@@ -101,7 +101,7 @@ class Contact extends AbstractRecord {
 	public function photoFile(){
 		if(empty($this->_photoFilePath)){
 			
-			$gender= $this->gender =='M' ? 'male' : 'female';
+			$gender= $this->gender != 'F' ? 'male' : 'female';
 			
 			return new File(App::config()->getLibPath().'/Modules/Contacts/Resources/'.$gender.'.png');
 		}
@@ -112,7 +112,7 @@ class Contact extends AbstractRecord {
 	
 	public function getPhoto(){		
 		//Added modified at so browser will reload when dynamically changed with js
-		return App::router()->buildUrl("contacts/".$this->id."/thumb", ['modifiedAt' => $this->modifiedAt]); 
+		return App::router()->buildUrl("contacts/".intval($this->id)."/thumb", ['modifiedAt' => $this->modifiedAt]); 
 	}
 
 	/**
