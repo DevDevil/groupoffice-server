@@ -8,7 +8,7 @@ use Intermesh\Modules\Notes\Controller\ThumbController;
 
 class NotesModule extends AbstractModule {
 
-	public static function getRoutes() {
+	public function routes() {
 		return [
 //			'notebooks' => [
 //				'routeParams' => ['notebookId'],

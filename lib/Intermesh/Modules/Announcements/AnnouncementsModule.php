@@ -7,7 +7,7 @@ use Intermesh\Modules\Announcements\Controller\ThumbController;
 
 class AnnouncementsModule extends AbstractModule {
 
-	public static function getRoutes() {
+	public function routes() {
 		return [
 			'announcements' => [
 				'controller' => Controller\AnnouncementController::className(),

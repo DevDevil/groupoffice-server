@@ -7,7 +7,7 @@ use Intermesh\Modules\Tennis\Controller\SpeelsterkteController;
 
 class TennisModule extends AbstractModule {
 
-	public static function getRoutes() {
+	public function routes() {
 		return [
 			'tennis' => [
 				'controller' => SpeelsterkteController::className()				

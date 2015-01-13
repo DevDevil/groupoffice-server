@@ -16,10 +16,11 @@ Example:
 ```````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
 'use strict';
 
-angular.module('IAE').
-		//Register the app
-		config(['modulesProvider', function(modulesProvider) {
-				modulesProvider.addModule('helloworld', 'Hello world', 'fa-thumbs-o-up');
+//Use GO.module instead of angular.module so it will be added to the app dependencies
+GO.module('GO.helloworld').
+		//Create a launcher
+		config(['launcherProvider', function (launcherProvider) {								
+				launcherProvider.add('helloworld', 'Hello World', []);
 			}]).
 		config(['$stateProvider', function($stateProvider) {
 
@@ -27,7 +28,7 @@ angular.module('IAE').
 				$stateProvider
 						.state('helloworld', {
 							url: "/helloworld",
-							templateUrl: 'modules/helloworld/partials/main.html',
+							templateUrl: 'modules/helloworld/views/main.html',
 						});
 			}]);
 ```````````````````````````````````````````````````````````````````````````````````````````````````````````````````````

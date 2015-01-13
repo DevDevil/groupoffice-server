@@ -2,6 +2,7 @@
 
 namespace Intermesh\Modules\Modules\Controller;
 
+use Intermesh\Core\App;
 use Intermesh\Core\Controller\AbstractRESTController;
 use Intermesh\Core\Db\Utils;
 use Intermesh\Core\Fs\File;
@@ -37,7 +38,6 @@ class UpgradeController extends AbstractRESTController {
 	public function httpGet() {
 		
 		$this->initDatabase();
-	
 		
 		$modules = ModuleUtils::getModules();
 		
@@ -53,12 +53,23 @@ class UpgradeController extends AbstractRESTController {
 		return $this->renderJson($this->response);
 	}
 	
+	private function setUtf8Collation(){
+		//Set utf8 as collation default
+		$sql = "ALTER DATABASE `".App::dbConnection()->database."` CHARACTER SET utf8 COLLATE utf8_unicode_ci;";		
+		App::dbConnection()->query($sql);
+		
+
+		
+	}
+	
 	private function initDatabase(){
 		
 		if(Utils::tableExists('modulesModule')){
 			//if modulesModule exists the database must be installed
 			return true;
 		}
+		
+		$this->setUtf8Collation();
 		
 		$modulesManager = new ModulesModule();
 		

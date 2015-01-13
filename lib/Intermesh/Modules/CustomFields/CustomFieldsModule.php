@@ -8,15 +8,15 @@ use Intermesh\Modules\CustomFields\Controller\FieldSetController;
 
 class CustomFieldsModule extends AbstractModule {
 
-	public static function getRoutes() {
+	public function routes() {
 		return [
-			'CustomFields' => [
+			'customfields' => [
 					'children' => [
 						'models' => [
 								'controller' => Controller\ModelController::className()
 						],
 						'fieldsets' => [
-							'routeParams' => ['modelName'],
+							'routeParams' => ['modelName', 'fieldSetId'],
 							'controller' => FieldSetController::className(),
 							'children' => [
 								'fields' => [

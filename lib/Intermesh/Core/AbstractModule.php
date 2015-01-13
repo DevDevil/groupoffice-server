@@ -11,7 +11,7 @@ use ReflectionClass;
 
 abstract class AbstractModule extends AbstractObject {
 
-	public static function getRoutes() {
+	public function routes() {
 		return [];
 	}
 	

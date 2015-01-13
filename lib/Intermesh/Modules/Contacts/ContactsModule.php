@@ -12,7 +12,7 @@ use Intermesh\Modules\Files\FilesModule;
 use Intermesh\Modules\Tags\TagsModule;
 
 class ContactsModule extends AbstractModule{
-	public static function getRoutes(){
+	public function routes(){
 		return [
 //			'addressbooks' => [
 //				'routeParams' => ['addressbookId'],

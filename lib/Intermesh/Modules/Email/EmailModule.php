@@ -13,7 +13,7 @@ use Intermesh\Modules\Email\Controller\ThreadController;
 
 class EmailModule extends AbstractModule {
 
-	public static function getRoutes() {
+	public function routes() {
 		return [
 			'email' => [
 				'children' => [

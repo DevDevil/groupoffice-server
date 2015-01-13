@@ -87,7 +87,7 @@ class FieldSetController extends AbstractRESTController {
 		$fieldset->save();
 		
 
-		echo $this->view->render('form', array('fieldset' => $fieldset, 'returnAttributes' => $returnAttributes));
+		return $this->renderModel($fieldset);
 	}
 
 	/**
@@ -116,7 +116,7 @@ class FieldSetController extends AbstractRESTController {
 		$fieldset->setAttributes(App::request()->payload['data']);
 		$fieldset->save();
 		
-		return $this->renderModel($fieldSet);
+		return $this->renderModel($fieldset);
 	}
 
 	/**

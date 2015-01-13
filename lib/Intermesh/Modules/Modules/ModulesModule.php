@@ -9,7 +9,7 @@ use Intermesh\Modules\Modules\Controller\ModuleController;
 
 class ModulesModule extends AbstractModule {
 
-	public static function getRoutes() {
+	public  function routes() {
 		return [
 			'modules' => [
 				'controller' => ModuleController::className(),

@@ -84,7 +84,7 @@ abstract class AbstractRESTController extends AbstractObject {
 		$this->setStatus($httpCode);
 
 		if (!isset($message)) {
-			$message = self::$codes[$httpCode];
+			$message = HttpException::$codes[$httpCode];
 		}
 
 		$data['success'] = false;

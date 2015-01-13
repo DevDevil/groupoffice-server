@@ -11,7 +11,7 @@ use Intermesh\Modules\Auth\Controller\UserController;
 use Intermesh\Modules\Auth\Controller\UserRolesController;
 
 class AuthModule extends AbstractModule{
-	public static function getRoutes(){
+	public function routes(){
 		return [
 				'auth' => [
 					'controller' => AuthController::className(),

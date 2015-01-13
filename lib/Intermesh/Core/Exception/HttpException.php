@@ -12,6 +12,12 @@ use Exception;
  */
 class HttpException extends Exception
 {
+	
+	/**
+	 *  HTTP code error messages
+	 *
+	 * @var array
+	 */
 	public static $codes = [
 //		'100' => 'Continue',
 //		'101' => 'Switching Protocols',

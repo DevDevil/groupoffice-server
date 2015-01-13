@@ -8,7 +8,7 @@ use Intermesh\Modules\Projects\Controller\TaskController;
 
 class ProjectsModule extends AbstractModule {
 
-	public static function getRoutes() {
+	public function routes() {
 		return [
 			'projects' => [
 				'routeParams' => ['projectId'],

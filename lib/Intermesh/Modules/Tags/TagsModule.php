@@ -7,7 +7,7 @@ use Intermesh\Modules\Tags\Controller\TagController;
 
 class TagsModule extends AbstractModule {
 
-	public static function getRoutes() {
+	public function routes() {
 		return [
 			'tags' => [
 				'routeParams' => ['tagId'],

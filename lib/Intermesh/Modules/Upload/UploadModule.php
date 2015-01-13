@@ -8,7 +8,7 @@ use Intermesh\Modules\Upload\Controller\ThumbController;
 
 class UploadModule extends AbstractModule {
 
-	public static function getRoutes() {
+	public function routes() {
 		return [
 			'upload' => [
 				'controller' => FlowController::className(),

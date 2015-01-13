@@ -66,19 +66,26 @@ use Intermesh\Core\App;
 
 class Router {
 
-	private function getModuleRoutes($module) {
+	/**
+	 * Get routing tables from all modules
+	 * 
+	 * @todo cache this
+	 * 
+	 * @return array[]
+	 */
+	private function getModuleRoutes() {
 
-		$className = "\\Intermesh\\Modules\\" . $module . "\\" . $module . "Module";
+		$modules = \Intermesh\Modules\Modules\Model\Module::find();
 		
+		$routes = [];
 		
-
-
-		if (!class_exists($className)) {
-			throw new Exception("Module (" . $className . ") has no routes!");
-		} else {
-			return $className::getRoutes();
+		foreach($modules as $module){
+			$routes = array_merge($routes, $module->manager()->routes());
 		}
+		
+		return $routes;
 	}
+	
 	
 	/**
 	 * The current route. 
@@ -104,9 +111,7 @@ class Router {
 
 			$this->_routeParts = explode('/', $this->route);			
 
-			$module = ucfirst($this->_routeParts[0]);
-
-			$routes = $this->getModuleRoutes($module);
+			$routes = $this->getModuleRoutes();
 
 			$this->walkRoute($routes);
 //		} catch (\Exception $e) {
