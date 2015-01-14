@@ -48,14 +48,15 @@ class FieldController extends AbstractRESTController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see Intermesh\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function store($orderColumn = 'sortOrder', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = [], $where=null) {
+	protected function store($fieldSetId, $orderColumn = 'sortOrder', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = [], $where=null) {
 
 
 		$query = Query::newInstance()
 				->orderBy([$orderColumn => $orderDirection])
 				->limit($limit)
 				->offset($offset)
-				->search($searchQuery, ['name']);
+				->search($searchQuery, ['name'])
+				->where(['fieldSetId' => $fieldSetId]);
 				
 		if(isset($where)){
 			$where = json_decode($where, true);
