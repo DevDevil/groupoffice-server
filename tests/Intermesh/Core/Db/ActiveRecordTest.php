@@ -1,9 +1,9 @@
 <?php
 
-namespace Intermesh\Core\Db;
+namespace GO\Core\Db;
 
-use Intermesh\Modules\Auth\Model\Role;
-use Intermesh\Modules\Auth\Model\User;
+use GO\Modules\Auth\Model\Role;
+use GO\Modules\Auth\Model\User;
 use PHPUnit_Framework_TestCase;
 
 /**

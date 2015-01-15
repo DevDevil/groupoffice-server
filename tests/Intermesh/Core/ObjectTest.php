@@ -1,8 +1,8 @@
 <?php
 
-namespace Intermesh\Core;
+namespace GO\Core;
 
-use Intermesh\Core\AbstractModel;
+use GO\Core\AbstractModel;
 
 class TestModel extends AbstractModel{
 

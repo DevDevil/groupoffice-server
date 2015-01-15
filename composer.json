@@ -28,7 +28,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Intermesh\\": "lib/Intermesh/"
+			"GO\\": "lib/GO/"
 		}
 	}
 }

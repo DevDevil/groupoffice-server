@@ -3,7 +3,7 @@
 chdir(dirname(__FILE__));
 $classLoader = require("../vendor/autoload.php");
 
-use Intermesh\Core\App as App;
+use GO\Core\App as App;
 
 //Initialize the framework with confuration
 App::init(require('../config.php'));

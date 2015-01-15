@@ -1,8 +1,8 @@
 <?php
 
-namespace Intermesh\Core;
+namespace GO\Core;
 
-use Intermesh\Core\App;
+use GO\Core\App;
 
 /**
  * The App class is a collection of static functions to access common services
