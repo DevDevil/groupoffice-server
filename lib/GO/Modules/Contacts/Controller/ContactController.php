@@ -11,8 +11,13 @@ use GO\Core\Exception\NotFound;
 use GO\Modules\Auth\Model\User;
 use GO\Modules\Contacts\ContactsModule;
 use GO\Modules\Contacts\Model\Contact;
+
 /**
- * The controller for address books
+ * The controller for contacts
+ * 
+ * See {@see Contact} model for the available properties
+ * 
+ * 
  *
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>

@@ -2,12 +2,26 @@
 
 namespace GO\Modules\DevTools\Controller;
 
+use GO\Core\App;
 use GO\Core\Controller\AbstractRESTController;
 
-class ModelController extends AbstractRESTController {
+class RoutesController extends AbstractRESTController {
 
 	public function httpGet() {
+		//{@link http://intermesh.nl description}
 		
+		$routes = $this->getRoutesAsString();
+		
+		echo "<pre>";
+		
+		echo " * | Route | Controller     |\n";
+		echo " * |-------|----------------|\n";
+ 	
+		foreach($routes as $routeStr => $config){			
+			echo ' * |'.$routeStr.' | {@link '.$config['controller']."}|\n";
+		}
+		
+		echo "</pre>";
 	}
 	/**
 	 * Get all routes
@@ -17,12 +31,12 @@ class ModelController extends AbstractRESTController {
 	 * @param string $prefix
 	 * @return string[]
 	 */
-	public function getRoutesAsString($routes=null, $prefix = ''){
+	private function getRoutesAsString($routes=null, $prefix = ''){
 		
 		$routeStr = [];
 		
 		if(!isset($routes)){
-			$routes = $this->getRoutes();
+			$routes = App::router()->getRoutes();
 		}
 		
 		foreach($routes as $route => $config){
@@ -30,15 +44,15 @@ class ModelController extends AbstractRESTController {
 				
 			$str = $prefix.'/'.$route;
 			if(isset($config['controller'])){
-				$routeStr[] .= $str;
+				$routeStr[$str] = $config;
 			}
 
 			if(isset($config['routeParams'])){
 				foreach($config['routeParams'] as $p){
-					$str .= '/{'.$p.'}';
+					$str .= '/['.$p.']';
 
 					if(isset($config['controller'])){
-						$routeStr[] .= $str;
+						$routeStr[$str] = $config;
 					}
 				}
 			}

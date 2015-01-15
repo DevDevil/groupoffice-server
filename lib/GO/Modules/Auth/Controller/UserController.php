@@ -12,6 +12,8 @@ use GO\Modules\Auth\Model\User;
 
 /**
  * The controller for users. Admin role is required.
+ * 
+ * Uses the {@see User} model.
  *
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -20,9 +22,9 @@ use GO\Modules\Auth\Model\User;
 class UserController extends AbstractCrudController {
 
 
-//	protected function authenticate() {
-//		return parent::authenticate() && User::current()->isAdmin();
-//	}
+	protected function authenticate() {
+		return parent::authenticate() && User::current()->isAdmin();
+	}
 
 	/**
 	 * Fetch users
@@ -33,6 +35,7 @@ class UserController extends AbstractCrudController {
 	 * @param int $offset Start the select on this offset
 	 * @param string $searchQuery Search on this query.
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see GO\Core\Db\ActiveRecord::getAttributes()} for more information.
+	 * @param string $where {@see \GO\Core\Db\Criteria::whereSafe()}
 	 * @return array JSON Model data
 	 */
 	protected function actionStore($orderColumn = 'username', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = [], $where = null) {

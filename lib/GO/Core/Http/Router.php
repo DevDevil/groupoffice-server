@@ -12,7 +12,76 @@ use GO\Core\App;
  * about creating routes
  * 
  * {@see \GO\Core\Controller\AbstractRESTController} and {@see \GO\Core\Controller\AbstractCrudController}
- *
+ * 
+ * Available routes:
+ * 
+  * | Route | Controller     |
+ * |-------|----------------|
+ * |/modules | {@link GO\Modules\Modules\Controller\ModuleController}|
+ * |/modules/check | {@link GO\Modules\Modules\Controller\CheckController}|
+ * |/modules/upgrade | {@link GO\Modules\Modules\Controller\UpgradeController}|
+ * |/auth | {@link GO\Modules\Auth\Controller\AuthController}|
+ * |/auth/users | {@link GO\Modules\Auth\Controller\UserController}|
+ * |/auth/users/[userId] | {@link GO\Modules\Auth\Controller\UserController}|
+ * |/auth/users/[userId]/roles | {@link GO\Modules\Auth\Controller\UserRolesController}|
+ * |/auth/roles | {@link GO\Modules\Auth\Controller\RoleController}|
+ * |/auth/roles/[roleId] | {@link GO\Modules\Auth\Controller\RoleController}|
+ * |/auth/roles/[roleId]/users | {@link GO\Modules\Auth\Controller\RoleUsersController}|
+ * |/auth/permissions | {@link GO\Modules\Auth\Controller\PermissionsController}|
+ * |/notes | {@link GO\Modules\Notes\Controller\NoteController}|
+ * |/notes/[noteId] | {@link GO\Modules\Notes\Controller\NoteController}|
+ * |/notes/[noteId]/noteImages | {@link GO\Modules\Notes\Controller\ThumbController}|
+ * |/notes/[noteId]/noteImages/[noteImageId] | {@link GO\Modules\Notes\Controller\ThumbController}|
+ * |/notes/[noteId]/noteImages/[noteImageId]/thumb | {@link GO\Modules\Notes\Controller\ThumbController}|
+ * |/tennis | {@link GO\Modules\Tennis\Controller\SpeelsterkteController}|
+ * |/tags | {@link GO\Modules\Tags\Controller\TagController}|
+ * |/tags/[tagId] | {@link GO\Modules\Tags\Controller\TagController}|
+ * |/customfields/models | {@link GO\Modules\CustomFields\Controller\ModelController}|
+ * |/customfields/fieldsets | {@link GO\Modules\CustomFields\Controller\FieldSetController}|
+ * |/customfields/fieldsets/[modelName] | {@link GO\Modules\CustomFields\Controller\FieldSetController}|
+ * |/customfields/fieldsets/[modelName]/[fieldSetId] | {@link GO\Modules\CustomFields\Controller\FieldSetController}|
+ * |/customfields/fieldsets/[modelName]/[fieldSetId]/fields | {@link GO\Modules\CustomFields\Controller\FieldController}|
+ * |/customfields/fieldsets/[modelName]/[fieldSetId]/fields/[fieldId] | {@link GO\Modules\CustomFields\Controller\FieldController}|
+ * |/upload | {@link GO\Modules\Upload\Controller\FlowController}|
+ * |/upload/thumb | {@link GO\Modules\Upload\Controller\ThumbController}|
+ * |/upload/thumb/[tempFile] | {@link GO\Modules\Upload\Controller\ThumbController}|
+ * |/email/test | {@link GO\Modules\Email\Controller\TestController}|
+ * |/email/sync | {@link GO\Modules\Email\Controller\SyncController}|
+ * |/email/sync/[accountId] | {@link GO\Modules\Email\Controller\SyncController}|
+ * |/email/accounts | {@link GO\Modules\Email\Controller\AccountController}|
+ * |/email/accounts/[accountId] | {@link GO\Modules\Email\Controller\AccountController}|
+ * |/email/accounts/[accountId]/mailboxes/[mailboxName]/messages | {@link GO\Modules\Email\Controller\ImapMessageController}|
+ * |/email/accounts/[accountId]/mailboxes/[mailboxName]/messages/[uid] | {@link GO\Modules\Email\Controller\ImapMessageController}|
+ * |/email/accounts/[accountId]/mailboxes/[mailboxName]/messages/[uid]/attachments | {@link GO\Modules\Email\Controller\AttachmentController}|
+ * |/email/accounts/[accountId]/mailboxes/[mailboxName]/messages/[uid]/attachments/[partNumber] | {@link GO\Modules\Email\Controller\AttachmentController}|
+ * |/email/accounts/[accountId]/folders | {@link GO\Modules\Email\Controller\FolderController}|
+ * |/email/accounts/[accountId]/folders/[folderId] | {@link GO\Modules\Email\Controller\FolderController}|
+ * |/email/accounts/[accountId]/folders/[folderId]/threads | {@link GO\Modules\Email\Controller\ThreadController}|
+ * |/email/accounts/[accountId]/folders/[folderId]/threads/[threadId] | {@link GO\Modules\Email\Controller\ThreadController}|
+ * |/email/accounts/[accountId]/folders/[folderId]/threads/[threadId]/attachments | {@link GO\Modules\Email\Controller\AttachmentController}|
+ * |/email/accounts/[accountId]/folders/[folderId]/threads/[threadId]/attachments/[attachmentId] | {@link GO\Modules\Email\Controller\AttachmentController}|
+ * |/email/accounts/[accountId]/folders/[folderId]/messages | {@link GO\Modules\Email\Controller\MessageController}|
+ * |/email/accounts/[accountId]/folders/[folderId]/messages/[messageId] | {@link GO\Modules\Email\Controller\MessageController}|
+ * |/email/accounts/[accountId]/folders/[folderId]/messages/[messageId]/attachments | {@link GO\Modules\Email\Controller\AttachmentController}|
+ * |/email/accounts/[accountId]/folders/[folderId]/messages/[messageId]/attachments/[attachmentId] | {@link GO\Modules\Email\Controller\AttachmentController}|
+ * |/announcements | {@link GO\Modules\Announcements\Controller\AnnouncementController}|
+ * |/announcements/[announcementId] | {@link GO\Modules\Announcements\Controller\AnnouncementController}|
+ * |/announcements/[announcementId]/thumb | {@link GO\Modules\Announcements\Controller\ThumbController}|
+ * |/projects | {@link GO\Modules\Projects\Controller\ProjectController}|
+ * |/projects/[projectId] | {@link GO\Modules\Projects\Controller\ProjectController}|
+ * |/projects/[projectId]/tasks | {@link GO\Modules\Projects\Controller\TaskController}|
+ * |/projects/[projectId]/tasks/[taskId] | {@link GO\Modules\Projects\Controller\TaskController}|
+ * |/contacts | {@link GO\Modules\Contacts\Controller\ContactController}|
+ * |/contacts/[contactId] | {@link GO\Modules\Contacts\Controller\ContactController}|
+ * |/contacts/[contactId]/thumb | {@link GO\Modules\Contacts\Controller\ThumbController}|
+ * |/contacts/[contactId]/files | {@link GO\Modules\Contacts\Controller\FilesController}|
+ * |/contacts/[contactId]/files/[fileId] | {@link GO\Modules\Contacts\Controller\FilesController}|
+ * |/contacts/[contactId]/timeline | {@link GO\Modules\Contacts\Controller\TimelineController}|
+ * |/contacts/[contactId]/timeline/[itemId] | {@link GO\Modules\Contacts\Controller\TimelineController}|
+ * |/devtools/model | {@link GO\Modules\DevTools\Controller\ModelController}|
+ * |/devtools/model/[modelName] | {@link GO\Modules\DevTools\Controller\ModelController}|
+ * |/devtools/routes | {@link GO\Modules\DevTools\Controller\RoutesController}|
+ * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
