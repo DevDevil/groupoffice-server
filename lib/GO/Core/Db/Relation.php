@@ -353,12 +353,12 @@ class Relation {
 			//It's an array of attributes of the has many related model
 			$modelArray = $hasMany;
 
-			$hasMany = !empty($modelArray['attributes'][$primaryKey]) ? $rmn::findByPk($modelArray['attributes'][$primaryKey]) : false;
+			$hasMany = !empty($modelArray[$primaryKey]) ? $rmn::findByPk($modelArray[$primaryKey]) : false;
 			if(!$hasMany){
 				$hasMany = new $rmn;
 			}
 
-			$hasMany->setAttributes($modelArray['attributes']);
+			$hasMany->setAttributes($modelArray);
 
 			//Set the foreign key
 			$hasMany->{$this->foreignKey} = $model->{$this->key};

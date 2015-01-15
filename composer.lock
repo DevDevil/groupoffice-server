@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "baa44d5e88afc5015d214d0b1d8268ce",
+    "hash": "276949859d38fbd71bcfecf7f963c1bb",
     "packages": [
         {
             "name": "flowjs/flow-php-server",
@@ -753,6 +753,7 @@
     "minimum-stability": "dev",
     "stability-flags": [],
     "prefer-stable": false,
+    "prefer-lowest": false,
     "platform": {
         "php": ">=5.4.0",
         "ext-pcre": "*",

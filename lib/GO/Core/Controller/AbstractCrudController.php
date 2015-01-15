@@ -45,11 +45,11 @@ abstract class AbstractCrudController extends AbstractRESTController{
 			throw new Exception("No primary keys defined in routeParams for route ".$this->router->route);
 		}
 		
-		$firstRouteParam = $this->router->routeConfig['routeParams'][0];
+		$lastRouteParam = $this->router->routeConfig['routeParams'][count($this->router->routeConfig['routeParams'])-1];
 		
-		if(!isset($this->router->routeParams[$firstRouteParam])){
+		if(!isset($this->router->routeParams[$lastRouteParam])){
 			return $this->callMethodWithParams('actionStore');
-		}elseif($this->router->routeParams[$firstRouteParam] == '0')
+		}elseif($this->router->routeParams[$lastRouteParam] == '0')
 		{
 			return $this->callMethodWithParams('actionNew');
 		}else{

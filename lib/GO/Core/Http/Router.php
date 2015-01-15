@@ -127,7 +127,7 @@ class Router {
 //		try {
 		
 			if(!isset($_SERVER['PATH_INFO'])){
-				App::request()->redirect($this->buildUrl('core/check'));
+				App::request()->redirect($this->buildUrl('modules/check'));
 			}
 		
 			$this->route = ltrim($_SERVER['PATH_INFO'],'/');

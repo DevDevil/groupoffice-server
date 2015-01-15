@@ -87,9 +87,7 @@ class CheckController extends AbstractRESTController{
 						});
 						
 						
-		echo '<pre>';		
-		var_dump(App::router()->getRoutesAsString());
-		echo '</pre>';
+		echo '<a href="'.App::router()->buildUrl('modules/upgrade').'">Install / Upgrade database</a>';
 
 	}
 

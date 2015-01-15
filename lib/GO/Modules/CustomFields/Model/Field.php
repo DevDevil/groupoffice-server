@@ -218,7 +218,7 @@ class Field extends AbstractRecord {
 	public function save() {
 		
 		
-		$startTrans = $this->isModified(['databaseName','defaultValue', '_data','type']);
+		$startTrans = $this->isModified(['databaseName','defaultValue', '_data','type']) && !App::dbConnection()->getPDO()->inTransaction();
 		
 		if($startTrans){
 			App::dbConnection()->getPDO()->beginTransaction();

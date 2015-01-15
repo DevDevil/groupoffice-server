@@ -20,7 +20,6 @@
 		"ext-pdo": "*",
 
 		"flowjs/flow-php-server": "*"
-		
 
 	},
 	"require-dev": {
