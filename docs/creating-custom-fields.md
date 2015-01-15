@@ -1,7 +1,7 @@
 Creating custom fields
 ----------------------
 
-1. Create model "ContactCustomFields" and add the trait "use Intermesh\Modules\CustomFields\Model\CustomFieldsTrait";
+1. Create model "ContactCustomFields" and add the trait "use Intermesh\Modules\CustomFields\Model\CustomFieldsTrait" in the contact model;
 2. Define relation in Contact model:
 	``````````````````````````````````````````````````````````````````
 	$r->hasOne('customfields', ContactCustomFields::className(), 'id')

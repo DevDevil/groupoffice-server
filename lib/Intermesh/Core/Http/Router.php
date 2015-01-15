@@ -8,54 +8,8 @@ use Intermesh\Core\App;
 /**
  * The router routes requests to their controller actions
  *
- * Each module can define it's own routes. The first part of the route must always
- * match the module name. So the route "auth/users/1" will look in the contacts module.
- * 
- * This will find the class "Intermesh\Modules\Auth\AuthModule".
- * The routes for that module are defined  in that file:
- * 
- * <code>
- * class AuthModule extends AbstractModule{
-	public static function getRoutes(){
-		return [
-					'auth' => [
-						'controller' => AuthController::className(),
-						'children' => [
-							'users' => [
-								'routeParams' => ['userId'],
-								'controller' => UserController::className(),
-								'children' => [
-									'roles' =>[
-										'controller' => UserRolesController::className()
-									]
-								]
-							],
-							'roles' => [
-								'routeParams' => ['roleId'],
-								'controller' => RoleController::className(),
-								'children' => [
-									'users' =>[
-										'controller' => RoleUsersController::className()
-									],
-
-								]
-							],
-							'permissions' => [
-								'routerParams' => ['modelId', 'modelName'],
-								'controller' => PermissionsController::className()
-							]
-						]
-					]
-
-			];
-		}
-
-	}
- * </code>
- * 
- * So in this case our example will find the "users" and the "routeParam" "userId" will be set to "1".
- * 
- * The UserController will handle this request. 
+ * Each module can add routes See {@see \Intermesh\Core\AbstractModule} for information
+ * about creating routes
  * 
  * {@see \Intermesh\Core\Controller\AbstractRESTController} and {@see \Intermesh\Core\Controller\AbstractCrudController}
  *
@@ -73,19 +27,19 @@ class Router {
 	 * 
 	 * @return array[]
 	 */
-	private function getModuleRoutes() {
+	public function getRoutes() {
 
 		$modules = \Intermesh\Modules\Modules\Model\Module::find();
 		
 		$routes = [];
 		
 		foreach($modules as $module){
+			
 			$routes = array_merge($routes, $module->manager()->routes());
 		}
 		
 		return $routes;
-	}
-	
+	}	
 	
 	/**
 	 * The current route. 
@@ -111,7 +65,7 @@ class Router {
 
 			$this->_routeParts = explode('/', $this->route);			
 
-			$routes = $this->getModuleRoutes();
+			$routes = $this->getRoutes();
 
 			$this->walkRoute($routes);
 //		} catch (\Exception $e) {
@@ -139,9 +93,7 @@ class Router {
 						'children' => [
 								'thumb' => [
 									'routeParams' => ['contactId'],
-									'controller' => "Intermesh\Contacts\Controller\Contact",
-									'actions' => ['thumb', 'original','upload'],
-									'args' => ['modelName' => Contact::className(), 'primaryKeyName' => 'contactId'],
+									'controller' => "Intermesh\Contacts\Controller\Contact"									
 								]
 							]
 						]

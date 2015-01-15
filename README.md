@@ -14,7 +14,7 @@ To install this example follow these steps:
 2. clone the repository:
 
    ``````````````````````````````````````````````````````````````````
-   $ git clone https://github.com/Intermesh/intermesh-php-example.git
+   $ git clone https://github.com/intermesh/groupoffice-server.git
    ``````````````````````````````````````````````````````````````````
 3. Install composer if you haven't done that already. On Ubuntu do:
 
@@ -25,7 +25,7 @@ To install this example follow these steps:
 4. Run composer in the working directory:
 
    ``````````````````````````
-   $ cd intermesh-php-example
+   $ cd groupoffice-server
    $ composer install
    ``````````````````````````
 5. Put the index.php in a web server root and make sure the path to autoload.php
@@ -47,7 +47,7 @@ Now it should work. Launch index.php:
 
 This will redirect to a system test page:
 
-/index.php/system/check
+/index.php/modules/check
 
 Optionally you can create an alias for apache:
 

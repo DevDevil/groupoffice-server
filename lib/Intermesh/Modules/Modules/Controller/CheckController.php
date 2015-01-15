@@ -85,6 +85,11 @@ class CheckController extends AbstractRESTController{
 								return "'".$folder."' is not writable!";
 							}
 						});
+						
+						
+		echo '<pre>';		
+		var_dump(App::router()->getRoutesAsString());
+		echo '</pre>';
 
 	}
 
