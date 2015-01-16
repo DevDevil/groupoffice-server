@@ -45,8 +45,8 @@ class FieldSet extends AbstractRecord{
 	
 	public function validate() {
 		
-		if(!call_user_func([$this->modelName, 'isCustomFieldsRecord'])){
-			$this->setValidationError('model', 'noCustomFieldsRecord');
+		if(!class_exists($this->modelName) || !call_user_func([$this->modelName, 'isCustomFieldsRecord'])){
+			$this->setValidationError('model', 'noCustomFieldsRecord', ['modelName' => $this->modelName]);
 		}
 		
 		return parent::validate();

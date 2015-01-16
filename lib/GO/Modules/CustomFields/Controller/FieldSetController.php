@@ -29,10 +29,10 @@ class FieldSetController extends AbstractCrudController {
 	 * @param int $offset Start the select on this offset
 	 * @param string $searchQuery Search on this query.
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see GO\Core\Db\ActiveRecord::getAttributes()} for more information.
-	 * @param string $where {@see \GO\Core\Db\Criteria::whereSafe()}
+	
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = [], $where = null) {
+	protected function actionStore($modelName, $orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = []) {
 
 		$query = Query::newInstance()
 				->orderBy([$orderColumn => $orderDirection])
@@ -42,17 +42,19 @@ class FieldSetController extends AbstractCrudController {
 		if (!empty($searchQuery)) {
 			$query->search($searchQuery, ['t.name']);
 		}
+		
+		$query->where(['modelName' => $modelName]);
 
-		if (!empty($where)) {
-
-			$where = json_decode($where, true);
-
-			if (count($where)) {
-				$query
-						->groupBy(['t.id'])
-						->whereSafe($where);
-			}
-		}
+//		if (!empty($where)) {
+//
+//			$where = json_decode($where, true);
+//
+//			if (count($where)) {
+//				$query
+//						->groupBy(['t.id'])
+//						->whereSafe($where);
+//			}
+//		}
 
 		$fieldSets = FieldSet::find($query);
 
@@ -87,9 +89,10 @@ class FieldSetController extends AbstractCrudController {
 	 * @param array $returnAttributes
 	 * @return array
 	 */
-	protected function actionNew($returnAttributes = []) {
+	protected function actionNew($modelName, $returnAttributes = []) {
 
 		$fieldSet = new FieldSet();
+		$fieldSet->modelName = $modelName;
 
 		return $this->renderModel($fieldSet, $returnAttributes);
 	}
@@ -107,9 +110,10 @@ class FieldSetController extends AbstractCrudController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see GO\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnAttributes = []) {
+	public function actionCreate($modelName, $returnAttributes = []) {
 
 		$fieldSet = new FieldSet();
+		$fieldSet->modelName = $modelName;
 		$fieldSet->setAttributes(App::request()->payload['data']);
 		$fieldSet->save();
 

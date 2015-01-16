@@ -1,0 +1,1 @@
+ALTER TABLE `customFieldsField` ADD FOREIGN KEY (`fieldSetId`) REFERENCES `go7test2`.`customFieldsFieldSet`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
