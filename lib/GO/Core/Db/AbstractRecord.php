@@ -46,9 +46,7 @@ use GO\Modules\Auth\Model\User;
  *
  * <p>Updating a model:</p>
  * <code>
- * $user = User::find(
- *  Query::newInstance()->where(['username' => 'merijn'])
- * )->single();
+ * $user = User::find(['username' => 'merijn'])->single();
  *
  * if($user){
  *    $user->email="merijn@intermesh.nl";
@@ -115,21 +113,21 @@ use GO\Modules\Auth\Model\User;
  * Enable soft deletion. When the user deletes a record it will only be marked
  * as deleted in a deleted boolean column.
  * 
- * 3. (@see GO\Modules\CustomFields\Model\CustomFieldsTrait}
+ * 3. {@see GO\Modules\CustomFields\Model\CustomFieldsTrait}
  * 
  * For creating a model that can hold custom fields.
  * 
  *
  * Useful tools
  * ------------
- * To generate a list of database properties go to:
+ * To generate a list of database properties go to the route:
  *
- * http://localhost/pocket-office/index.php?r=intermesh/devTools/model/databaseToProperties&modelName=\GO\Modules\Auth\Model\User
+ * /devtools/model?modelName=\GO\Modules\Auth\Model\User
  *
  * See the query object for available options for the find functions and the User object for an example implementation.
  *
- * @method \static single() single() When calling "ActiveRecord::find()" you can retrieve a single model by calling single.
- * @method \static all() all() {@see Finder::all()} When calling "ActiveRecord::find()" you can retrieve a all models by calling all. Avoid using this as it might use a lot of memory.
+ * @method static single() single() When calling "ActiveRecord::find()" you can retrieve a single model by calling single.
+ * @method static all() all() {@see Finder::all()} When calling "ActiveRecord::find()" you can retrieve a all models by calling all. Avoid using this as it might use a lot of memory.
  * @method string buildSql() buildSql()
  *
  * This function is not really part of active record but of the Finder object that is returned by find.
