@@ -147,8 +147,8 @@ CREATE TABLE IF NOT EXISTS `modulesModule` (
 --
 
 INSERT INTO `modulesModule` (`id`, `name`, `type`, `deleted`, `version`) VALUES
-(1, 'Intermesh\\Modules\\Modules\\ModulesModule', 'admin', 0, 0),
-(2, 'Intermesh\\Modules\\Auth\\AuthModule', 'admin', 0, 0);
+(1, 'GO\\Core\\Modules\\ModulesModule', 'admin', 0, 0),
+(2, 'GO\\Core\\Auth\\AuthModule', 'admin', 0, 0);
 
 -- --------------------------------------------------------
 
