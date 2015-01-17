@@ -7,7 +7,7 @@ use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Query;
 use GO\Core\Db\RelationFactory;
 use GO\Core\Util\String;
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\User;
 use GO\Modules\Email\Imap\Message as ImapMessage;
 use GO\Modules\Email\Model\Account;
 use GO\Modules\Email\Model\Attachment;

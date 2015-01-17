@@ -9,7 +9,7 @@ use GO\Core\AbstractModel;
 use GO\Core\Util\String;
 use GO\Core\Validate\AbstractValidationRule;
 use GO\Core\Validate\ValidateUnique;
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\User;
 
 /**
  * AbstractRecord class.
@@ -100,7 +100,7 @@ use GO\Modules\Auth\Model\User;
  * Traits used in Record models
  * ----------------------------
  * 
- * 1. {@see GO\Modules\Auth\Model\RecordPermissionTrait}
+ * 1. {@see GO\Core\Auth\Model\RecordPermissionTrait}
  * 
  * With the Auth module you can implement permissions. You need to create a 
  * "roles" relation. This is a "hasMany" relation to a table that keeps
@@ -122,7 +122,7 @@ use GO\Modules\Auth\Model\User;
  * ------------
  * To generate a list of database properties go to the route:
  *
- * /devtools/model?modelName=\GO\Modules\Auth\Model\User
+ * /devtools/model?modelName=\GO\Core\Auth\Model\User
  *
  * See the query object for available options for the find functions and the User object for an example implementation.
  *

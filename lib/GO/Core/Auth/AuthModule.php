@@ -1,14 +1,14 @@
 <?php
 
-namespace GO\Modules\Auth;
+namespace GO\Core\Auth;
 
 use GO\Core\AbstractModule;
-use GO\Modules\Auth\Controller\AuthController;
-use GO\Modules\Auth\Controller\PermissionsController;
-use GO\Modules\Auth\Controller\RoleController;
-use GO\Modules\Auth\Controller\RoleUsersController;
-use GO\Modules\Auth\Controller\UserController;
-use GO\Modules\Auth\Controller\UserRolesController;
+use GO\Core\Auth\Controller\AuthController;
+use GO\Core\Auth\Controller\PermissionsController;
+use GO\Core\Auth\Controller\RoleController;
+use GO\Core\Auth\Controller\RoleUsersController;
+use GO\Core\Auth\Controller\UserController;
+use GO\Core\Auth\Controller\UserRolesController;
 
 class AuthModule extends AbstractModule{
 	public function routes(){

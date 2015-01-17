@@ -1,6 +1,6 @@
 <?php
 
-namespace GO\Modules\Auth\Model;
+namespace GO\Core\Auth\Model;
 
 use DateTime;
 use GO\Core\App;

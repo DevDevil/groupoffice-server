@@ -1,6 +1,6 @@
 <?php
 
-namespace GO\Modules\Auth\Controller;
+namespace GO\Core\Auth\Controller;
 
 use Exception;
 use GO\Core\App;
@@ -11,8 +11,8 @@ use GO\Core\Db\Query;
 use GO\Core\Db\RelationFactory;
 use GO\Core\Exception\Forbidden;
 use GO\Core\Exception\NotFound;
-use GO\Modules\Auth\Model\Role;
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\Role;
+use GO\Core\Auth\Model\User;
 
 /**
  * The controller for roles. Admin role is required.

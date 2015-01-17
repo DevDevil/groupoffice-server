@@ -5,7 +5,7 @@ namespace GO\Core;
 use Exception;
 use GO\Core\Fs\File;
 use GO\Core\Fs\Folder;
-use GO\Modules\Modules\Model\Module;
+use GO\Core\Modules\Model\Module;
 use ReflectionClass;
 
 abstract class AbstractModule extends AbstractObject {

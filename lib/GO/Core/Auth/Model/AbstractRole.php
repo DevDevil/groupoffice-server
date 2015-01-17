@@ -1,8 +1,8 @@
 <?php
 
-namespace GO\Modules\Auth\Model;
+namespace GO\Core\Auth\Model;
 
-use GO\Modules\Auth\Model\UserRole;
+use GO\Core\Auth\Model\UserRole;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Column;
 use GO\Core\Db\RelationFactory;
@@ -13,7 +13,7 @@ use PDO;
  * 
  * This model is for securing models (resources) based on roles.
  * 
- * See {@see GO\Modules\Auth\Model\RecordPermissionTrait} for more information.
+ * See {@see GO\Core\Auth\Model\RecordPermissionTrait} for more information.
  * 
  * @see \GO\Modules\Addressbook\Model\ContactRole
  * 

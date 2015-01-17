@@ -1,12 +1,12 @@
 <?php
-namespace GO\Modules\Auth\Controller;
+namespace GO\Core\Auth\Controller;
 
 use GO\Core\App;
 use GO\Core\Controller\AbstractCrudController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Exception\NotFound;
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\User;
 
 
 

@@ -1,14 +1,14 @@
 <?php
 
-namespace GO\Modules\Modules\Controller;
+namespace GO\Core\Modules\Controller;
 
 use GO\Core\App;
 use GO\Core\Controller\AbstractRESTController;
 use GO\Core\Db\Utils;
 use GO\Core\Fs\File;
-use GO\Modules\Modules\Model\Module;
-use GO\Modules\Modules\ModulesModule;
-use GO\Modules\Modules\ModuleUtils;
+use GO\Core\Modules\Model\Module;
+use GO\Core\Modules\ModulesModule;
+use GO\Core\Modules\ModuleUtils;
 
 /**
  * Perform system check
@@ -64,7 +64,7 @@ class UpgradeController extends AbstractRESTController {
 	
 	private function initDatabase(){
 		
-		if(Utils::tableExists('modulesModule')){
+		if(Utils::isDatabaseInstalled()){
 			//if modulesModule exists the database must be installed
 			return true;
 		}

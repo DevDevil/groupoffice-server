@@ -1,5 +1,5 @@
 <?php
-namespace GO\Modules\Auth\Model;
+namespace GO\Core\Auth\Model;
 
 use Exception;
 use GO\Core\Db\Query;
@@ -76,10 +76,10 @@ use GO\Core\Db\Relation;
  * 
  * ``````````````````````````````````````````````````````````````````````````````````````````````````
  * 	<?php
- * 	namespace GO\Modules\Modules\Model;
+ * 	namespace GO\Core\Modules\Model;
  * 
  * 	use GO\Core\Db\AbstractRecord;
- * 	use GO\Modules\Auth\Model\RecordPermissionTrait;
+ * 	use GO\Core\Auth\Model\RecordPermissionTrait;
  * 
  * 	class Module extends AbstractRecord{
  * 	

@@ -1,7 +1,7 @@
 <?php
 namespace GO\Modules\Contacts\Model;
 
-use GO\Modules\Auth\Model\AbstractRole;
+use GO\Core\Auth\Model\AbstractRole;
 
 /**
  * @param int $contactId

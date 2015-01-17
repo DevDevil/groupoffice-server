@@ -1,5 +1,5 @@
 <?php
-namespace GO\Modules\Auth\Model;
+namespace GO\Core\Auth\Model;
 
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Criteria;
@@ -7,8 +7,8 @@ use GO\Core\Db\Query;
 use GO\Core\Db\Relation;
 use GO\Core\Db\RelationFactory;
 use GO\Core\Db\SoftDeleteTrait;
-use GO\Modules\Modules\Model\Module;
-use GO\Modules\Modules\Model\ModuleRole;
+use GO\Core\Modules\Model\Module;
+use GO\Core\Modules\Model\ModuleRole;
 
 /**
  * Roles are used for permissions

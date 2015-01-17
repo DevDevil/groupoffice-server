@@ -1,11 +1,11 @@
 <?php
 
-namespace GO\Modules\Modules;
+namespace GO\Core\Modules;
 
 use GO\Core\AbstractModule;
-use GO\Modules\Modules\Controller\CheckController;
-use GO\Modules\Modules\Controller\UpgradeController;
-use GO\Modules\Modules\Controller\ModuleController;
+use GO\Core\Modules\Controller\CheckController;
+use GO\Core\Modules\Controller\UpgradeController;
+use GO\Core\Modules\Controller\ModuleController;
 
 class ModulesModule extends AbstractModule {
 

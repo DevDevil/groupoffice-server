@@ -1,5 +1,5 @@
 <?php
-namespace GO\Modules\Modules;
+namespace GO\Core\Modules;
 
 use GO\Core\AbstractModule;
 use GO\Core\App;

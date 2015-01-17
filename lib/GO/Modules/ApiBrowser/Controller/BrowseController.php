@@ -2,7 +2,7 @@
 namespace GO\Modules\ApiBrowser\Controller;
 
 use GO\Core\Controller\AbstractCrudController;
-use GO\Modules\Modules\ModuleUtils;
+use GO\Core\Modules\ModuleUtils;
 use ReflectionClass;
 use ReflectionMethod;
 

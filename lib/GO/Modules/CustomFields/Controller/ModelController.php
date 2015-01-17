@@ -3,7 +3,7 @@
 namespace GO\Modules\CustomFields\Controller;
 
 use GO\Core\Controller\AbstractRESTController;
-use GO\Modules\Modules\ModuleUtils;
+use GO\Core\Modules\ModuleUtils;
 
 class ModelController extends AbstractRESTController{
 	

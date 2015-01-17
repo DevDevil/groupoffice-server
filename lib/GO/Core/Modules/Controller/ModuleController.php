@@ -1,12 +1,12 @@
 <?php
 
-namespace GO\Modules\Modules\Controller;
+namespace GO\Core\Modules\Controller;
 
 use GO\Core\Controller\AbstractRESTController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Exception\NotImplemented;
-use GO\Modules\Modules\Model\Module;
+use GO\Core\Modules\Model\Module;
 
 
 /**

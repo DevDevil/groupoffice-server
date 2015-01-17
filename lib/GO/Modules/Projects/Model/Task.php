@@ -3,7 +3,7 @@ namespace GO\Modules\Projects\Model;
 
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\RelationFactory;
-use GO\Modules\Auth\Model\RecordPermissionTrait;
+use GO\Core\Auth\Model\RecordPermissionTrait;
 use GO\Core\Db\SoftDeleteTrait;
 
 /**

@@ -69,7 +69,8 @@ class Connection extends AbstractObject{
 
 	public function setPDO(){				
 		$this->_pdo = null;				
-		$this->_pdo = new PDO("mysql:host=$this->host;dbname=$this->database;port=$this->port", $this->user, $this->pass, $this->options);
+		$dsn = "mysql:host=".$this->host.";dbname=".$this->database.";port=".$this->port;
+		$this->_pdo = new PDO($dsn, $this->user, $this->pass, $this->options);
 	}	
 	
 	

@@ -12,7 +12,7 @@ use GO\Core\Exception\HttpException;
 use GO\Core\Exception\MissingControllerActionParameter;
 use GO\Core\Http\Router;
 use GO\Core\AbstractModel;
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\User;
 use ReflectionMethod;
 
 /**
