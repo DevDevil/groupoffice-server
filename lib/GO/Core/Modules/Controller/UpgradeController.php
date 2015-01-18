@@ -71,9 +71,9 @@ class UpgradeController extends AbstractRESTController {
 		
 		$this->setUtf8Collation();
 		
-		$modulesManager = new ModulesModule();
+		//$modulesManager = new ModulesModule();
 		
-		$initSqlFile = new File($modulesManager->path().'/Install/Init.sql');
+		$initSqlFile = new File(App::config()->getLibPath().'/Core/Modules/Install/Init.sql');
 		
 		Utils::runSQLFile($initSqlFile);
 		

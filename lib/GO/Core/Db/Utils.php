@@ -121,7 +121,11 @@ class Utils {
 	 * @return boolean
 	 */
 	public static function isDatabaseInstalled(){
-		return App::dbConnection()->getPDO() && self::tableExists('modulesModule');
+		try {
+			return App::dbConnection()->getPDO() && self::tableExists('modulesModule');
+		}catch(\PDOException $e){
+			return false;
+		}
 	}
 
 }
