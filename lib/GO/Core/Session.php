@@ -49,7 +49,7 @@ class Session extends Observable implements ArrayAccess, SessionHandlerInterface
 		//start session
 		//In some cases it doesn't make sense to use the session because the client is
 		//not capable. (WebDAV for example).
-		if (self::$enabled && !$this->isStarted()) {
+		if (self::$enabled && !$this->isStarted() && PHP_SAPI !== 'cli') {
 			if (!isset($_SESSION)) {
 
 				//without cookie_httponly the cookie can be accessed by malicious scripts

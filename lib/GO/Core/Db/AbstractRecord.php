@@ -1652,7 +1652,7 @@ abstract class AbstractRecord extends AbstractModel {
 		}
 		
 		if(isset($this->ownerUserId)){
-			$array['isOwner'] = User::current()->id === $this->ownerUserId;
+			$array['isOwner'] = User::current() && User::current()->id === $this->ownerUserId;
 		}
 		
 //		$array['success'] = !$this->hasValidationErrors();

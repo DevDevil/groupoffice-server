@@ -47,10 +47,12 @@ class ActiveRecordTest extends PHPUnit_Framework_TestCase {
 		//Testing relational setters
 		$roleIds = array();
 		$roles = Role::find();
+		
 
 		foreach ($roles as $role) {
+			var_dump($role);
 			$allRoles[] = $role;
-			$roleAttributes[] = array('attributes'=>$role->getAttributes());
+			$roleAttributes[] = $role->getAttributes();
 		}
 
 //		//With array of primary keys

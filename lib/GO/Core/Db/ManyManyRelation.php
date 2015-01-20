@@ -73,9 +73,9 @@ class ManyManyRelation extends Relation {
 			if (is_array($foreignKey)) {
 				//Array of attributes of the related model
 				
-				$delete = isset($foreignKey['attributes']['markDeleted']);
+				$delete = isset($foreignKey['markDeleted']);
 					
-				if(!isset($foreignKey['attributes'][$relatedModelName::primaryKeyColumn()])){
+				if(!isset($foreignKey[$relatedModelName::primaryKeyColumn()])){
 					
 					if($delete){
 						//The client created a new one but also deleted it. Skip it.
@@ -83,7 +83,7 @@ class ManyManyRelation extends Relation {
 					}
 					
 					$relatedModel = new $relatedModelName;
-					$relatedModel->setAttributes($foreignKey['attributes']);
+					$relatedModel->setAttributes($foreignKey);
 					if(!$relatedModel->save()){
 						return false;
 					}
@@ -91,7 +91,7 @@ class ManyManyRelation extends Relation {
 					$foreignKey=$relatedModel->{$relatedModel->primaryKeyColumn()};
 				}else
 				{
-					$foreignKey= $foreignKey['attributes'][$relatedModelName::primaryKeyColumn()];
+					$foreignKey= $foreignKey[$relatedModelName::primaryKeyColumn()];
 				}
 				
 								
