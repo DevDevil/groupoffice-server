@@ -53,7 +53,7 @@ class Field extends AbstractRecord {
 	}
 	
 	protected static function defineDefaultAttributes() {
-		return ['type' => self::TYPE_TEXT];
+		return ['type' => self::TYPE_TEXT, '_data' => '{"maxLength":50}'];
 	}
 
 	public function deletePermanently() {
