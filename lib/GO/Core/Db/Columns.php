@@ -55,7 +55,7 @@ class Columns {
 		} else {
 //			App::debug("Loading columns for $tableName");
 			self::$_columns[$tableName] = [];
-			$sql = "SHOW COLUMNS FROM `" . $tableName . "`;";
+			$sql = "SHOW COLUMNS FROM `" . $tableName . "`;";			
 			$stmt = App::dbConnection()->getPDO()->query($sql);
 			while ($field = $stmt->fetch()) {
 				preg_match('/(.*)\(([1-9].*)\)/', $field['Type'], $matches);

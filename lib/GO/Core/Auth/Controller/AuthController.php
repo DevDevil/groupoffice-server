@@ -1,9 +1,9 @@
 <?php
 
-namespace GO\Modules\Auth\Controller;
+namespace GO\Core\Auth\Controller;
 
-use GO\Modules\Auth\Model\Token;
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\Token;
+use GO\Core\Auth\Model\User;
 use GO\Core\App;
 
 /**

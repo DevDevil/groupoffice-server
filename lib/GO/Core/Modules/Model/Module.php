@@ -1,5 +1,5 @@
 <?php
-namespace GO\Modules\Modules\Model;
+namespace GO\Core\Modules\Model;
 
 use GO\Core\AbstractModule;
 use GO\Core\App;
@@ -7,7 +7,7 @@ use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\RelationFactory;
 use GO\Core\Db\SoftDeleteTrait;
 use GO\Core\Db\Utils;
-use GO\Modules\Auth\Model\RecordPermissionTrait;
+use GO\Core\Auth\Model\RecordPermissionTrait;
 use GO\Modules\Files\Model\File;
 use SebastianBergmann\Exporter\Exception;
 

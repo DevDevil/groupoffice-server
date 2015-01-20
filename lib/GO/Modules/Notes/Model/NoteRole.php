@@ -1,7 +1,7 @@
 <?php
 namespace GO\Modules\Notes\Model;
 
-use GO\Modules\Auth\Model\AbstractRole;
+use GO\Core\Auth\Model\AbstractRole;
 
 class NoteRole extends AbstractRole{	
 	public static function resourceKey() {

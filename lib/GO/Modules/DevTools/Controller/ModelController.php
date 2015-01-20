@@ -24,7 +24,7 @@ class ModelController extends AbstractRESTController {
 
 			if ($name == 'ownerUserId') {
 				echo "\n * @property int \$ownerUserId";
-				echo "\n * @property \GO\Modules\Auth\Model\User \$owner";
+				echo "\n * @property \GO\Core\Auth\Model\User \$owner";
 			} else {
 				switch ($column->dbType) {
 					case 'int':

@@ -114,5 +114,18 @@ class Utils {
 		}
 		return false;
 	}
+	
+	/**
+	 * Check if the GroupOffice database has been installed
+	 * 
+	 * @return boolean
+	 */
+	public static function isDatabaseInstalled(){
+		try {
+			return App::dbConnection()->getPDO() && self::tableExists('modulesModule');
+		}catch(\PDOException $e){
+			return false;
+		}
+	}
 
 }

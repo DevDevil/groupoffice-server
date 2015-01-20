@@ -1,5 +1,5 @@
 <?php
-namespace GO\Modules\Auth\Model;
+namespace GO\Core\Auth\Model;
 
 use DateInterval;
 use DateTime;

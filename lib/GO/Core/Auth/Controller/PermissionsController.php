@@ -1,6 +1,6 @@
 <?php
 
-namespace GO\Modules\Auth\Controller;
+namespace GO\Core\Auth\Controller;
 
 use Flow\Exception;
 use GO\Core\App;
@@ -10,7 +10,7 @@ use GO\Core\Db\Criteria;
 use GO\Core\Db\Query;
 use GO\Core\Db\RelationFactory;
 use GO\Core\Exception\Forbidden;
-use GO\Modules\Auth\Model\Role;
+use GO\Core\Auth\Model\Role;
 
 class PermissionsController extends AbstractRESTController {
 

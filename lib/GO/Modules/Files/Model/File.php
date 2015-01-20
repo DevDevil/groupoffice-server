@@ -14,7 +14,7 @@ use GO\Core\Db\SoftDeleteTrait;
  * 
  * @property int $id
  * @property int $ownerUserId
- * @property \GO\Modules\Auth\Model\User $owner
+ * @property \GO\Core\Auth\Model\User $owner
  * @property string $modifiedAt
  * @property string $createdAt
  * @property int $contactId

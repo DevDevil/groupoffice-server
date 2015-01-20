@@ -1,7 +1,7 @@
 <?php
-namespace GO\Modules\Modules\Model;
+namespace GO\Core\Modules\Model;
 
-use GO\Modules\Auth\Model\AbstractRole;
+use GO\Core\Auth\Model\AbstractRole;
 
 /**
  * @var int $roleId

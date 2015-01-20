@@ -1,10 +1,10 @@
 <?php
 namespace GO\Modules\Notes\Model;
 
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\User;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\RelationFactory;
-use GO\Modules\Auth\Model\RecordPermissionTrait;
+use GO\Core\Auth\Model\RecordPermissionTrait;
 use GO\Core\Db\SoftDeleteTrait;
 
 /**

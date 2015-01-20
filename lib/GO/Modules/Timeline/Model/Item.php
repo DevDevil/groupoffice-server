@@ -4,7 +4,7 @@ namespace GO\Modules\Timeline\Model;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\RelationFactory;
 use GO\Core\Db\SoftDeleteTrait;
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\User;
 use GO\Modules\Contacts\Model\Contact;
 
 /**

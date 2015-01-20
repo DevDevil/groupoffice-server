@@ -142,13 +142,7 @@ CREATE TABLE IF NOT EXISTS `modulesModule` (
   `version` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=15 ;
 
---
--- Gegevens worden geëxporteerd voor tabel `modulesModule`
---
 
-INSERT INTO `modulesModule` (`id`, `name`, `type`, `deleted`, `version`) VALUES
-(1, 'Intermesh\\Modules\\Modules\\ModulesModule', 'admin', 0, 0),
-(2, 'Intermesh\\Modules\\Auth\\AuthModule', 'admin', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -163,13 +157,6 @@ CREATE TABLE IF NOT EXISTS `modulesModuleRole` (
   `createAccess` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
---
--- Gegevens worden geëxporteerd voor tabel `modulesModuleRole`
---
-
-INSERT INTO `modulesModuleRole` (`moduleId`, `roleId`, `useAccess`, `createAccess`) VALUES
-(1, 1, 1, 1),
-(2, 1, 1, 1);
 
 --
 -- Indexen voor geëxporteerde tabellen

@@ -1,5 +1,5 @@
 <?php
-namespace GO\Modules\Modules\Controller;
+namespace GO\Core\Modules\Controller;
 
 use GO\Core\App;
 use GO\Core\Controller\AbstractRESTController;

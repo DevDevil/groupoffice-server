@@ -7,7 +7,7 @@ use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Exception\Forbidden;
 use GO\Core\Exception\NotFound;
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\User;
 use GO\Modules\Projects\Model\Task;
 use GO\Modules\Projects\ProjectsModule;
 

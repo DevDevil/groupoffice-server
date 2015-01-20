@@ -1,13 +1,13 @@
 <?php
 
-namespace GO\Modules\Auth\Controller;
+namespace GO\Core\Auth\Controller;
 
 use GO\Core\Controller\AbstractRESTController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Criteria;
 use GO\Core\Db\Query;
-use GO\Modules\Auth\Model\User;
-use GO\Modules\Auth\Model\UserRole;
+use GO\Core\Auth\Model\User;
+use GO\Core\Auth\Model\UserRole;
 
 class RoleUsersController extends AbstractRESTController {
 

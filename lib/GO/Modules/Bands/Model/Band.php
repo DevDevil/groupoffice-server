@@ -3,7 +3,7 @@ namespace GO\Modules\Bands\Model;
 
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\RelationFactory;
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\User;
 
 /**
  * The Band model

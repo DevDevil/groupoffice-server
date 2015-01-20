@@ -7,7 +7,7 @@ use GO\Core\App;
 use GO\Core\Controller\AbstractRESTController;
 use GO\Core\Db\Column;
 use GO\Core\Db\Relation;
-use GO\Modules\Auth\Model\Role;
+use GO\Core\Auth\Model\Role;
 use GO\Modules\Contacts\Model\Contact;
 use GO\Modules\Contacts\Model\ContactRole;
 

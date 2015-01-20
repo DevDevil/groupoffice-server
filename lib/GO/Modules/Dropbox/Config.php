@@ -5,7 +5,7 @@ use Dropbox as dbx;
 use Dropbox\AppInfo;
 use Dropbox\Client;
 use GO\Core\App;
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\User;
 use GO\Modules\Dropbox\Model\Account;
 
 class Config{

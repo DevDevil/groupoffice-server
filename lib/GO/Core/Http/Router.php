@@ -4,6 +4,17 @@ namespace GO\Core\Http;
 
 use Exception;
 use GO\Core\App;
+use GO\Core\Auth\Controller\AuthController;
+use GO\Core\Auth\Controller\PermissionsController;
+use GO\Core\Auth\Controller\RoleController;
+use GO\Core\Auth\Controller\RoleUsersController;
+use GO\Core\Auth\Controller\UserController;
+use GO\Core\Auth\Controller\UserRolesController;
+use GO\Core\Db\Utils;
+use GO\Core\Modules\Controller\CheckController;
+use GO\Core\Modules\Controller\ModuleController;
+use GO\Core\Modules\Controller\UpgradeController;
+use GO\Core\Modules\Model\Module;
 
 /**
  * The router routes requests to their controller actions
@@ -17,17 +28,17 @@ use GO\Core\App;
  * 
   * | Route | Controller     |
  * |-------|----------------|
- * |/modules | {@link GO\Modules\Modules\Controller\ModuleController}|
- * |/modules/check | {@link GO\Modules\Modules\Controller\CheckController}|
- * |/modules/upgrade | {@link GO\Modules\Modules\Controller\UpgradeController}|
- * |/auth | {@link GO\Modules\Auth\Controller\AuthController}|
- * |/auth/users | {@link GO\Modules\Auth\Controller\UserController}|
- * |/auth/users/[userId] | {@link GO\Modules\Auth\Controller\UserController}|
- * |/auth/users/[userId]/roles | {@link GO\Modules\Auth\Controller\UserRolesController}|
- * |/auth/roles | {@link GO\Modules\Auth\Controller\RoleController}|
- * |/auth/roles/[roleId] | {@link GO\Modules\Auth\Controller\RoleController}|
- * |/auth/roles/[roleId]/users | {@link GO\Modules\Auth\Controller\RoleUsersController}|
- * |/auth/permissions | {@link GO\Modules\Auth\Controller\PermissionsController}|
+ * |/modules | {@link GO\Core\Modules\Controller\ModuleController}|
+ * |/modules/check | {@link GO\Core\Modules\Controller\CheckController}|
+ * |/modules/upgrade | {@link GO\Core\Modules\Controller\UpgradeController}|
+ * |/auth | {@link GO\Core\Auth\Controller\AuthController}|
+ * |/auth/users | {@link GO\Core\Auth\Controller\UserController}|
+ * |/auth/users/[userId] | {@link GO\Core\Auth\Controller\UserController}|
+ * |/auth/users/[userId]/roles | {@link GO\Core\Auth\Controller\UserRolesController}|
+ * |/auth/roles | {@link GO\Core\Auth\Controller\RoleController}|
+ * |/auth/roles/[roleId] | {@link GO\Core\Auth\Controller\RoleController}|
+ * |/auth/roles/[roleId]/users | {@link GO\Core\Auth\Controller\RoleUsersController}|
+ * |/auth/permissions | {@link GO\Core\Auth\Controller\PermissionsController}|
  * |/notes | {@link GO\Modules\Notes\Controller\NoteController}|
  * |/notes/[noteId] | {@link GO\Modules\Notes\Controller\NoteController}|
  * |/notes/[noteId]/noteImages | {@link GO\Modules\Notes\Controller\ThumbController}|
@@ -88,6 +99,51 @@ use GO\Core\App;
  */
 
 class Router {
+	
+	
+	private function coreRoutes(){
+		return [
+				'auth' => [
+					'controller' => AuthController::className(),
+					'children' => [
+						'users' => [
+							'routeParams' => ['userId'],
+							'controller' => UserController::className(),
+							'children' => [
+								'roles' =>[
+									'controller' => UserRolesController::className()
+								]
+							]
+						],
+						'roles' => [
+							'routeParams' => ['roleId'],
+							'controller' => RoleController::className(),
+							'children' => [
+								'users' =>[
+									'controller' => RoleUsersController::className()
+								],
+								
+							]
+						],
+						'permissions' => [
+							'routerParams' => ['modelId', 'modelName'],
+							'controller' => PermissionsController::className()
+						]
+					]
+				],
+				'modules' => [
+				'controller' => ModuleController::className(),
+				'children' => [
+					'check' => [						
+						'controller' => CheckController::className()
+					],
+					'upgrade' => [						
+						'controller' => UpgradeController::className()
+					]
+				],
+			]
+		];
+	}
 
 	/**
 	 * Get routing tables from all modules
@@ -98,13 +154,16 @@ class Router {
 	 */
 	public function getRoutes() {
 
-		$modules = \GO\Modules\Modules\Model\Module::find();
 		
-		$routes = [];
+		$routes = $this->coreRoutes();
 		
-		foreach($modules as $module){
-			
-			$routes = array_merge($routes, $module->manager()->routes());
+		if(Utils::isDatabaseInstalled()){
+			$modules = Module::find();		
+		
+			foreach($modules as $module){
+
+				$routes = array_merge($routes, $module->manager()->routes());
+			}
 		}
 		
 		return $routes;

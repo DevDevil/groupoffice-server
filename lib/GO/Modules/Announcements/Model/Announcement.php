@@ -5,7 +5,7 @@ use GO\Core\App;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\RelationFactory;
 use GO\Core\Fs\Folder;
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\User;
 use GO\Core\Fs\File;
 use GO\Core\Db\SoftDeleteTrait;
 /**

@@ -1,7 +1,7 @@
 <?php
 namespace GO\Core\Model;
 
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\User;
 use GO\Core\App;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\RelationFactory;
