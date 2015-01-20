@@ -2,8 +2,8 @@
 
 namespace GO\Core\Db;
 
-use GO\Modules\Auth\Model\Role;
-use GO\Modules\Auth\Model\User;
+use GO\Core\Auth\Model\Role;
+use GO\Core\Auth\Model\User;
 use PHPUnit_Framework_TestCase;
 
 /**
@@ -19,6 +19,10 @@ class ActiveRecordTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("2007-04-05T10:30:00Z", $user->modifiedAt);
 	}
 
+	/**
+	 * @covers AbstractRecord::find
+	 * @covers AbstractRecord::save
+	 */
 	public function testSetRelation() {
 
 		//Set's all roles on test user.
@@ -50,7 +54,6 @@ class ActiveRecordTest extends PHPUnit_Framework_TestCase {
 		
 
 		foreach ($roles as $role) {
-			var_dump($role);
 			$allRoles[] = $role;
 			$roleAttributes[] = $role->getAttributes();
 		}

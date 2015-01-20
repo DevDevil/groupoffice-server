@@ -13,6 +13,7 @@
 		"php": ">=5.4.0",
 		"ext-pcre": "*",
 		"ext-mbstring": "*",
+		"ext-mcrypt": "*",
 		"ext-ctype": "*",
 		"ext-date": "*",
 		"ext-iconv": "*",

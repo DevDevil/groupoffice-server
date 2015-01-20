@@ -7,7 +7,6 @@ use GO\Core\Controller\AbstractRESTController;
 use GO\Core\Db\Utils;
 use GO\Core\Fs\File;
 use GO\Core\Modules\Model\Module;
-use GO\Core\Modules\ModulesModule;
 use GO\Core\Modules\ModuleUtils;
 
 /**
