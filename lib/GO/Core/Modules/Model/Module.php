@@ -83,6 +83,12 @@ class Module extends AbstractRecord{
 		
 		$isNew = $this->getIsNew();
 		
+		if($isNew){
+			
+			//Grant access to admins by default
+			$this->roles = [['roleId' => 1, 'useAccess' => true, 'createAccess' => true]];
+		}
+		
 		$ret = parent::save();
 		if(!$ret){
 			return $ret;
@@ -91,6 +97,8 @@ class Module extends AbstractRecord{
 		if($isNew && !$this->dontInstallDatabase){
 			$depends = $this->manager()->getRecursiveDependencies();	
 			$this->runModuleUpdates($depends);
+			
+			
 		}
 		
 		return $ret;	
