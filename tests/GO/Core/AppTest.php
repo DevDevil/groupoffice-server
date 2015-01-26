@@ -11,8 +11,8 @@ use GO\Core\App;
 class AppTest extends \PHPUnit_Framework_TestCase{
 	function testInit(){
 
-		App::init(require('config.php'));
-
+		//App::init(require('config.php'));
+		
 		$this->assertEquals(App::config()->productName,"Group-Office 7.0");
 
 

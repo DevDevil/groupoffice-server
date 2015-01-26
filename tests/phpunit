@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+/**
+ * This executable initializes GroupOffice and then runs phpunit
+ */
+
+$classLoader = require dirname(__FILE__)."/../vendor/autoload.php";
+
+$configFile = dirname(__FILE__).'/../config.php';
+//Initialize the framework with confuration
+\GO\Core\App::init(require($configFile));
+
+\GO\Core\App::config()->classLoader = $classLoader;
+
+PHPUnit_TextUI_Command::main();

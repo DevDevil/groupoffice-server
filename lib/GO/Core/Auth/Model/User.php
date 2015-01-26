@@ -185,7 +185,9 @@ class User extends AbstractRecord {
 	public function validate() {
 		if(parent::validate()){
 			if(!empty($this->password) && $this->isModified('password')){
-				$this->password = crypt($this->password);
+				
+				$salt = base64_encode(mcrypt_create_iv(24, MCRYPT_DEV_URANDOM));
+				$this->password = crypt($this->password, $salt);
 			}
 			return true;
 		}  else {
