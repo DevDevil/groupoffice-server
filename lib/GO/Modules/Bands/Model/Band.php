@@ -23,10 +23,17 @@ class Band extends AbstractRecord{
 	
 	use \GO\Core\Db\SoftDeleteTrait;
 	
+	
+	//Add this line for permissions
+	use \GO\Core\Auth\Model\RecordPermissionTrait;
+	
 	protected static function defineRelations(RelationFactory $r) {
 		return [
 			$r->hasMany('albums', Album::className(), 'bandId'),
-			$r->hasOne('customfields', BandCustomFields::className(), 'id')
+			$r->hasOne('customfields', BandCustomFields::className(), 'id'),
+			
+			//add this role for permissions
+			$r->hasMany('roles', BandRole::className(), 'bandId')
 			];
 	}
 }

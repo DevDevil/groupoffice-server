@@ -341,27 +341,59 @@ class Relation {
 				return true;
 		}
 	}
+	
+	private function _buildPk($primaryKeyColumn, $attributes){
+		if(is_array($primaryKeyColumn)){
+			$pk = [];
+
+			foreach($primaryKeyColumn as $col) {
+				
+				if(empty($attributes[$col])){
+					return false;
+				}
+				$pk[$col] = $attributes[$col];
+			}
+			
+			return $pk;
+		}else
+		{
+			return empty($attributes[$primaryKeyColumn]) ? false : $attributes[$primaryKeyColumn];
+		}
+
+	}
 
 	private function _createOrFindHasMany(AbstractRecord $model, &$hasMany) {
 
 		$rmn = $this->relatedModelName;
-		$primaryKey = $rmn::primaryKeyColumn();
+		$primaryKeyColumn = $rmn::primaryKeyColumn();
 
 		if ($hasMany instanceof AbstractRecord) {
 			$hasMany->{$this->foreignKey} = $model->{$this->key};
 		} else {
+			
+			if(!is_array($hasMany)){
+				throw new \Exception("Should be an array: ".var_export($hasMany, true));				
+			}
+			
 			//It's an array of attributes of the has many related model
 			$modelArray = $hasMany;
+			
+			//Set the foreign key
+			$modelArray[$this->foreignKey] = $model->{$this->key};
+			
+			$pk = $this->_buildPk($primaryKeyColumn, $modelArray);
+			
+//			var_dump($primaryKeyColumn);
+//			var_dump($modelArray);
 
-			$hasMany = !empty($modelArray[$primaryKey]) ? $rmn::findByPk($modelArray[$primaryKey]) : false;
+			$hasMany = $pk ? $rmn::findByPk($pk) : false;
 			if(!$hasMany){
 				$hasMany = new $rmn;
 			}
 
 			$hasMany->setAttributes($modelArray);
 
-			//Set the foreign key
-			$hasMany->{$this->foreignKey} = $model->{$this->key};
+			
 		}
 
 		return $hasMany;

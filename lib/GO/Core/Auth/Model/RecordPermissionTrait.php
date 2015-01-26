@@ -4,6 +4,8 @@ namespace GO\Core\Auth\Model;
 use Exception;
 use GO\Core\Db\Query;
 use GO\Core\Db\Relation;
+use GO\Core\Exception\Forbidden;
+use PDO;
 
 /**
  * RecordPermissionTrait
@@ -45,59 +47,9 @@ use GO\Core\Db\Relation;
  * $permittedContacts = Contact::findPermitted($query);
  * 
  * </code>
- * 
- * 
- * Creating permissions
- * ====================
- * 
- * 1. Create an abstractRole model table:
- * 
- * 	``````````````````````````````````````````````````````````````````````````````````````````````````
- * 	CREATE TABLE IF NOT EXISTS `coreModuleRole` (
- * 	  `moduleId` int(11) NOT NULL,
- * 	  `roleId` int(11) NOT NULL,
- * 	  `useAccess` tinyint(1) NOT NULL DEFAULT '0',
- * 	  `createAccess` tinyint(1) NOT NULL DEFAULT '0',
- * 	  PRIMARY KEY (`moduleId`,`roleId`)
- * 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
- * 
- * 	ALTER TABLE `coreModuleRole` ADD FOREIGN KEY ( `moduleId` ) REFERENCES `ipe`.`coreModule` (
- * 	`id`
- * 	) ON DELETE CASCADE ON UPDATE RESTRICT ;
- * 
- * 	ALTER TABLE `coreModuleRole` ADD FOREIGN KEY ( `roleId` ) REFERENCES `ipe`.`authRole` (
- * 	`id`
- * 	) ON DELETE CASCADE ON UPDATE RESTRICT ;
- * 
- * 	``````````````````````````````````````````````````````````````````````````````````````````````````
- * 
- * 
- * 2. Create Module record that uses the trait:
- * 
- * ``````````````````````````````````````````````````````````````````````````````````````````````````
- * 	<?php
- * 	namespace GO\Core\Modules\Model;
- * 
- * 	use GO\Core\Db\AbstractRecord;
- * 	use GO\Core\Auth\Model\RecordPermissionTrait;
- * 
- * 	class Module extends AbstractRecord{
- * 	
- * 		use RecordPermissionTrait;
- * 	
- * 		public $ownerUserId = 1;
- * 	
- * 		protected static function defineRelations(\GO\Core\Db\RelationFactory $r) {
- * 			return [
- * 				$r->belongsTo('group', ModuleGroup::className(), 'groupId'), 
- * 				$r->hasMany('roles', ModuleRole::className(), 'moduleId')
- * 				];
- * 		}
- * 	}
- * 	``````````````````````````````````````````````````````````````````````````````````````````````````
  *
  * 
- * @see \GO\Modules\Contacts\Model\ContactRole
+ * @see ContactRole
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -178,7 +130,7 @@ trait RecordPermissionTrait {
 		$subQuery .= " LIMIT 0,1\n)";
 		
 		$query->where($subQuery)
-			->addBindParameter(':userId', $userId, \PDO::PARAM_INT);
+			->addBindParameter(':userId', $userId, PDO::PARAM_INT);
 		
 //Old way with joins
 //
@@ -218,13 +170,18 @@ trait RecordPermissionTrait {
 	 * @param int $userId The user to check for. Leave null for the current user
 	 */
 	public function checkPermission($accessName, $userId = null) {
+		
+		//always allow for admin
+		if(User::current()->isAdmin()) {
+			return true;
+		}
+		
+		if (!isset($userId)) {
+			$userId = User::current()->id;
+		}		
 
 		$relation = self::getRolesRelation();
 		$roleModelName = $relation->getRelatedModelName();
-
-		if (!isset($userId)) {
-			$userId = User::current()->id;
-		}
 
 		$query = Query::newInstance()
 				->joinRelation('users', false);
@@ -298,6 +255,45 @@ trait RecordPermissionTrait {
 		
 		return $return;
 	}
+	
+//	/**
+//	 * Set's permissions on the model. 
+//	 * 
+//	 * It only adds new permissions. Set markDeleted => true on the attributes to remove records.
+//	 * 
+//	 * @param array $permissionsArray [['roleId'=> (int), 'bandId' => (int), 'readAccess' => true, 'editAccess' => true]]
+//	 * 
+//	 * @throws Forbidden
+//	 * @throws Exception
+//	 */
+//	public function setPermissions($permissionsArray){
+//		if (!$this->getCurrentUserCanManagePermissions()) {
+//			throw new Forbidden();
+//		}
+//
+//		$relation = $this->getRolesRelation();
+//		$roleModelName = $relation->getRelatedModelName();
+//
+//		foreach ($permissionsArray as $permissions) {
+//
+//			$model = $roleModelName::findByPk([
+//						'roleId' => $permissions['roleId'],
+//						$roleModelName::resourceKey() => $this->id
+//			]);
+//
+//			if (!$model) {
+//				$model = new $roleModelName;				
+//			}
+//			$model->setAttributes($permissions);
+//			
+//			$model->{$roleModelName::resourceKey()} = $this->id;
+//			
+//			if (!$model->save()) {
+//				throw new Exception(var_export($model->getValidationErrors()));
+//			}
+//		}
+//	}
+	
 	
 	/**
 	 * Check if the current logged in user may manage permissions

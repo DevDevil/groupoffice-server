@@ -54,7 +54,7 @@ class AuthController extends \GO\Core\Controller\AbstractRESTController {
 
 		if ($response['success']) {
 			//todo remember for different clients
-			if (App::request()->payload['remember']) {
+			if (!empty(App::request()->payload['remember'])) {
 				Token::generateSeries($user->id);
 			}
 		}

@@ -587,6 +587,9 @@ abstract class AbstractRecord extends AbstractModel {
 					
 				}else
 				{				
+					
+					App::debug("Set relation for save: ".$name." ".var_export($value, true));
+					
 					//processed in the save() function
 					$this->_saveRelations[$name] = ['relation' => $relation, 'value' => &$value, 'name' => $name];
 				}
@@ -1336,6 +1339,7 @@ abstract class AbstractRecord extends AbstractModel {
 
 
 		if ($this->_isNew) {
+			App::debug("Not deleting because this model is new");
 			return true;
 		}
 		

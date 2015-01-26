@@ -6,7 +6,9 @@ use GO\Core\App;
 use GO\Core\Controller\AbstractCrudController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
+use GO\Core\Exception\Forbidden;
 use GO\Core\Exception\NotFound;
+use GO\Modules\Bands\BandsModule;
 use GO\Modules\Bands\Model\Band;
 
 /**
@@ -54,7 +56,8 @@ class BandController extends AbstractCrudController {
 			}
 		}
 
-		$bands = Band::find($query);
+		//Use findPermitted for permissions
+		$bands = Band::findPermitted($query);
 
 		$store = new Store($bands);
 		$store->setReturnAttributes($returnAttributes);
@@ -77,6 +80,11 @@ class BandController extends AbstractCrudController {
 		if (!$band) {
 			throw new NotFound();
 		}
+		
+		//Check read permission
+		if(!$band->checkPermission('readAccess')) {
+			throw new Forbidden();
+		}
 
 		return $this->renderModel($band, $returnAttributes);
 	}
@@ -88,6 +96,11 @@ class BandController extends AbstractCrudController {
 	 * @return array
 	 */
 	protected function actionNew($returnAttributes = ['*','albums']) {
+		
+		//Check the module createAccess boolean here
+		if (BandsModule::model()->checkPermission('createAccess')) {
+			throw new Forbidden();
+		}
 
 		$band = new Band();
 
@@ -108,6 +121,11 @@ class BandController extends AbstractCrudController {
 	 * @return JSON Model data
 	 */
 	public function actionCreate($returnAttributes = ['*','albums']) {
+		
+		//Check the module createAccess boolean here
+		if (BandsModule::model()->checkPermission('createAccess')) {
+			throw new Forbidden();
+		}
 
 		$band = new Band();
 		$band->setAttributes(App::request()->payload['data']);
@@ -138,6 +156,11 @@ class BandController extends AbstractCrudController {
 		if (!$band) {
 			throw new NotFound();
 		}
+		
+		//Check edit permission
+		if(!$band->checkPermission('editAccess')) {
+			throw new Forbidden();
+		}
 
 		$band->setAttributes(App::request()->payload['data']);
 
@@ -158,6 +181,11 @@ class BandController extends AbstractCrudController {
 
 		if (!$band) {
 			throw new NotFound();
+		}
+		
+		//Check edit permission
+		if(!$band->checkPermission('editAccess')) {
+			throw new Forbidden();
 		}
 
 		$band->delete();
