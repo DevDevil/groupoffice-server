@@ -1,3 +1,11 @@
+# Next meeting:
+
+- Should auth and modules be moved to the core folder as they are essential parts of the core?
+- Should sessions be replaced by JSON Web Tokens? How to handle images?
+- Filters, how can we setup filtering for all modules.
+- Module roadmap
+- 
+
 The big idea:
 
 Complete office environment online as simple as possible. Extensible
@@ -24,10 +32,6 @@ What should it do?
 - Reminder / alerts
 
 
-### Questions
-- Should auth and modules be moved to the core folder as they are essential parts of the core?
-- Should sessions be replaced by JSON Web Tokens? How to handle images?
-
 
 
 ## Client side
@@ -37,7 +41,10 @@ What should it do?
 
 # Contacts
 
-Contact info more visual in email. What contracts does the sender have?
+- Contact info more visual in email. What contracts does the sender have?
+- Putting in relations? Like manager / worker, Father / Son etc. Generate organizational chart of it?
+
+# Projects
 
 
 # Time tracking

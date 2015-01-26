@@ -19,7 +19,8 @@
 		"ext-curl": "*",
 		"ext-pdo": "*",
 
-		"flowjs/flow-php-server": "*"
+		"flowjs/flow-php-server": "*",
+		"sabre/dav": "~2.1.1"
 
 	},
 	"require-dev": {

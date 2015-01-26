@@ -26,11 +26,13 @@ class ModuleUtils{
 		foreach($prefixes as $prefix => $paths){
 				
 			$modulesFolder = new Folder($paths[0].'/Modules');	
-			foreach($modulesFolder->getChildren() as $folder){
-				if($folder->isFolder()){
-					$modulesFolders[$prefix.'Modules\\'.$folder->getName().'\\']=$folder;
-				}
-			}		
+			if($modulesFolder->exists()) {
+				foreach($modulesFolder->getChildren() as $folder){
+					if($folder->isFolder()){
+						$modulesFolders[$prefix.'Modules\\'.$folder->getName().'\\']=$folder;
+					}
+				}		
+			}
 		}
 		
 		return $modulesFolders;
