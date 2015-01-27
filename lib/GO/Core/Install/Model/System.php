@@ -62,6 +62,10 @@ class System extends AbstractModel{
 	 */
 	public function upgrade(){
 		
+		if(!$this->isDatabaseInstalled()){
+			throw new \Exception("The database is not installed");
+		}
+		
 		$this->runCoreUpdates();
 		
 		Module::runModuleUpdates();
