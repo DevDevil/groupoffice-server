@@ -77,18 +77,14 @@ class ValidatePassword extends AbstractValidationRule {
 	 */
 	private $minUniqueChars=3;
 	
-	private $confirmAttribute='passwordConfirm';
-	
 	/**
 	 * Creates a new validator
 	 * 
 	 * @param string $id Password column
 	 * @param string $confirmAttribute
 	 */
-	public function __construct($id,$confirmAttribute='passwordConfirm') {
+	public function __construct($id) {
 		parent::__construct($id);
-		
-		$this->confirmAttribute=$confirmAttribute;
 	}
 	
 	public function validate(AbstractModel $model) {
@@ -99,12 +95,7 @@ class ValidatePassword extends AbstractValidationRule {
 		}
 		
 		//Get old value because it's encrypted
-		$password = $model->{$this->confirmAttribute};
-		
-		if(isset($model->{$this->confirmAttribute}) && $model->{$this->confirmAttribute}!=$model->{$this->getId()}){
-			$this->errorCode='passwordMismatch';
-			return false;
-		}
+		$password = $model->{$this->getId()};
 		
 		if($this->enabled){
 			$this->errorInfo=[];

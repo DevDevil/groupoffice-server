@@ -65,7 +65,7 @@ class User extends AbstractRecord {
 		self::getColumn('username')->required = true;
 
 		return [
-				new ValidatePassword('password', 'passwordConfirm')
+				new ValidatePassword('password')
 		];
 	}
 
