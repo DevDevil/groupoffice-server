@@ -20,10 +20,5 @@ class BandRole extends AbstractRole{
 	 */
 	public static function resourceKey() {
 		return 'bandId';
-	}	
-	
-	protected static function defineRelations() {
-		parent::defineRelations($r);		
-		self::belongsTo('band', Band::className(), 'bandId');
 	}
 }
