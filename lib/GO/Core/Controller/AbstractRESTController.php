@@ -289,24 +289,25 @@ abstract class AbstractRESTController extends AbstractObject {
 	 */
 	protected function renderModel(AbstractModel $model, $returnAttributes = null) {
 
+		if(App::request()->getMethod() != 'DELETE'){
+	
+			if (App::request()->getMethod() == 'GET' && isset($model->modifiedAt)) {
+				$lastModified = new DateTime($model->modifiedAt);
+				$this->cacheHeaders($lastModified, $model->eTag());
+			}
 
-		if (App::request()->getMethod() == 'GET' && isset($model->modifiedAt)) {
-			$lastModified = new DateTime($model->modifiedAt);
-			$this->cacheHeaders($lastModified, $model->eTag());
-		}
+			$response = ['data' => []];
 
-		$response = ['data' => []];
-
-		if (isset($returnAttributes)) {
-			$returnAttributes = AbstractRecord::parseReturnAttributes($returnAttributes);
-			$response['data'] = $model->toArray($returnAttributes);
-		} else {
-			$response['data'] = $model->toArray();
+			if (isset($returnAttributes)) {
+				$returnAttributes = AbstractRecord::parseReturnAttributes($returnAttributes);
+				$response['data'] = $model->toArray($returnAttributes);
+			} else {
+				$response['data'] = $model->toArray();
+			}
+			
 		}
 		
 		$response['success'] = !$model->hasValidationErrors();
-
-
 
 		return $this->renderJson($response);
 	}
