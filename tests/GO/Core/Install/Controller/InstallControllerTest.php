@@ -1,11 +1,11 @@
 <?php
 
-namespace GO\Core\Modules\Controller;
+namespace GO\Core\Install\Controller;
 
 use GO\Core\App;
 use PHPUnit_Framework_TestCase;
 
-class UpgradeControllerTest extends PHPUnit_Framework_TestCase {
+class InstallControllerTest extends PHPUnit_Framework_TestCase {
 	
 	
 /**
@@ -34,7 +34,7 @@ class UpgradeControllerTest extends PHPUnit_Framework_TestCase {
 		App::dbConnection()->database = $testdb;
 		App::dbConnection()->setPDO();
 		
-		$controller = new UpgradeController(App::router());
+		$controller = new InstallController(App::router());
 		
 		$response = $controller->httpGet();
 	
