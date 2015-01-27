@@ -5,7 +5,7 @@ namespace GO\Core\Auth\Model;
 use GO\Core\Auth\Model\UserRole;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Column;
-use GO\Core\Db\RelationFactory;
+
 use PDO;
 
 /**
@@ -102,9 +102,7 @@ abstract class AbstractRole extends AbstractRecord {
 		return [static::resourceKey(), 'roleId'];
 	}
 
-	protected static function defineRelations(RelationFactory $r) {
-		return array(
-			$r->hasMany('users', UserRole::className(), 'roleId', 'roleId')
-		);
+	protected static function defineRelations() {		
+		self::hasMany('users', UserRole::className(), 'roleId', 'roleId');		
 	}
 }

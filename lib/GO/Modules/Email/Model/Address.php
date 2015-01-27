@@ -3,7 +3,7 @@
 namespace GO\Modules\Email\Model;
 
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 
 
 /**
@@ -30,10 +30,8 @@ class Address extends AbstractRecord {
 	
 	use \GO\Core\Db\TruncateAttributesTrait;
 	
-	protected static function defineRelations(RelationFactory $r) {
-		return [
-			$r->belongsTo('message', Message::className(), 'messageId'),
-		];
+	protected static function defineRelations() {
+		self::belongsTo('message', Message::className(), 'messageId');
 	}
 	
 	

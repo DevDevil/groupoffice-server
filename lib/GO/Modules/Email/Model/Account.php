@@ -6,7 +6,7 @@ use Exception;
 use GO\Core\App;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Query;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Auth\Model\User;
 use GO\Modules\Email\Imap\Connection;
 use GO\Modules\Email\Imap\Mailbox;
@@ -38,13 +38,11 @@ class Account extends AbstractRecord {
 	private static $_connection = [];
 	private $_rootMailbox;
 
-	protected static function defineRelations(RelationFactory $r) {
-		return [
-			$r->belongsTo('owner', User::className(), 'ownerUserId'),
-			$r->hasMany('folders', Folder::className(), 'accountId')->setQuery(Query::newInstance()->orderBy(['sortOrder' => 'ASC'])),
-			$r->hasMany('messages', Message::className(), 'accountId'),
-			$r->hasMany('threads', Thread::className(), 'accountId')
-		];
+	protected static function defineRelations() {		
+		self::belongsTo('owner', User::className(), 'ownerUserId');
+		self::hasMany('folders', Folder::className(), 'accountId')->setQuery(Query::newInstance()->orderBy(['sortOrder' => 'ASC']));
+		self::hasMany('messages', Message::className(), 'accountId');
+		self::hasMany('threads', Thread::className(), 'accountId');		
 	}
 
 	/**

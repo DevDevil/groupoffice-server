@@ -19,11 +19,9 @@ class ModuleRole extends AbstractRole{
 		return 'moduleId';
 	}	
 	
-	protected static function defineRelations(\GO\Core\Db\RelationFactory $r) {
-		$relations = parent::defineRelations($r);
+	protected static function defineRelations() {
+		parent::defineRelations();
 		
-		$relations[] = $r->belongsTo('module', Module::className(), 'moduleId');
-		
-		return $relations;
+		self::belongsTo('module', Module::className(), 'moduleId');	
 	}
 }

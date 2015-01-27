@@ -3,7 +3,7 @@ namespace GO\Modules\Notes\Model;
 
 use GO\Core\Auth\Model\User;
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Auth\Model\RecordPermissionTrait;
 use GO\Core\Db\SoftDeleteTrait;
 
@@ -31,13 +31,13 @@ class Note extends AbstractRecord{
 		);
 	}
 	
-	public static function defineRelations(RelationFactory $r){
-		return array(
-			$r->belongsTo('owner', User::className(), 'ownerUserId'),
-			$r->hasMany('roles', NoteRole::className(), 'noteId'),
-			$r->hasMany('listItems', NoteListItem::className(), 'noteId'),
-			$r->hasMany('images', NoteImage::className(), 'noteId')
-		);
+	public static function defineRelations(){
+		
+		self::belongsTo('owner', User::className(), 'ownerUserId');
+		self::hasMany('roles', NoteRole::className(), 'noteId');
+		self::hasMany('listItems', NoteListItem::className(), 'noteId');
+		self::hasMany('images', NoteImage::className(), 'noteId');
+		
 	}
 	
 	public function save() {

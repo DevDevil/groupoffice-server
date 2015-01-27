@@ -1,9 +1,8 @@
 <?php
 namespace GO\Core\Install\Controller;
 
-use GO\Core\App;
 use GO\Core\Controller\AbstractRESTController;
-use PDOException;
+use GO\Core\Install\Model\SystemCheck;
 
 /**
  * Perform system check
@@ -14,34 +13,17 @@ use PDOException;
  */
 class CheckController extends AbstractRESTController{
 
-    protected function authenticate() {
-        return true;
-    }
+   protected function authenticate() {
+       return true;
+   }
 
 	/**
 	 * Run system tests
 	 */
 	public function httpGet(){
 
-		$systemCheck = new \GO\Core\Install\Model\SystemCheck();
+		$systemCheck = new SystemCheck();
 		
 		return $systemCheck->run();
-	}
-
-	private function _check($testName, $function){
-		$html = '<p>'.$testName.': <span style="';
-
-		$result = $function();
-
-		if($result===true){
-			$html .= 'color:green">OK';
-		}else
-		{
-			$html .= 'color:red">ERROR: '.$result;
-		}
-
-		$html .= '</span></p>';
-
-		echo $html;
 	}
 }

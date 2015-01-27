@@ -5,7 +5,7 @@ namespace GO\Modules\Email\Model;
 use GO\Core\App;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Query;
-use GO\Core\Db\RelationFactory;
+
 use GO\Modules\Email\Imap\Mailbox;
 
 /**
@@ -31,11 +31,9 @@ class Folder extends AbstractRecord {
 	
 	private $imapMailbox;
 		
-	protected static function defineRelations(RelationFactory $r) {
-		return [
-			$r->belongsTo('account', Account::className(), 'accountId'),
-			$r->hasMany('messages', Message::className(), 'folderId')
-		];
+	protected static function defineRelations() {	
+		self::belongsTo('account', Account::className(), 'accountId');
+		self::hasMany('messages', Message::className(), 'folderId');
 	}
 	
 	public function save() {

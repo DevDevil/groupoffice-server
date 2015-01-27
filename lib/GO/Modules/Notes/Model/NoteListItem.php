@@ -2,7 +2,7 @@
 namespace GO\Modules\Notes\Model;
 
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 
 /**
  * @property int $id
@@ -20,10 +20,8 @@ class NoteListItem extends AbstractRecord{
 		);
 	}
 	
-	public static function defineRelations(RelationFactory $r){
-		return array(
-			$r->belongsTo('note', Note::className(), 'noteId')	
-		);
+	public static function defineRelations(){
+		self::belongsTo('note', Note::className(), 'noteId');
 	}
 	
 }

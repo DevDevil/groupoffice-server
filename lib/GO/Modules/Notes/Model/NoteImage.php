@@ -3,7 +3,7 @@ namespace GO\Modules\Notes\Model;
 
 use GO\Core\App;
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Fs\File;
 use GO\Core\Fs\Folder;
 
@@ -24,10 +24,8 @@ class NoteImage extends AbstractRecord{
 		);
 	}
 	
-	public static function defineRelations(RelationFactory $r){
-		return array(
-			$r->belongsTo('note',Note::className(), 'noteId')	
-		);
+	public static function defineRelations(){
+		self::belongsTo('note',Note::className(), 'noteId');
 	}
 	
 	/**

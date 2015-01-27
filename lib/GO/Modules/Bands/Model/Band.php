@@ -2,7 +2,7 @@
 namespace GO\Modules\Bands\Model;
 
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Auth\Model\User;
 
 /**
@@ -27,13 +27,12 @@ class Band extends AbstractRecord{
 	//Add this line for permissions
 	use \GO\Core\Auth\Model\RecordPermissionTrait;
 	
-	protected static function defineRelations(RelationFactory $r) {
-		return [
-			$r->hasMany('albums', Album::className(), 'bandId'),
-			$r->hasOne('customfields', BandCustomFields::className(), 'id'),
+	protected static function defineRelations() {
+		
+			self::hasMany('albums', Album::className(), 'bandId');
+			self::hasOne('customfields', BandCustomFields::className(), 'id');
 			
 			//add this role for permissions
-			$r->hasMany('roles', BandRole::className(), 'bandId')
-			];
+			self::hasMany('roles', BandRole::className(), 'bandId');		
 	}
 }

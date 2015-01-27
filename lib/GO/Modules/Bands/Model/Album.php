@@ -19,7 +19,7 @@ use GO\Core\Db\AbstractRecord;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class Album extends AbstractRecord {
-	protected static function defineRelations(\GO\Core\Db\RelationFactory $r) {
-		return [$r->belongsTo('band', Band::className(), 'bandId')];
+	protected static function defineRelations() {
+		self::belongsTo('band', Band::className(), 'bandId');
 	}
 }

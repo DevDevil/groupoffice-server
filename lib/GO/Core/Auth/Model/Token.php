@@ -7,7 +7,7 @@ use Exception;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Column;
 use GO\Core\Db\Query;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Util\String;
 
 /**
@@ -44,10 +44,10 @@ class Token extends AbstractRecord {
 	 */
 	const LIFETIME = 'P7D';
 
-	protected static function defineRelations(RelationFactory $r) {
-		return array(
-			$r->belongsTo('user', User::className(), 'userId')
-		);
+	protected static function defineRelations() {
+		
+		self::belongsTo('user', User::className(), 'userId');
+		
 	}
 
 	/**

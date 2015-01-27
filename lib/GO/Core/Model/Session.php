@@ -4,7 +4,7 @@ namespace GO\Core\Model;
 use GO\Core\Auth\Model\User;
 use GO\Core\App;
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 
 /**
  * Session model
@@ -27,10 +27,8 @@ class Session extends AbstractRecord{
 		return 'coreSession';
 	}
 	
-	protected static function defineRelations(RelationFactory $r) {
-		return array(
-			$r->belongsTo('user', User::className(), 'userId')
-		);
+	protected static function defineRelations() {
+		self::belongsTo('user', User::className(), 'userId');		
 	}
 	
 	public function delete() {

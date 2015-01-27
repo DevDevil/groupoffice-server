@@ -2,7 +2,7 @@
 namespace GO\Modules\Projects\Model;
 
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Auth\Model\RecordPermissionTrait;
 use GO\Core\Db\SoftDeleteTrait;
 
@@ -42,11 +42,9 @@ class Project extends AbstractRecord{
 		);
 	}
 	
-	public static function defineRelations(RelationFactory $r){
-		return array(
-			$r->hasMany('roles', ProjectRole::className(), 'projectId'),
-			$r->hasMany('tasks', Task::className(), 'projectId')
-		);
+	public static function defineRelations(){
+		self::hasMany('roles', ProjectRole::className(), 'projectId');
+		self::hasMany('tasks', Task::className(), 'projectId');
 	}
 	
 	public function save() {

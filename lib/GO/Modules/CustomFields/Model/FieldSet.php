@@ -4,7 +4,7 @@ namespace GO\Modules\CustomFields\Model;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Query;
 use GO\Core\Db\Relation;
-use GO\Core\Db\RelationFactory;
+
 
 /**
  * FieldSet model
@@ -26,12 +26,10 @@ class FieldSet extends AbstractRecord{
 	
 	use \GO\Core\Db\SoftDeleteTrait;
 	
-	protected static function defineRelations(RelationFactory $r) {
-		return [			
-			$r->hasMany('fields', Field::className(), 'fieldSetId')
+	protected static function defineRelations() {		
+			self::hasMany('fields', Field::className(), 'fieldSetId')
 				->setDeleteAction(Relation::DELETE_CASCADE)
-				->setQuery(Query::newInstance()->orderBy(['sortOrder' => 'ASC']))
-			];
+				->setQuery(Query::newInstance()->orderBy(['sortOrder' => 'ASC']));		
 	}
 	
 	/**

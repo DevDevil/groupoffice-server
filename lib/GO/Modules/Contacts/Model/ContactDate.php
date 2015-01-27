@@ -2,7 +2,7 @@
 namespace GO\Modules\Contacts\Model;
 
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 use GO\Modules\Contacts\Model\Contact;
 
 
@@ -21,7 +21,7 @@ use GO\Modules\Contacts\Model\Contact;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class ContactDate extends AbstractRecord {
-	public static function defineRelations(RelationFactory $r){
-		return [$r->belongsTo('contact', Contact::className(), 'contactId')];
+	public static function defineRelations(){
+		self::belongsTo('contact', Contact::className(), 'contactId');
 	}
 }
