@@ -22,7 +22,7 @@ use ArrayAccess;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Session extends Observable implements ArrayAccess, SessionHandlerInterface {
+class Session extends AbstractObject implements ArrayAccess, SessionHandlerInterface {
 
 	/**
 	 * The name of the session

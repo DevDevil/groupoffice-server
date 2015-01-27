@@ -731,9 +731,9 @@ abstract class AbstractRecord extends AbstractModel {
 	}
 
 	/**
-	 * Get all relations for this model
+	 * Get all relations names for this model
 	 *
-	 * @return Relation[]
+	 * @return string[]
 	 */
 	public static function getRelations() {
 		$calledClass = get_called_class();

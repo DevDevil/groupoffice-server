@@ -1,6 +1,6 @@
 <?php
 
-namespace GO\Core\Modules\Controller;
+namespace GO\Core\Install\Controller;
 
 use GO\Core\App;
 use GO\Core\Controller\AbstractRESTController;
@@ -40,6 +40,7 @@ class UpgradeController extends AbstractRESTController {
 		
 		$modules = ModuleUtils::getModules();
 		
+		//todo check if module is installed
 		foreach($modules as $module){
 			if($module->autoInstall()){
 				$module->install();
@@ -70,9 +71,9 @@ class UpgradeController extends AbstractRESTController {
 		
 		$this->setUtf8Collation();
 		
-		//$modulesManager = new ModulesModule();
+		//$modulesManager = new InstallModule();
 		
-		$initSqlFile = new File(App::config()->getLibPath().'/Core/Modules/Install/Init.sql');
+		$initSqlFile = new File(App::config()->getLibPath().'/Core/Install/Install/Init.sql');
 		
 		Utils::runSQLFile($initSqlFile);
 		

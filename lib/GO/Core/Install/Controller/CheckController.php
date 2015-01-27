@@ -1,5 +1,5 @@
 <?php
-namespace GO\Core\Modules\Controller;
+namespace GO\Core\Install\Controller;
 
 use GO\Core\App;
 use GO\Core\Controller\AbstractRESTController;
@@ -87,7 +87,7 @@ class CheckController extends AbstractRESTController{
 						});
 						
 						
-		echo '<a href="'.App::router()->buildUrl('modules/upgrade').'">Install / Upgrade database</a>';
+		echo '<a href="'.App::router()->buildUrl('system/upgrade').'">Install / Upgrade database</a>';
 
 	}
 

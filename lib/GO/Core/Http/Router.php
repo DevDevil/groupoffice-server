@@ -11,9 +11,9 @@ use GO\Core\Auth\Controller\RoleUsersController;
 use GO\Core\Auth\Controller\UserController;
 use GO\Core\Auth\Controller\UserRolesController;
 use GO\Core\Db\Utils;
-use GO\Core\Modules\Controller\CheckController;
+use GO\Core\Install\Controller\CheckController;
 use GO\Core\Modules\Controller\ModuleController;
-use GO\Core\Modules\Controller\UpgradeController;
+use GO\Core\Install\Controller\UpgradeController;
 use GO\Core\Modules\Model\Module;
 
 /**
@@ -131,16 +131,23 @@ class Router {
 						]
 					]
 				],
-				'modules' => [
-				'controller' => ModuleController::className(),
-				'children' => [
-					'check' => [						
-						'controller' => CheckController::className()
-					],
-					'upgrade' => [						
-						'controller' => UpgradeController::className()
-					]
+				
+				'system' => [
+					'children' => [
+						'check' => [						
+							'controller' => CheckController::className()
+						],
+						'upgrade' => [						
+							'controller' => UpgradeController::className()
+						],
+						'install' => [						
+							'controller' => UpgradeController::className()
+						]
 				],
+			
+				'modules' => [
+					'controller' => ModuleController::className()
+				]
 			]
 		];
 	}
@@ -186,7 +193,7 @@ class Router {
 //		try {
 		
 			if(!isset($_SERVER['PATH_INFO'])){
-				App::request()->redirect($this->buildUrl('modules/check'));
+				App::request()->redirect($this->buildUrl('system/check'));
 			}
 		
 			$this->route = ltrim($_SERVER['PATH_INFO'],'/');

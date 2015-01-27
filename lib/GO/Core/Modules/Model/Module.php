@@ -45,6 +45,10 @@ class Module extends AbstractRecord{
 	public $ownerUserId = 1;
 	
 	protected static function defineRelations(RelationFactory $r) {
+		
+		//self::hasMany('roles', ModuleRole::className(), 'moduleId')
+				
+		
 		return [
 			$r->hasMany('roles', ModuleRole::className(), 'moduleId')
 			];

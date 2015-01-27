@@ -162,6 +162,20 @@ trait RecordPermissionTrait {
 	}
 	
 	/**
+	 * Returns true if the user is allowed to create new instances of this model.
+	 * By default this returns true if the user has createAccess on the module. 
+	 * Override this function if you need other permissions.
+	 * 
+	 * @return bool
+	 */
+	protected function hasCreatePermission($userId){
+		//retun module permission
+		
+		$module = $this->getModule();	
+		return $module::model()->checkPermission('createAccess', $userId);	
+	}
+	
+	/**
 	 * Use this function to set conditions on the findParams so that only
 	 * authorized resource models are returned.
 	 * 
@@ -169,7 +183,9 @@ trait RecordPermissionTrait {
 	 * @param string $accessName The boolean column in the role model to check. Leave null to disable.
 	 * @param int $userId The user to check for. Leave null for the current user
 	 */
-	public function checkPermission($accessName, $userId = null) {
+	public function checkPermission($accessName = null, $userId = null) {
+		
+	
 		
 		//always allow for admin
 		if(User::current()->isAdmin()) {
@@ -179,6 +195,10 @@ trait RecordPermissionTrait {
 		if (!isset($userId)) {
 			$userId = User::current()->id;
 		}		
+		
+		if($this->isNew){
+			return $this->hasCreatePermission($userId);
+		}
 
 		$relation = self::getRolesRelation();
 		$roleModelName = $relation->getRelatedModelName();

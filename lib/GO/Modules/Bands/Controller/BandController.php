@@ -122,12 +122,13 @@ class BandController extends AbstractCrudController {
 	 */
 	public function actionCreate($returnAttributes = ['*','albums']) {
 		
-		//Check the module createAccess boolean here
-		if (BandsModule::model()->checkPermission('createAccess')) {
-			throw new Forbidden();
-		}
 
 		$band = new Band();
+		//Check edit permission
+		if(!$band->permissions->create) {
+			throw new Forbidden();
+		}
+		
 		$band->setAttributes(App::request()->payload['data']);
 		$band->save();
 
@@ -158,7 +159,7 @@ class BandController extends AbstractCrudController {
 		}
 		
 		//Check edit permission
-		if(!$band->checkPermission('editAccess')) {
+		if(!$band->permissions->write) {
 			throw new Forbidden();
 		}
 
