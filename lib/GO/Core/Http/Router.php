@@ -10,10 +10,11 @@ use GO\Core\Auth\Controller\RoleController;
 use GO\Core\Auth\Controller\RoleUsersController;
 use GO\Core\Auth\Controller\UserController;
 use GO\Core\Auth\Controller\UserRolesController;
-use GO\Core\Db\Utils;
 use GO\Core\Install\Controller\CheckController;
-use GO\Core\Modules\Controller\ModuleController;
+use GO\Core\Install\Controller\InstallController;
 use GO\Core\Install\Controller\UpgradeController;
+use GO\Core\Install\Model\System;
+use GO\Core\Modules\Controller\ModuleController;
 use GO\Core\Modules\Model\Module;
 
 /**
@@ -141,7 +142,7 @@ class Router {
 							'controller' => UpgradeController::className()
 						],
 						'install' => [						
-							'controller' => UpgradeController::className()
+							'controller' => InstallController::className()
 						]
 				],
 			
@@ -164,7 +165,7 @@ class Router {
 		
 		$routes = $this->coreRoutes();
 		
-		if(Utils::isDatabaseInstalled()){
+		if(System::isDatabaseInstalled()){
 			$modules = Module::find();		
 		
 			foreach($modules as $module){

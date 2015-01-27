@@ -12,8 +12,7 @@ use GO\Core\Install\Model\System;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class UpgradeController extends AbstractRESTController {
-	
+class InstallController extends AbstractRESTController {	
 
 	/**
 	 * Authenticate the current user
@@ -33,8 +32,8 @@ class UpgradeController extends AbstractRESTController {
 		
 		$system = new System();
 		
-		$system->upgrade();
+		$success = $system->install();
 	
-		return $this->renderJson([]);
+		return $this->renderJson(['success' => $success]);
 	}
 }

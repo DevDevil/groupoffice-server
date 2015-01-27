@@ -54,24 +54,6 @@ class Module extends AbstractRecord{
 			];
 	}	
 	
-//	
-//	public static function installCoreModules(){
-//		foreach(self::$coreModules as $moduleName) {
-//			try{
-//				$module = Module::find(['name' => $moduleName])->single();
-//			} catch (\PDOException $ex) {
-//				//tables not created yet
-//				$module = false;
-//			}
-//			
-//			
-//			if(!$module) {
-//				$module = new Module();
-//				$module->name = $moduleName;
-//				$module->save();
-//			}
-//		}
-//	}
 	
 	/**
 	 * Get the module manager file
@@ -83,6 +65,11 @@ class Module extends AbstractRecord{
 		return new $this->name;
 	}
 	
+	/**
+	 * 
+	 * @inheritdoc
+	 * @todo Transaction on install
+	 */
 	public function save() {
 		
 		$isNew = $this->getIsNew();
@@ -101,14 +88,17 @@ class Module extends AbstractRecord{
 		if($isNew && !$this->dontInstallDatabase){
 			$depends = $this->manager()->getRecursiveDependencies();	
 			$this->runModuleUpdates($depends);
-			
-			
 		}
 		
 		return $ret;	
 	}	
 	
-	
+	/**
+	 * Run all module upgrades of the given modules
+	 * 
+	 * @param array $moduleManagers
+	 * @throws Exception
+	 */
 	public static function runModuleUpdates(array $moduleManagers = null){
 		
 		$updates = self::collectModuleUpgrades($moduleManagers);
@@ -150,7 +140,7 @@ class Module extends AbstractRecord{
 	
 	
 	/**
-	 * Get all update files sorted.
+	 * Get all update files of the given modules sorted by date.
 	 * 
 	 * @return File[]
 	 */
@@ -167,17 +157,8 @@ class Module extends AbstractRecord{
 		}
 	
 		$updates = [];
-		
-		
-
 		foreach ($moduleManagers as $moduleManagerClass) {
-			
-			
-			
 			$manager = new $moduleManagerClass;
-			
-
-				
 			$modUpdates = $manager->databaseUpdates();
 
 			foreach ($modUpdates as $updateFile) {
@@ -189,7 +170,6 @@ class Module extends AbstractRecord{
 
 				$updates[$updateFile->getName() . $suffix] = [$moduleManagerClass, $updateFile];
 			}
-
 		}
 		
 		ksort($updates);
@@ -197,20 +177,11 @@ class Module extends AbstractRecord{
 		return array_values($updates);
 	}
 	
-	
-
-	
 	public function delete() {
 		
-		if (in_array($this->name, self::$coreModules)) {
-			$this->setValidationError('id', 'coreModuleDeleteForbidden');
-			return false;
-		}
+		throw new \Exception("todo check module deps!");
 		
 		return $this->softDelete();
 	}
-	
-	
-	
 	
 }
