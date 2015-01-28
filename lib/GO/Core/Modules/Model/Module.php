@@ -66,7 +66,7 @@ class Module extends AbstractRecord{
 	 */
 	public function save() {
 		
-		$isNew = $this->getIsNew();
+		$isNew = $this->isNew();
 		
 		if($isNew){
 			

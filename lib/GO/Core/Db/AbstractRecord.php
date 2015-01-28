@@ -417,7 +417,7 @@ abstract class AbstractRecord extends AbstractModel {
 	 *
 	 * @return boolean
 	 */
-	public function getIsNew() {
+	public function isNew() {
 
 		return $this->_isNew;
 	}

@@ -226,7 +226,7 @@ trait RecordPermissionTrait {
 //		if (!isset($userId)) {			
 			
 //		}
-		if($this->getIsNew()){
+		if($this->isNew()){
 			return false;
 		}
 		

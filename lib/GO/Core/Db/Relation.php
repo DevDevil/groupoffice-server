@@ -418,7 +418,7 @@ class Relation {
 	public function find(AbstractRecord $model, Criteria $extraQuery = null) {
 		
 	
-		if(!isset($extraQuery) && $model->getIsNew() && $this->autoCreate){
+		if(!isset($extraQuery) && $model->isNew() && $this->autoCreate){
 			if($this->type === self::TYPE_HAS_ONE){
 				return new $this->relatedModelName;
 			}else

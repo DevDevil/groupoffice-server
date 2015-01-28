@@ -147,7 +147,7 @@ class Contact extends AbstractRecord {
 
 	public function save() {
 
-		$wasNew = $this->getIsNew();		
+		$wasNew = $this->isNew();		
 		
 		if($this->isModified('_photoFilePath') && $this->_photoFilePath==""){
 			//remove photo file after save
