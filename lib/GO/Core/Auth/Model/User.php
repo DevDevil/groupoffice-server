@@ -40,13 +40,6 @@ class User extends AbstractRecord {
         delete as softDelete;
     }
 
-	/**
-	 * Password confirmation when changing
-	 *
-	 * @var string
-	 */
-	public $passwordConfirm;
-	
 	
 	/**
 	 * Non admin users must supply the currentPassword attribute when changing
