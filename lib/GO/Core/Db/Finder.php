@@ -157,6 +157,13 @@ class Finder extends AbstractObject implements IteratorAggregate {
 				$stmt->bindValue($p['paramTag'], $p['value'], $p['pdoType']);
 			}
 			
+			if(!isset($this->_query->fetchMode)){
+				$stmt->setFetchMode(PDO::FETCH_CLASS, $this->recordClassName, array(false));
+			}else
+			{
+				call_user_func_array([$stmt, 'setFetchMode'], $this->_query->fetchMode);
+			}
+			
 			App::debugger()->debugSql($sql, $binds);
 
 			$stmt->execute();
@@ -173,13 +180,6 @@ class Finder extends AbstractObject implements IteratorAggregate {
 			}
 
 			throw $e;
-		}
-		
-		if(!isset($this->_query->fetchMode)){
-			$stmt->setFetchMode(PDO::FETCH_CLASS, $this->recordClassName, array(false));
-		}else
-		{
-			call_user_func_array([$stmt, 'setFetchMode'], $this->_query->fetchMode);
 		}
 		
 		return $stmt;

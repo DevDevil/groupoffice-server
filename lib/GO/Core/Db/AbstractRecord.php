@@ -228,11 +228,12 @@ abstract class AbstractRecord extends AbstractModel {
 	 *
 	 * @param boolean $isNew
 	 */
-	public function __construct($isNew = true) {
+	public function __construct() {
 
 		parent::__construct();
 
-		$this->_isNew = $isNew;
+		//Attributes is filled by PDO
+		$this->_isNew = empty($this->_attributes);
 
 		if (!$this->_isNew) {
 			$this->_cacheRelatedAttributes();
