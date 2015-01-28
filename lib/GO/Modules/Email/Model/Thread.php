@@ -4,7 +4,7 @@ namespace GO\Modules\Email\Model;
 
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Query;
-use GO\Core\Db\RelationFactory;
+
 
 /**
  * The Folder model
@@ -35,15 +35,9 @@ class Thread extends AbstractRecord {
 	 */
 	public $saveToMessages = false;
 	
-	protected static function defineRelations(RelationFactory $r) {
-		return [
-			$r->belongsTo('folder', Folder::className(), 'accountId'),
-			
-//			$r->manyMany('from', Address::className(), Message::className(), 'threadId', 'messageId')
-//				->setQuery(Query::newInstance()->where(['from.type'=>Address::TYPE_FROM])),
-			
-			$r->hasMany('messages', Message::className(), 'threadId')->setQuery(Query::newInstance()->orderBy(['date'=>'DESC']))
-		];
+	protected static function defineRelations() {		
+		self::belongsTo('folder', Folder::className(), 'accountId');
+		self::hasMany('messages', Message::className(), 'threadId')->setQuery(Query::newInstance()->orderBy(['date'=>'DESC']));
 	}
 	
 	/**

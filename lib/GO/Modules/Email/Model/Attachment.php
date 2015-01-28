@@ -5,7 +5,7 @@ namespace GO\Modules\Email\Model;
 use Exception;
 use GO\Core\App;
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Fs\File;
 
 
@@ -31,10 +31,8 @@ class Attachment extends AbstractRecord {
 	
 	private $_newFile;
 	
-	protected static function defineRelations(RelationFactory $r) {
-		return [
-			$r->belongsTo('message', Message::className(), 'messageId'),
-		];
+	protected static function defineRelations() {
+		self::belongsTo('message', Message::className(), 'messageId');
 	}
 	
 	/**

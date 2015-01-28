@@ -4,7 +4,7 @@ namespace GO\Core\Modules\Model;
 use GO\Core\AbstractModule;
 use GO\Core\App;
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Db\SoftDeleteTrait;
 use GO\Core\Db\Utils;
 use GO\Core\Auth\Model\RecordPermissionTrait;
@@ -44,14 +44,8 @@ class Module extends AbstractRecord{
 	
 	public $ownerUserId = 1;
 	
-	protected static function defineRelations(RelationFactory $r) {
-		
-		//self::hasMany('roles', ModuleRole::className(), 'moduleId')
-				
-		
-		return [
-			$r->hasMany('roles', ModuleRole::className(), 'moduleId')
-			];
+	protected static function defineRelations() {		
+		self::hasMany('roles', ModuleRole::className(), 'moduleId');
 	}	
 	
 	

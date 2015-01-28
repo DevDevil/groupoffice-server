@@ -3,7 +3,7 @@ namespace GO\Modules\Contacts\Model;
 
 use GO\Core\App;
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Db\SoftDeleteTrait;
 use GO\Core\Fs\File;
 use GO\Core\Fs\Folder;
@@ -45,25 +45,21 @@ class Contact extends AbstractRecord {
 	
 	use RecordFolderTrait;
 
-	public static function defineRelations(RelationFactory $r){
-		return [
-			$r->belongsTo('owner', User::className(), 'ownerUserId'),
-			$r->hasMany('roles', ContactRole::className(), 'contactId'),
-			$r->hasMany('emailAddresses', ContactEmailAddress::className(), 'contactId')->autoCreate(),
-			$r->hasMany('phoneNumbers', ContactPhone::className(), 'contactId')->autoCreate(),
-			$r->manyMany('tags', Tag::className(), ContactTag::className(), 'contactId'),
-			$r->hasMany('tagLink', ContactTag::className(), 'contactId'),
-			$r->hasMany('addresses', ContactAddress::className(), 'contactId'),
-			$r->hasMany('dates', ContactDate::className(), 'contactId'),
-			$r->hasMany('employees', Contact::className(), 'companyContactId'),
-			$r->belongsTo('company', Contact::className(), 'companyContactId'),
-			
-			$r->belongsTo('user', User::className(), 'userId'),
-			
-			$r->hasMany('timeline', Item::className(), 'contactId'),
-			
-			$r->hasOne('customfields', ContactCustomFields::className(), 'id')->autoCreate()
-		];
+	public static function defineRelations(){
+		
+		self::belongsTo('owner', User::className(), 'ownerUserId');
+		self::hasMany('roles', ContactRole::className(), 'contactId');
+		self::hasMany('emailAddresses', ContactEmailAddress::className(), 'contactId')->autoCreate();
+		self::hasMany('phoneNumbers', ContactPhone::className(), 'contactId')->autoCreate();
+		self::manyMany('tags', Tag::className(), ContactTag::className(), 'contactId');
+		self::hasMany('tagLink', ContactTag::className(), 'contactId');
+		self::hasMany('addresses', ContactAddress::className(), 'contactId');
+		self::hasMany('dates', ContactDate::className(), 'contactId');
+		self::hasMany('employees', Contact::className(), 'companyContactId');
+		self::belongsTo('company', Contact::className(), 'companyContactId');			
+		self::belongsTo('user', User::className(), 'userId');			
+		self::hasMany('timeline', Item::className(), 'contactId');			
+		self::hasOne('customfields', ContactCustomFields::className(), 'id')->autoCreate();
 	}
 
 	/**

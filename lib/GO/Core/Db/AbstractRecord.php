@@ -702,20 +702,14 @@ abstract class AbstractRecord extends AbstractModel {
 	 *
 	 * <p>Example:</p>
 	 * <code>
-	 * public static function defineRelations(RelationFactory $r){
-	 * 	  return [
-	 *		$r->hasMany('addressbooks', Addressbook::className(), 'ownerUserId')->setDeleteAction(Relation::DELETE_CASCADE),
-	 *		$r->manyMany('roles', Role::className(), UserRole::className(), "userId"),
-	 * 		$r->hasOne('role', UserRole::className(), 'userId')
-	 * 	];
-	 *
+	 * public static function defineRelations(){
+	 *		self::hasMany('addressbooks', Addressbook::className(), 'ownerUserId')->setDeleteAction(Relation::DELETE_CASCADE);
+	 *		self::manyMany('roles', Role::className(), UserRole::className(), "userId");
+	 *    self::hasOne('role', UserRole::className(), 'userId');
 	 * }
 	 * </code>
-	 * @param RelationFactory $r The factory class that can be used to define relations
-	 * @return Relation[]
 	 */
-	protected static function defineRelations(RelationFactory $r) {
-		return [];
+	protected static function defineRelations() {
 	}
 
 	/**
@@ -737,32 +731,14 @@ abstract class AbstractRecord extends AbstractModel {
 	 */
 	public static function getRelations() {
 		$calledClass = get_called_class();
-		if (!isset(self::$_relations[$calledClass])) {
-			$relations = static::defineRelations(new RelationFactory(get_called_class()));
-			
-			self::$_relations[$calledClass] = [];
-			
-			foreach($relations as $relation){
-				self::$_relations[$calledClass][$relation->getName()] = $relation; 
-			}
+		if (!isset(self::$_relations[$calledClass])) {			
+			self::$_relations[$calledClass] = [];			
+			static::defineRelations();
 		}
 
 		return self::$_relations[$calledClass];
 	}
 	
-	/**
-	 * Add a relation available in current script run only.
-	 * Useful for joining relations.
-	 * 
-	 * @param Relation $r
-	 */
-	public static function addRuntimeRelation(Relation $r){
-		
-		//make sure self::$_relations is populated
-		static::getRelations();
-		
-		self::$_relations[get_called_class()][$r->getName()] = $r;		
-	}
 
 	/**
 	 * Define an array of validation rules
@@ -1688,5 +1664,92 @@ abstract class AbstractRecord extends AbstractModel {
 	 */
 	public function eTag(){
 		return isset($this->modifiedAt) ? $this->modifiedAt : null;
+	}
+	
+	
+	
+	/**
+	 * Create a belongs to relation. For example an "Addressbook" belongs to a user.
+	 *
+	 * @param string $relatedModelName The class name of the related model. eg. User::className()
+	 * @param string $key eg. 'ownerUserId'
+	 * @return Relation
+	 */
+	public static function belongsTo($name, $relatedModelName, $key){
+		
+		$calledClass = get_called_class();
+		
+		return self::$_relations[$calledClass][$name] = new Relation($name, Relation::TYPE_BELONGS_TO, $calledClass, $relatedModelName, $key, $relatedModelName::primaryKeyColumn());
+
+	}
+
+	/**
+	 * Create a hasMany relation. For example a user has many address books.
+	 *
+	 * @param string $relatedModelName The class name of the related model. eg. Addressbook::className()
+	 * @param string $foreignKey eg. ownerUserId This key points to the main model name
+	 * @param string $key You can leave this empty in most cases. Except when the primary key is an array. Then you must select one of the primary key columns.
+	 * @return Relation
+	 */
+	public static function hasMany($name, $relatedModelName, $foreignKey, $key=null){
+
+		$calledClass = get_called_class();
+		
+		if(!isset($key)){
+			$key = static::primaryKeyColumn();
+		}
+
+		return self::$_relations[$calledClass][$name] =  new Relation($name, Relation::TYPE_HAS_MANY, $calledClass, $relatedModelName, $key, $foreignKey);
+	}
+
+	/**
+	 * Creates a has one relation. For example a user has one addressbook.
+	 * This one is similar to hasMany but only one item exists.
+	 *
+	 * @param string $relatedModelName The class name of the related model.
+	 * @param string $foreignKey The attribute name in the related model that points to the main model.
+	 * @param string $key You can leave this empty in most cases. Except when the primary key is an array. Then you must select one of the primary key columns.
+	 * @return Relation
+	 */
+	public static function hasOne($name, $relatedModelName, $foreignKey, $key=null){
+
+		$calledClass = get_called_class();
+		
+		if(!isset($key)){
+			$key = static::primaryKeyColumn();						
+		}
+
+		return self::$_relations[$calledClass][$name] = new Relation($name, Relation::TYPE_HAS_ONE, $calledClass, $relatedModelName, $key, $foreignKey);
+	}
+
+	/**
+	 * Create a many many relation
+	 *
+	 * @param string $relatedModelName The class name of the related model.
+	 * @param string $linkModelName The model class name that links this model to the relation model.
+	 * @param string $mainTableColumn The column of link model that points to the main model.
+	 * @return ManyManyRelation
+	 */
+	public static function manyMany($name, $relatedModelName, $linkModelName, $mainTableColumn, $foreignTableColumn = null){
+		
+		
+		$calledClass = get_called_class();
+		
+		//eg. roleId
+		
+		if(!isset($foreignTableColumn)){
+			
+			$primaryKeys = $linkModelName::primaryKeyColumn();
+			if(!is_array($primaryKeys)){
+				throw new \Exception ("Fatal error: Primary key of linkModel '".$linkModelName."' should be an array if used in a many many relation.");
+			}
+
+			$foreignTableColumn = $primaryKeys[0]==$mainTableColumn ? $primaryKeys[1] : $primaryKeys[0];
+		}
+
+		$r = new ManyManyRelation($name, Relation::TYPE_MANY_MANY, $calledClass, $relatedModelName, $mainTableColumn, $foreignTableColumn);
+		$r->setLinkModel($linkModelName);
+
+		return self::$_relations[$calledClass][$name] = $r;
 	}
 }

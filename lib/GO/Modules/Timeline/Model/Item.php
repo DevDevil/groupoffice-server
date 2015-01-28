@@ -2,7 +2,7 @@
 namespace GO\Modules\Timeline\Model;
 
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Db\SoftDeleteTrait;
 use GO\Core\Auth\Model\User;
 use GO\Modules\Contacts\Model\Contact;
@@ -30,11 +30,9 @@ use GO\Modules\Contacts\Model\Contact;
 class Item extends AbstractRecord {
 	use SoftDeleteTrait;
 	
-	protected static function defineRelations(RelationFactory $r) {
-		return [
-			$r->belongsTo('owner', User::className(), 'ownerUserId'),
-			$r->belongsTo('contact', Contact::className(), 'contactId')
-			];
+	protected static function defineRelations() {
+		self::belongsTo('owner', User::className(), 'ownerUserId');
+		self::belongsTo('contact', Contact::className(), 'contactId');
 	}
 	
 	public function getAuthorThumbUrl(){

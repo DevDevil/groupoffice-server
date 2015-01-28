@@ -5,7 +5,7 @@ use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Criteria;
 use GO\Core\Db\Query;
 use GO\Core\Db\Relation;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Db\SoftDeleteTrait;
 use GO\Core\Modules\Model\Module;
 use GO\Core\Modules\Model\ModuleRole;
@@ -38,13 +38,11 @@ class Role extends AbstractRecord{
 	 */
 	const everyoneRoleId = 2;
 
-	protected static function defineRelations(RelationFactory $r) {
-		return [
-				$r->manyMany('users', User::className(), UserRole::className(),'roleId'),
-				$r->hasMany('userRole', UserRole::className(),'roleId'),			
-				$r->hasMany('moduleRoles', ModuleRole::className(), 'roleId'),			
-				$r->belongsTo('user', User::className(), 'userId')->setDeleteAction(Relation::DELETE_RESTRICT)
-		];		
+	protected static function defineRelations() {		
+		self::manyMany('users', User::className(), UserRole::className(),'roleId');
+		self::hasMany('userRole', UserRole::className(),'roleId');
+		self::hasMany('moduleRoles', ModuleRole::className(), 'roleId');
+		self::belongsTo('user', User::className(), 'userId')->setDeleteAction(Relation::DELETE_RESTRICT);				
 	}
 
 	/**

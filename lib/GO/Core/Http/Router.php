@@ -144,11 +144,10 @@ class Router {
 						'install' => [						
 							'controller' => InstallController::className()
 						]
-				],
-			
-				'modules' => [
-					'controller' => ModuleController::className()
-				]
+				]				
+			],
+			'modules' => [
+				'controller' => ModuleController::className()
 			]
 		];
 	}

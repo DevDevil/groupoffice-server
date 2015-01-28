@@ -2,7 +2,7 @@
 namespace GO\Modules\Contacts\Model;
 
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 /**
  * The contact model
  *
@@ -19,7 +19,7 @@ class ContactTag extends AbstractRecord{
 		return array('contactId', 'tagId');
 	}
 	
-	public static function defineRelations(RelationFactory $r){
-		return [$r->belongsTo('contact', Contact::className(), 'contactId')];
+	public static function defineRelations(){
+		self::belongsTo('contact', Contact::className(), 'contactId');
 	}
 }

@@ -6,7 +6,7 @@ use Exception;
 use GO\Core\App;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Query;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Fs\File as FsFile;
 use GO\Core\Db\SoftDeleteTrait;
 /**
@@ -35,11 +35,9 @@ class File extends AbstractRecord {
 	
 	use SoftDeleteTrait;
 
-	protected static function defineRelations(RelationFactory $r) {
-		return [
-			$r->belongsTo('parent', File::className(), 'parentId'),
-			$r->hasMany('children', File::className(), 'parentId')->setQuery(Query::newInstance()->orderBy(['name' => 'ASC'])),
-		];
+	protected static function defineRelations() {
+		self::belongsTo('parent', File::className(), 'parentId');
+		self::hasMany('children', File::className(), 'parentId')->setQuery(Query::newInstance()->orderBy(['name' => 'ASC']));
 	}
 	
 	

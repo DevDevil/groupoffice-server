@@ -20,12 +20,5 @@ class BandRole extends AbstractRole{
 	 */
 	public static function resourceKey() {
 		return 'bandId';
-	}	
-	
-	protected static function defineRelations(\GO\Core\Db\RelationFactory $r) {
-		$relations = parent::defineRelations($r);		
-		$relations[] = $r->belongsTo('band', Band::className(), 'bandId');
-		
-		return $relations;
 	}
 }

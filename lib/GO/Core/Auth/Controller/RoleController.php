@@ -8,7 +8,7 @@ use GO\Core\Controller\AbstractCrudController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Criteria;
 use GO\Core\Db\Query;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Exception\Forbidden;
 use GO\Core\Exception\NotFound;
 use GO\Core\Auth\Model\Role;

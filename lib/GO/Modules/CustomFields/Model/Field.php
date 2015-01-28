@@ -6,7 +6,7 @@ use Exception;
 use GO\Core\App;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Columns;
-use GO\Core\Db\RelationFactory;
+
 
 /**
  * Field model
@@ -46,10 +46,8 @@ class Field extends AbstractRecord {
 	public $resort = false;
 	
 
-	protected static function defineRelations(RelationFactory $r) {
-		return [
-			$r->belongsTo('fieldSet', FieldSet::className(), 'fieldSetId'),
-		];
+	protected static function defineRelations() {
+		self::belongsTo('fieldSet', FieldSet::className(), 'fieldSetId');
 	}
 	
 	protected static function defineDefaultAttributes() {

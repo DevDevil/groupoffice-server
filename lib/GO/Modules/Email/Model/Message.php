@@ -5,7 +5,7 @@ use Exception;
 use GO\Core\App;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Query;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Util\String;
 use GO\Core\Auth\Model\User;
 use GO\Modules\Email\Imap\Message as ImapMessage;
@@ -66,22 +66,20 @@ class Message extends AbstractRecord {
 	 */
 	public $saveToImap = false;
 	
-	protected static function defineRelations(RelationFactory $r) {
-		return [
-//			$r->hasMany('timelineItems', Item::className(), 'imapMessageId', 'threadId'),
-			$r->belongsTo('owner', User::className(), 'ownerUserId'),
-			$r->belongsTo('account', Account::className(), 'accountId'),
-			$r->belongsTo('folder', Folder::className(), 'folderId'),
-			$r->hasMany('attachments', Attachment::className(), 'messageId'),
-			$r->hasOne('from', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_FROM])),
-			$r->hasMany('to', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_TO])),
-			$r->hasMany('cc', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_CC])),
-			$r->hasMany('bcc', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_BCC])),
-			
-			$r->hasMany('addresses', Address::className(), 'messageId'),
-			
-			$r->hasMany('threadMessages', Message::className(), 'threadId', 'threadId'),
-		];
+	protected static function defineRelations() {
+		self::belongsTo('owner', User::className(), 'ownerUserId');
+		self::belongsTo('account', Account::className(), 'accountId');
+		self::belongsTo('folder', Folder::className(), 'folderId');
+		self::hasMany('attachments', Attachment::className(), 'messageId');
+		self::hasOne('from', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_FROM]));
+		self::hasMany('to', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_TO]));
+		self::hasMany('cc', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_CC]));
+		self::hasMany('bcc', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_BCC]));
+
+		self::hasMany('addresses', Address::className(), 'messageId');
+
+		self::hasMany('threadMessages', Message::className(), 'threadId', 'threadId');
+	
 	}
 	
 //	public function save() {

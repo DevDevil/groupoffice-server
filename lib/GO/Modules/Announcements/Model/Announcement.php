@@ -3,7 +3,7 @@ namespace GO\Modules\Announcements\Model;
 
 use GO\Core\App;
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 use GO\Core\Fs\Folder;
 use GO\Core\Auth\Model\User;
 use GO\Core\Fs\File;
@@ -27,12 +27,9 @@ class Announcement extends AbstractRecord{
 	
 	use SoftDeleteTrait;
 	
-	public static function defineRelations(RelationFactory $r){
-		return [
-			$r->belongsTo('owner', User::className(), 'ownerUserId')
-			];
+	public static function defineRelations(){		
+		self::belongsTo('owner', User::className(), 'ownerUserId');		
 	}
-	
 	
 	/**
 	 * Get the folder to store photo's in.

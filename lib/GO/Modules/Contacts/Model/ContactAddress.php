@@ -2,7 +2,7 @@
 namespace GO\Modules\Contacts\Model;
 
 use GO\Core\Db\AbstractRecord;
-use GO\Core\Db\RelationFactory;
+
 
 /**
  * Contact address 
@@ -25,8 +25,8 @@ class ContactAddress extends AbstractRecord {
 	
 	public static $defaultCountry = 'NL';
 	
-	public static function defineRelations(RelationFactory $r){
-		return [$r->belongsTo('contact', Contact::className(), 'contactId')];
+	public static function defineRelations(){
+		self::belongsTo('contact', Contact::className(), 'contactId');
 	}
 	
 	protected static function defineDefaultAttributes() {
