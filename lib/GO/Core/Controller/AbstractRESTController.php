@@ -289,7 +289,8 @@ abstract class AbstractRESTController extends AbstractObject {
 	 */
 	protected function renderModel(AbstractModel $model, $returnAttributes = null) {
 
-		if(App::request()->getMethod() != 'DELETE'){
+		if(!$model->isDeleted()){
+//		if(App::request()->getMethod() != 'DELETE'){
 	
 			if (App::request()->getMethod() == 'GET' && isset($model->modifiedAt)) {
 				$lastModified = new DateTime($model->modifiedAt);

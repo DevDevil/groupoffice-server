@@ -61,7 +61,7 @@ class Contact extends AbstractRecord {
 		self::hasMany('roles', ContactRole::className(), 'contactId');
 		self::hasMany('emailAddresses', ContactEmailAddress::className(), 'contactId');
 		self::hasMany('phoneNumbers', ContactPhone::className(), 'contactId');
-		self::hasMany('tags', Tag::className(), 'contactId')->via(ContactTag::className());
+		self::manyMany('tags', Tag::className(), ContactTag::className(), 'contactId');
 		self::hasMany('tagLink', ContactTag::className(), 'contactId');
 		self::hasMany('addresses', ContactAddress::className(), 'contactId');
 		self::hasMany('dates', ContactDate::className(), 'contactId');
@@ -157,7 +157,7 @@ class Contact extends AbstractRecord {
 
 	public function save() {
 
-		$wasNew = $this->getIsNew();		
+		$wasNew = $this->isNew();		
 		
 		if($this->isModified('_photoFilePath') && $this->_photoFilePath==""){
 			//remove photo file after save

@@ -49,7 +49,7 @@ class Project extends AbstractRecord{
 	
 	public function save() {
 		
-		$wasNew=$this->getIsNew();
+		$wasNew=$this->isNew();
 		
 		$success = parent::save();
 		

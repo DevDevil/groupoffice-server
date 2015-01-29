@@ -42,7 +42,7 @@ class Note extends AbstractRecord{
 	
 	public function save() {
 		
-		$wasNew=$this->getIsNew();
+		$wasNew=$this->isNew();
 		
 		$this->_resort();
 		$success = parent::save();

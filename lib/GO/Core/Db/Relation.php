@@ -140,7 +140,7 @@ class Relation {
 	 * 
 	 * @var bool 
 	 */
-	public $autoCreate = false;
+//	public $autoCreate = false;
 
 	/**
 	 *

@@ -26,7 +26,7 @@ trait SoftDeleteTrait {
 		
 		$this->deleted = true;
 		
-		return $this->save() !== false;
+		return $this->isDeleted = $this->save() !== false;
 	}
 	
 	

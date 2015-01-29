@@ -427,7 +427,7 @@ class Message extends AbstractRecord {
 		$this->date = $imapMessage->date;
 		$this->subject = $imapMessage->subject;
 		
-		if(!$this->getIsNew()){	
+		if(!$this->isNew()){	
 			foreach($this->addresses as $a){
 				$a->delete();
 			}
@@ -478,7 +478,7 @@ class Message extends AbstractRecord {
 
 		foreach ($imapAttachments as $attachment) {
 			
-			if($this->getIsNew() || !($a = Attachment::find(['messageId' => $this->id, 'imapPartNumber' => $attachment->partNumber])->single())){
+			if($this->isNew() || !($a = Attachment::find(['messageId' => $this->id, 'imapPartNumber' => $attachment->partNumber])->single())){
 				$a = new Attachment();
 				$a->imapPartNumber = $attachment->partNumber;
 				$a->message = $this;				

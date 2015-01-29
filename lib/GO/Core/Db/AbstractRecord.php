@@ -225,6 +225,13 @@ abstract class AbstractRecord extends AbstractModel {
 	private $_setRelations = [];
 
 	/**
+	 * Tells us if this record is deleted from the database.
+	 * 
+	 * @var boolean 
+	 */
+	protected $isDeleted = false;
+	
+	/**
 	 *
 	 * @param boolean $isNew
 	 */
@@ -411,7 +418,7 @@ abstract class AbstractRecord extends AbstractModel {
 	 *
 	 * @return boolean
 	 */
-	public function getIsNew() {
+	public function isNew() {
 
 		return $this->_isNew;
 	}
@@ -1357,8 +1364,18 @@ abstract class AbstractRecord extends AbstractModel {
 		}
 
 //		$this->fireEvent('delete', [$this]);
-
+		$this->isDeleted = true;
+		
 		return true;
+	}
+	
+	/**
+	 * Tells if the record for this object is already deleted from the database.
+	 * 
+	 * @return boolean
+	 */
+	public function isDeleted(){
+		return $this->isDeleted;
 	}
 
 	/**

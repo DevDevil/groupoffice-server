@@ -17,7 +17,7 @@ use GO\Core\AbstractModel;
  *				new ValidateEmail("email"),
  *				new ValidateUnique('email'),
  *				new ValidateUnique('username'),
- *        new ValidatePassword('password', 'passwordConfirm') //Also encrypts it on success
+ *        new ValidatePassword('password') //Also encrypts it on success
  *		);
  *	}
  * </code>
@@ -81,7 +81,6 @@ class ValidatePassword extends AbstractValidationRule {
 	 * Creates a new validator
 	 * 
 	 * @param string $id Password column
-	 * @param string $confirmAttribute
 	 */
 	public function __construct($id) {
 		parent::__construct($id);
