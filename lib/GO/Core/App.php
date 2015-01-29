@@ -65,9 +65,9 @@ class App {
 
 		//register our custom error handler here
 		error_reporting(E_ALL | E_STRICT);
-//		ini_set('display_errors', 'on');
-		set_error_handler(array('\GO\Core\App', 'errorHandler'));
-		register_shutdown_function(array('\GO\Core\App', 'shutdown'));
+//		/ini_set('display_errors', 'on');
+		set_error_handler(['\GO\Core\App', 'errorHandler']);
+		register_shutdown_function(['\GO\Core\App', 'shutdown']);
 
 		App::config()->setConfig($config);
                 
@@ -86,11 +86,11 @@ class App {
 		$error = error_get_last();
 		if ($error) {
 			//Log only fatal errors because other errors should have been logged by the normal error handler
-			if ($error['type'] == E_ERROR || $error['type'] == E_CORE_ERROR || $error['type'] == E_COMPILE_ERROR || $error['type'] == E_RECOVERABLE_ERROR)
+			if (in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING]))
 				self::errorHandler($error['type'], $error['message'], $error['file'], $error['line']);
 		}
 	}
-
+	
 	/**
 	 * Custom error handler that logs to our own error log
 	 * 
