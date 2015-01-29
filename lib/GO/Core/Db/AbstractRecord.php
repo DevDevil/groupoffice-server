@@ -229,7 +229,7 @@ abstract class AbstractRecord extends AbstractModel {
 	 * 
 	 * @var boolean 
 	 */
-	private $_isDeleted = false;
+	protected $isDeleted = false;
 	
 	/**
 	 *
@@ -1361,7 +1361,7 @@ abstract class AbstractRecord extends AbstractModel {
 		}
 
 //		$this->fireEvent('delete', [$this]);
-		$this->_isDeleted = true;
+		$this->isDeleted = true;
 		
 		return true;
 	}
@@ -1372,7 +1372,7 @@ abstract class AbstractRecord extends AbstractModel {
 	 * @return boolean
 	 */
 	public function isDeleted(){
-		return $this->_isDeleted;
+		return $this->isDeleted;
 	}
 
 	/**
