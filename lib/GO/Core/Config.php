@@ -14,8 +14,16 @@ use GO\Core\Fs\Folder;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Config {
+class Config extends AbstractConfigurableObject {
 
+	/**
+	 * The moduleName for which the configuration files need to be saved.
+	 * For the core framework this will be "core".
+	 * 
+	 * @var string 
+	 */
+	protected $moduleName = 'core';
+	
 	/**
 	 * Name of the application
 	 *
@@ -115,38 +123,5 @@ class Config {
 	 */
 	public function getDataFolder() {
 		return new Folder($this->dataFolder);
-	}
-	
-	
-	public function __set($name, $value) {
-		$model = Model\Config::findByPk($name);
-		if (!$model) {
-			$model = new Model\Config;
-			$model->name = $name;
-		}
-		
-		$model->value = $value;	
-
-		$success = $model->save();	
-		
-		return $success !== false;
-	}
-	
-	public function __get($name) {
-		$model = Model\Config::findByPk($name);
-		
-		return $model ? $model->value : null;
-	}
-	
-	public function __isset($name) {
-		$model = Model\Config::findByPk($name);
-		return $model !== false;
-	}
-	
-	public function __unset($name) {
-		$model = Model\Config::findByPk($name);
-		if($model){
-			$model->delete();
-		}
 	}
 }

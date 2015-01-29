@@ -109,6 +109,7 @@ INSERT INTO `authUserRole` (`userId`, `roleId`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `coreConfig` (
+  `moduleName` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `_value` text COLLATE utf8_unicode_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -190,7 +191,7 @@ ALTER TABLE `authUserRole`
 -- Indexen voor tabel `coreConfig`
 --
 ALTER TABLE `coreConfig`
- ADD PRIMARY KEY (`name`);
+ ADD PRIMARY KEY (`moduleName`,`name`);
 
 --
 -- Indexen voor tabel `coreSession`

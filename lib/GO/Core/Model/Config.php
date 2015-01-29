@@ -11,6 +11,7 @@ use GO\Core\Db\AbstractRecord;
  * 
  * @property mixed $value;
  * @property string $name;
+ * @property string $moduleName;
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -23,7 +24,7 @@ class Config extends AbstractRecord {
 	}
 	
 	public static function primaryKeyColumn() {
-		return "name";
+		return ["name","moduleName"];
 	}
 	
 	

@@ -6,6 +6,7 @@ use Exception;
 use GO\Core\Fs\File;
 use GO\Core\Fs\Folder;
 use GO\Core\Modules\Model\Module;
+use GO\Core\Modules\Model\ModuleConfig;
 use ReflectionClass;
 
 abstract class AbstractModule extends AbstractObject {
@@ -182,5 +183,13 @@ abstract class AbstractModule extends AbstractObject {
 
 		return array_unique($all);
 	}
-
+	
+	/**
+	 * Get the configuration object for this module.
+	 * 
+	 * @return ModuleConfig
+	 */
+	public static function config(){
+		return new ModuleConfig(self::className());
+	}
 }
