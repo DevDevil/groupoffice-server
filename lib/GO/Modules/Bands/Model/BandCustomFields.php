@@ -1,9 +1,8 @@
 <?php
 namespace GO\Modules\Bands\Model;
 
-use GO\Core\Db\AbstractRecord;
-use GO\Modules\CustomFields\Model\CustomFieldsTrait;
+use GO\Modules\CustomFields\Model\AbstractCustomFieldsRecord;
 
-class BandCustomFields extends AbstractRecord{	
-	use CustomFieldsTrait;
+class BandCustomFields extends AbstractCustomFieldsRecord{	
+
 }

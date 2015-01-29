@@ -25,9 +25,7 @@ class PermissionsController extends AbstractRESTController {
 		$relation = $model->getRolesRelation();
 		$roleModelName = $relation->getRelatedModelName();
 
-		$rf = new RelationFactory(Role::className());
-
-		Role::addRuntimeRelation($rf->hasMany('permissions', $roleModelName, 'roleId'));
+		Role::hasMany('permissions', $roleModelName, 'roleId');
 
 		$query = Query::newInstance()
 				->orderBy([$orderColumn => $orderDirection])

@@ -8,6 +8,10 @@ class DevToolsModule extends AbstractModule{
 		return [
 			'devtools' => [
 				'children' =>[
+					'test' => [
+						'controller' => Controller\TestController::className(),
+					],
+					
 					'model'=>[
 						'controller' => Controller\ModelController::className(),
 						'routeParams'=>['modelName']

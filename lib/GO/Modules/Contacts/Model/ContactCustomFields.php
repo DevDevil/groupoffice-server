@@ -1,9 +1,7 @@
 <?php
 namespace GO\Modules\Contacts\Model;
 
-use GO\Core\Db\AbstractRecord;
-use GO\Modules\CustomFields\Model\CustomFieldsTrait;
+use GO\Modules\CustomFields\Model\AbstractCustomFieldsRecord;
 
-class ContactCustomFields extends AbstractRecord{	
-	use CustomFieldsTrait;
+class ContactCustomFields extends AbstractCustomFieldsRecord{	
 }

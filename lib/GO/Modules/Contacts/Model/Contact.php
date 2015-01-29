@@ -44,6 +44,16 @@ class Contact extends AbstractRecord {
 	use SoftDeleteTrait;
 	
 	use RecordFolderTrait;
+	
+//	public function __construct() {
+//		parent::__construct();
+//		
+//		if($this->getIsNew()){
+//			$this->emailAddresses = [new ContactEmailAddress()];
+//			$this->emailAddresses = [new ContactPhone()];
+//			$this->customfields = [new ContactCustomFields()];
+//		}
+//	}
 
 	public static function defineRelations(){
 		
@@ -57,8 +67,8 @@ class Contact extends AbstractRecord {
 		self::hasMany('dates', ContactDate::className(), 'contactId');
 		self::hasMany('employees', Contact::className(), 'companyContactId');
 		self::belongsTo('company', Contact::className(), 'companyContactId');			
-		self::belongsTo('user', User::className(), 'userId');			
-		self::hasMany('timeline', Item::className(), 'contactId');			
+		self::belongsTo('user', User::className(), 'userId');		
+		self::hasMany('timeline', Item::className(), 'contactId');	
 		self::hasOne('customfields', ContactCustomFields::className(), 'id');
 	}
 
@@ -177,7 +187,7 @@ class Contact extends AbstractRecord {
 			if($this->userId > 0){
 				$contactRole = new ContactRole();
 				$contactRole->contactId = $this->id;
-				$contactRole->roleId = $this->userId;
+				$contactRole->roleId = $this->user->role->id;
 				$contactRole->editAccess = true;
 				$contactRole->save();
 			}

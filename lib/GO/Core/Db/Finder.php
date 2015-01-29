@@ -157,6 +157,13 @@ class Finder extends AbstractObject implements IteratorAggregate {
 				$stmt->bindValue($p['paramTag'], $p['value'], $p['pdoType']);
 			}
 			
+			if(!isset($this->_query->fetchMode)){
+				$stmt->setFetchMode(PDO::FETCH_CLASS, $this->recordClassName, array(false));
+			}else
+			{
+				call_user_func_array([$stmt, 'setFetchMode'], $this->_query->fetchMode);
+			}
+			
 			App::debugger()->debugSql($sql, $binds);
 
 			$stmt->execute();
@@ -173,13 +180,6 @@ class Finder extends AbstractObject implements IteratorAggregate {
 			}
 
 			throw $e;
-		}
-		
-		if(!isset($this->_query->fetchMode)){
-			$stmt->setFetchMode(PDO::FETCH_CLASS, $this->recordClassName, array(false));
-		}else
-		{
-			call_user_func_array([$stmt, 'setFetchMode'], $this->_query->fetchMode);
 		}
 		
 		return $stmt;
@@ -635,8 +635,8 @@ class Finder extends AbstractObject implements IteratorAggregate {
 	 */
 	private function _joinRelation(Relation $relation, $primaryTableAlias, $joinType, $attributePrefix, Criteria $criteria = null) {
 		
-		if($relation->isA(Relation::TYPE_MANY_MANY)){
-			throw new Exception('many many not supported by joinRelation');
+		if($relation->isA(Relation::TYPE_HAS_MANY) && $relation->getVia() != null){
+			throw new Exception('TODO: many many not supported by joinRelation');
 //			$relatedModelName = $relation->linkModelClassName;
 		}else
 		{

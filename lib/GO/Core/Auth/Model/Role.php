@@ -39,7 +39,7 @@ class Role extends AbstractRecord{
 	const everyoneRoleId = 2;
 
 	protected static function defineRelations() {		
-		self::manyMany('users', User::className(), UserRole::className(),'roleId');
+		self::hasMany('users', User::className(),'roleId')->via(UserRole::className());
 		self::hasMany('userRole', UserRole::className(),'roleId');
 		self::hasMany('moduleRoles', ModuleRole::className(), 'roleId');
 		self::belongsTo('user', User::className(), 'userId')->setDeleteAction(Relation::DELETE_RESTRICT);				
