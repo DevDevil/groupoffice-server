@@ -19,15 +19,12 @@ use PDO;
  * 
  * <code>
  * public static function defineRelations(){
- * 	return array(
  * 		...
  * 
- *      $r->belongsTo('owner', User::className(), 'ownerUserId'),
- * 		$r->hasMany('roles', self::className(), ContactRole::className(), 'contactId')				
+ *      self::belongsTo('owner', User::className(), 'ownerUserId'),
+ * 		self::hasMany('roles', self::className(), ContactRole::className(), 'contactId')				
  *
  * 		...  
- *
- * 	);
  * 	}
  * </code>
  * 
@@ -57,6 +54,14 @@ use PDO;
  */
 trait RecordPermissionTrait {
 	
+	private $_permission = null;
+	
+	public function permission() {
+		if($this->_permission === null)
+			$this->_permission = new Permission($this);
+		return $this->_permission;
+	}	
+	
 	/**
 	 * Use this function to set conditions on the Query so that only
 	 * permitted models are returned.
@@ -69,9 +74,25 @@ trait RecordPermissionTrait {
 	 */
 	public static function findPermitted(Query $query = null, $accessName = null, $userId = null) {
 		
-		$query = self::getPermissionsQuery($query, $accessName, $userId);
+		$permissionQuery = self::getPermissionsQuery($query, $accessName, $userId);
 
-		return static::find($query);
+		return static::find($permissionQuery);
+	}
+	
+	/**
+	 * 
+	 * @return Relation
+	 * @throws Exception
+	 */
+	public static function getRolesRelation(){
+		$relation = self::getRelation('roles');
+		
+		if(!$relation){
+			throw new Exception('"'.$this->_record->className().'" must have a "roles" relation is it uses RecordPermissionTrait');
+		}
+		
+		return $relation;
+
 	}
 	
 	/**
@@ -132,221 +153,7 @@ trait RecordPermissionTrait {
 		$query->where($subQuery)
 			->addBindParameter(':userId', $userId, PDO::PARAM_INT);
 		
-//Old way with joins
-//
-//		$query->joinRelation('roles.users', false)
-//				->group(array('t.id'));
-//
-//		$query->getCriteria()->addCondition('userId', $userId, '=', 'users');
-//
-//		if (isset($accessName)) {
-//			$query->getCriteria()->addCondition($accessName, 1, 'roles');
-//		}
-		
 		return $query;				
 	}
-	/**
-	 * 
-	 * @return Relation
-	 * @throws Exception
-	 */
-	public static function getRolesRelation(){
-		$relation = self::getRelation('roles');
-		
-		if(!$relation){
-			throw new Exception('"'.$this->className().'" must have a "roles" relation is it uses RecordPermissionTrait');
-		}
-		
-		return $relation;
 
-	}
-	
-	/**
-	 * Returns true if the user is allowed to create new instances of this model.
-	 * By default this returns true if the user has createAccess on the module. 
-	 * Override this function if you need other permissions.
-	 * 
-	 * @return bool
-	 */
-	protected function hasCreatePermission($userId){
-		//retun module permission
-		
-		$module = $this->getModule();	
-		return $module::model()->checkPermission('createAccess', $userId);	
-	}
-	
-	/**
-	 * Use this function to set conditions on the findParams so that only
-	 * authorized resource models are returned.
-	 * 
-	 * @param int $resourceKey The primary key of the resource model
-	 * @param string $accessName The boolean column in the role model to check. Leave null to disable.
-	 * @param int $userId The user to check for. Leave null for the current user
-	 */
-	public function checkPermission($accessName = null, $userId = null) {
-		
-	
-		
-		//always allow for admin
-		if(User::current()->isAdmin()) {
-			return true;
-		}
-		
-		if (!isset($userId)) {
-			$userId = User::current()->id;
-		}		
-		
-		if($this->isNew){
-			return $this->hasCreatePermission($userId);
-		}
-
-		$relation = self::getRolesRelation();
-		$roleModelName = $relation->getRelatedModelName();
-
-		$query = Query::newInstance()
-				->joinRelation('users', false);
-
-		$query->where([
-			$accessName => true,
-			$roleModelName::resourceKey() => $this->{$this->primaryKeyColumn()},
-			'users.userId' => $userId
-		]);
-				
-		$result = $roleModelName::find($query)->single();
-
-		return $result !== false;
-	}
-	
-	/**
-	 * Get an array of all the permissions that a user has.
-	 * 
-	 * @return array eg ['readAccess' => true, 'editAccess' => false, 'deleteAccess'=>false]
-	 */
-	public function getPermissions(){
-//		if (!isset($userId)) {			
-			
-//		}
-		if($this->isNew()){
-			return false;
-		}
-		
-		$relation = self::getRolesRelation();
-		$roleModelName = $relation->getRelatedModelName();
-		
-		$permissionColumns = $roleModelName::getPermissionColumns();
-		
-		$return = [];
-		
-		$colCount = count($permissionColumns);
-		
-		foreach($permissionColumns as $col){
-			$return[$col->name] = false;
-		}
-		
-		if(User::current()) {
-			$userId = User::current()->id;
-
-			$query = Query::newInstance()
-					->joinRelation('users', false);
-
-			$query->where([
-				$roleModelName::resourceKey() => $this->{$this->primaryKeyColumn()},
-				'users.userId' => $userId
-			]);
-
-			$roles = $roleModelName::find($query);
-
-			$enabledCount = 0;
-			foreach($roles as $role){
-				foreach($return as $key => $value) {
-
-					if(!$value && $role->{$key}){
-						$return[$key] = true;
-						$enabledCount++;
-
-						if($colCount == $enabledCount){
-							//All permissions enabled so we can stop here
-							return $return;
-						}							
-					}				
-				}
-			}
-		}
-		
-		return $return;
-	}
-	
-//	/**
-//	 * Set's permissions on the model. 
-//	 * 
-//	 * It only adds new permissions. Set markDeleted => true on the attributes to remove records.
-//	 * 
-//	 * @param array $permissionsArray [['roleId'=> (int), 'bandId' => (int), 'readAccess' => true, 'editAccess' => true]]
-//	 * 
-//	 * @throws Forbidden
-//	 * @throws Exception
-//	 */
-//	public function setPermissions($permissionsArray){
-//		if (!$this->getCurrentUserCanManagePermissions()) {
-//			throw new Forbidden();
-//		}
-//
-//		$relation = $this->getRolesRelation();
-//		$roleModelName = $relation->getRelatedModelName();
-//
-//		foreach ($permissionsArray as $permissions) {
-//
-//			$model = $roleModelName::findByPk([
-//						'roleId' => $permissions['roleId'],
-//						$roleModelName::resourceKey() => $this->id
-//			]);
-//
-//			if (!$model) {
-//				$model = new $roleModelName;				
-//			}
-//			$model->setAttributes($permissions);
-//			
-//			$model->{$roleModelName::resourceKey()} = $this->id;
-//			
-//			if (!$model->save()) {
-//				throw new Exception(var_export($model->getValidationErrors()));
-//			}
-//		}
-//	}
-	
-	
-	/**
-	 * Check if the current logged in user may manage permissions
-	 * 
-	 * @return bool
-	 */
-	public function getCurrentUserCanManagePermissions(){
-		
-		if(!User::current()){
-			return false;
-		}
-		return isset($this->ownerUserId) ? $this->ownerUserId == User::current()->id : User::current()->id == 1;
-	}
-	
-	/**
-	 * When the API returns this model to the client in JSON format it uses 
-	 * this function to convert it into an array.
-	 * 
-	 * @param array $columns
-	 * @return array
-	 */
-//	public function toArray(array $columns = array()){
-//		
-//		$record = parent::toArray($columns);
-//		
-//		if(User::current()){		
-//			$record['permissions'] = $this->getPermissions();
-//			$record['currentUserCanManagePermissions'] = $this->currentUserCanManagePermissions();
-//		} else {
-//			$record['permissions'] = false;
-//			$record['currentUserCanManagePermissions'] = false;
-//		}
-//		
-//		return $record;
-//	}	
 }

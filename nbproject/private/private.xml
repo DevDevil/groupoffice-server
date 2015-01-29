@@ -7,5 +7,13 @@
             <file>file:/Users/mschering/Sites/groupoffice-server/lib/Intermesh/Modules/Email/Model/Folder.php</file>
         </group>
         <group name="PocketOffice"/>
+        <group name="GO_ALL">
+            <file>file:/var/www/go7/groupoffice-server/lib/GO/Core/Auth/Model/Permission.php</file>
+            <file>file:/var/www/go7/groupoffice-server/lib/GO/Core/Db/Record.php</file>
+            <file>file:/var/www/go7/groupoffice-server/lib/GO/Modules/Tickets/Controller/TicketController.php</file>
+            <file>file:/var/www/go7/groupoffice-server/lib/GO/Modules/Tickets/Model/Agent.php</file>
+            <file>file:/var/www/go7/groupoffice-server/lib/GO/Modules/Tickets/TicketsModule.php</file>
+            <file>file:/var/www/go7/groupoffice-server/lib/GO/Core/Auth/Model/RecordPermissionTrait.php</file>
+        </group>
     </open-files>
 </project-private>
