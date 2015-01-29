@@ -61,7 +61,10 @@ class Contact extends AbstractRecord {
 		self::hasMany('roles', ContactRole::className(), 'contactId');
 		self::hasMany('emailAddresses', ContactEmailAddress::className(), 'contactId');
 		self::hasMany('phoneNumbers', ContactPhone::className(), 'contactId');
-		self::manyMany('tags', Tag::className(), ContactTag::className(), 'contactId');
+		
+		self::hasMany('tags', Tag::className(), 'contactId')
+				->via(ContactTag::className());
+		
 		self::hasMany('tagLink', ContactTag::className(), 'contactId');
 		self::hasMany('addresses', ContactAddress::className(), 'contactId');
 		self::hasMany('dates', ContactDate::className(), 'contactId');
