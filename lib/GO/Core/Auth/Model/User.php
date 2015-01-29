@@ -72,7 +72,7 @@ class User extends AbstractRecord {
 		self::hasOne('role', Role::className(), 'userId');
 		self::hasMany('sessions', Session::className(), "userId");
 		self::hasMany('tokens', Token::className(), "userId");			
-		self::hasOne('contact', Contact::className(), 'userId')->autoCreate();		
+		self::hasOne('contact', Contact::className(), 'userId');		
 	}
 
 	/**

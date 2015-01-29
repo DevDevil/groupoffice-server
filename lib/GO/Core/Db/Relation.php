@@ -148,7 +148,7 @@ class Relation {
 	 * 
 	 * @var bool 
 	 */
-	public $autoCreate = false;
+//	public $autoCreate = false;
 
 	/**
 	 *
@@ -189,17 +189,17 @@ class Relation {
 	 * @param Query $query
 	 * @return \self
 	 */
-	public function autoCreate(){
-		
-		if($this->type != self::TYPE_HAS_MANY && $this->type != self::TYPE_HAS_ONE)
-		{
-			throw new Exception("Auto create only wirks with TYPE_HAS_MANY and TYPE_HAS_ONE");
-		}
-		
-		$this->autoCreate = true;
-		
-		return $this;
-	}
+//	public function autoCreate(){
+//		
+//		if($this->type != self::TYPE_HAS_MANY && $this->type != self::TYPE_HAS_ONE)
+//		{
+//			throw new Exception("Auto create only wirks with TYPE_HAS_MANY and TYPE_HAS_ONE");
+//		}
+//		
+//		$this->autoCreate = true;
+//		
+//		return $this;
+//	}
 
 	/**
 	 * Get the name of the relation
@@ -418,14 +418,14 @@ class Relation {
 	public function find(AbstractRecord $model, Criteria $extraQuery = null) {
 		
 	
-		if(!isset($extraQuery) && $model->isNew() && $this->autoCreate){
-			if($this->type === self::TYPE_HAS_ONE){
-				return new $this->relatedModelName;
-			}else
-			{
-				return [new $this->relatedModelName];
-			}
-		}
+//		if(!isset($extraQuery) && $model->isNew() && $this->autoCreate){
+//			if($this->type === self::TYPE_HAS_ONE){
+//				return new $this->relatedModelName;
+//			}else
+//			{
+//				return [new $this->relatedModelName];
+//			}
+//		}
 
 		$query = isset($this->query) ? clone $this->query : Query::newInstance();
 		

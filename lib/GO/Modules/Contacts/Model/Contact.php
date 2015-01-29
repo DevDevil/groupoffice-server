@@ -49,8 +49,8 @@ class Contact extends AbstractRecord {
 		
 		self::belongsTo('owner', User::className(), 'ownerUserId');
 		self::hasMany('roles', ContactRole::className(), 'contactId');
-		self::hasMany('emailAddresses', ContactEmailAddress::className(), 'contactId')->autoCreate();
-		self::hasMany('phoneNumbers', ContactPhone::className(), 'contactId')->autoCreate();
+		self::hasMany('emailAddresses', ContactEmailAddress::className(), 'contactId');
+		self::hasMany('phoneNumbers', ContactPhone::className(), 'contactId');
 		self::manyMany('tags', Tag::className(), ContactTag::className(), 'contactId');
 		self::hasMany('tagLink', ContactTag::className(), 'contactId');
 		self::hasMany('addresses', ContactAddress::className(), 'contactId');
@@ -59,7 +59,7 @@ class Contact extends AbstractRecord {
 		self::belongsTo('company', Contact::className(), 'companyContactId');			
 		self::belongsTo('user', User::className(), 'userId');			
 		self::hasMany('timeline', Item::className(), 'contactId');			
-		self::hasOne('customfields', ContactCustomFields::className(), 'id')->autoCreate();
+		self::hasOne('customfields', ContactCustomFields::className(), 'id');
 	}
 
 	/**
