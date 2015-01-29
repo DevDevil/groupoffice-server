@@ -711,9 +711,15 @@ abstract class AbstractRecord extends AbstractModel {
 	 * <p>Example:</p>
 	 * <code>
 	 * public static function defineRelations(){
-	 *		self::hasMany('addressbooks', Addressbook::className(), 'ownerUserId')->setDeleteAction(Relation::DELETE_CASCADE);
-	 *		self::manyMany('roles', Role::className(), UserRole::className(), "userId");
-	 *    self::hasOne('role', UserRole::className(), 'userId');
+	 *	
+	 *  self::belongsTo('owner', User::className(), 'ownerUserId');
+	 *	self::hasMany('roles', ContactRole::className(), 'contactId');
+	 *	self::hasMany('emailAddresses', ContactEmailAddress::className(), 'contactId');
+	 *	
+	 *	self::hasMany('tags', Tag::className(), 'contactId')
+	 *			->via(ContactTag::className());
+	 *	
+	 *	self::hasOne('customfields', ContactCustomFields::className(), 'id');
 	 * }
 	 * </code>
 	 */
