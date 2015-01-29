@@ -46,14 +46,6 @@ class Relation {
 	const TYPE_HAS_ONE = 3; // 1:1
 
 	/**
-	 * This relation type is used when this model has many related models.
-	 * The relation makes use of a linked table that has a combined key of the related model and this model.
-	 *
-	 * Example use in the model class relationship array: 'users' => array('type'=>self::MANY_MANY, 'model'=>'GO\Base\Model\User', 'linkModel'=>'GO\Base\Model\UserGroups', 'field'=>'group_id', 'remoteField'=>'user_id'),
-	 */
-	const TYPE_MANY_MANY = 4; // n:n
-
-	/**
 	 * Cascade delete relations. 
 	 * 
 	 * Only works on has_one and has_many relations. {@see setDeleteAction()}
@@ -139,7 +131,7 @@ class Relation {
 	 * @var AbstractRecord 
 	 */
 	protected $failedRelatedModel;
-	
+
 	/**
 	 * Auto create a new relation model when creating a new model. 
 	 * 
@@ -158,7 +150,7 @@ class Relation {
 	 * @param string $key Key column of the relation
 	 * @param string $foreignKey Foreign key of the relation
 	 */
-	public function __construct($name, $type, $modelName, $relatedModelName, $key, $foreignKey = 'id') {
+	public function __construct($name, $type, $modelName, $relatedModelName, $key, $foreignKey = null) {
 
 		$this->name = $name;
 		$this->type = $type;
@@ -177,27 +169,6 @@ class Relation {
 	public function setQuery(Query $query) {
 		$this->query = $query;
 
-		return $this;
-	}
-	
-	/**
-	 * Auto create a new relation model when creating a new model. 
-	 * 
-	 * This only works for TYPE_HAS_MANY and TYPE_HAS_ONE. This can be useful
-	 * for loading a default email address input for a contact for example.
-	 * 
-	 * @param Query $query
-	 * @return \self
-	 */
-	public function autoCreate(){
-		
-		if($this->type != self::TYPE_HAS_MANY && $this->type != self::TYPE_HAS_ONE)
-		{
-			throw new Exception("Auto create only wirks with TYPE_HAS_MANY and TYPE_HAS_ONE");
-		}
-		
-		$this->autoCreate = true;
-		
 		return $this;
 	}
 
@@ -269,6 +240,237 @@ class Relation {
 	}
 
 	/**
+	 * Set's the link model on a many many relation.
+	 *
+	 * Eg. a user has a many many relation with roles. The link model
+	 *
+	 * is UserRole in this case. It connects the User and Role models.
+	 * 
+	 * <code>
+	 * self::hasMany('roles', Role::className(), "userId", "id")
+	 *		->via(UserRole::className(), 'roleId', "id");
+	 * </code>
+	 * 
+	 * The values are all supplied for clarity in the example above. Some of 
+	 * them can be auto detected:
+	 * 
+	 * <code>
+	 * self::hasMany('roles', Role::className(), "userId")
+	 *			->via(UserRole::className());
+	 * </code> 
+	 * 
+	 * hasMany userId = foreignKey in via link model.
+	 * hasMany id = key in User model that relates to UserRole.userId in link model
+	 * via roleId = key in via link model UserRole.roleId
+	 * via id = key in Role model that relates to roleId
+	 *
+	 * @param string $linkModelClassName The name of the link model eg. authRoleUser
+	 * @param string $key The column in the link model that holds the foreignKey. eg. "roleId. Defaults to the other primary key that is not this->foreignKey
+	 * @param string $foreignKey The column in the target model that holds the value of the key. Defaults to the primary key.
+	 * @return self
+	 */
+	public function via($linkModelClassName, $key = null, $foreignKey = null) {
+
+		if ($this->type != self::TYPE_HAS_MANY) {
+			throw new \Exception("via can only be used on hasMany relations");
+		}
+
+		$this->viaModelClassName = $linkModelClassName;
+		
+		if(!isset($key)){
+			$primaryKeys = $linkModelClassName::primaryKeyColumn();
+			if(!is_array($primaryKeys)){
+				throw new \Exception ("Fatal error: Primary key of linkModel '".$linkModelClassName."' should be an array if used in a many many relation.");
+			}
+
+			$key = $primaryKeys[0] == $this->foreignKey ? $primaryKeys[1] : $primaryKeys[0];
+		}
+		
+		
+		$this->viaKey = $key;
+		
+		if(!isset($foreignKey)){
+			$mn = $this->modelName;
+			$foreignKey = $mn::primaryKeyColumn();
+		}
+		
+		$this->viaForeignKey = $foreignKey;
+	
+		return $this;
+	}
+	
+	
+	/**
+	 * Get the class name of the link model if set.
+	 * @return string
+	 */
+	public function getVia(){
+		return $this->viaModelClassName;
+	}
+
+	/**
+	 * The name of the link model eg. authRoleUser
+	 *
+	 * @var string
+	 */
+	private $viaModelClassName;
+	
+	/**
+	 * eg. UserRole.roleId in user -> roles
+	 * 
+	 * @var string 
+	 */
+	private $viaKey;
+	
+	/**
+	 * eg. Role.id in user -> roles
+	 * 
+	 * @var string
+	 */
+	private $viaForeignKey;
+
+	private function _setHasOne(AbstractRecord $model, &$value) {
+		
+		//eg User has one Contact
+		
+		//Contact
+		$hasOne = $this->_createOrFindHasMany($model, $value);
+
+		//Contact->userId = User->id		
+		$hasOne->{$this->foreignKey} = $model->{$this->key};		
+		
+		if (!$hasOne->save()) {
+			$this->failedRelatedModel = $hasOne;
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * will be set immediately in the model. save not needed here.
+	 * 
+	 * @param \GO\Core\Db\AbstractRecord $model
+	 * @param type $value
+	 * @return boolean
+	 * @throws Exception
+	 */
+	private function _setBelongsTo(AbstractRecord $model, &$value) {
+		if (is_array($value)) {
+			if (!isset($value[$this->foreignKey])) {
+
+				//Creates belongs to on the fly.
+
+				$rmn = $this->relatedModelName;
+				$belongsTo = new $rmn;
+				$belongsTo->setAttributes($value);
+
+				if (!$belongsTo->save()) {
+
+					$this->failedRelatedModel = $belongsTo;
+
+					throw new Exception("Could not set belongs to relation because it didn't validate: " . var_export($belongsTo->getValidationErrors(), true));
+				} else {
+
+					$model->{$this->key} = $belongsTo->{$this->foreignKey};
+				}
+			} else {
+				$model->{$this->key} = $value[$this->foreignKey];
+			}
+		} elseif (is_a($value, AbstractRecord::className())) {
+			$model->{$this->key} = $value->{$this->foreignKey};
+		} else {
+			throw new Exception("Invalid value in Relation::set(): " . var_export($value, true));
+		}
+
+		return true;
+	}
+
+	private function _setHasMany($model, &$value) {
+		foreach ($value as &$hasMany) {
+			$hasMany = $this->_createOrFindHasMany($model, $hasMany);
+
+			if (!$hasMany->save()) {
+
+				//return failed model
+				$value = [$hasMany];
+
+				$this->failedRelatedModel = $hasMany;
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private function _setManyMany(AbstractRecord $model, &$value) {
+
+		$linkModelName = $this->viaModelClassName;
+
+		$relatedModelName = $this->relatedModelName;
+
+		foreach ($value as $record) {
+
+			if (is_array($record)) {
+				//Array of attributes of the related model eg. Role
+
+				$delete = !empty($record['markDeleted']);
+
+				if (!isset($record[$this->viaForeignKey])) {
+
+					if ($delete) {
+						//The client created a new one but also deleted it. Skip it.
+						continue;
+					}
+					
+					//create new (eg. Role) model on the fly					
+					$relatedModel = new $relatedModelName;
+					$relatedModel->setAttributes($record);
+					if (!$relatedModel->save()) {
+						return false;
+					}
+
+					$foreignKey = $relatedModel->{$this->viaForeignKey};
+				} else {
+					$foreignKey = $record[$this->viaForeignKey];
+				}
+			} elseif (is_a($record, AbstractRecord::className())) {
+				
+				//eg Role.id
+				$foreignKey = $record->{$this->viaForeignKey};
+				$delete = false;
+			}
+
+			//create link model
+			$primaryKey = array(
+				$this->viaKey => $foreignKey, //eg roleId
+				$this->foreignKey => $model->{$this->key}); //eg userId
+
+			
+			
+			$link = $linkModelName::findByPk($primaryKey);			
+		
+			if (!$link && !$delete) {
+				$manyMany = $linkModelName::newInstance()
+						->setAttributes($primaryKey);
+
+				if (!$manyMany->save()) {
+					
+					var_dump($manyMany->getValidationErrors());
+					
+					$this->failedRelatedModel = $manyMany;
+					return false;
+				}
+			} elseif ($link && $delete) {
+				if (!$link->delete()) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+	
+	/**
 	 * Set's this relation of $model to $value. Don't use this method directly.
 	 * ActiveRecord uses it for you when setting relations directly.
 	 * 
@@ -281,85 +483,37 @@ class Relation {
 		switch ($this->type) {
 
 			case self::TYPE_HAS_ONE:
-				$hasOne = $this->_createOrFindHasMany($model, $value);
-
-				$hasOne->{$this->foreignKey} = $model->{$this->key};
-				if (!$hasOne->save()) {
-					$this->failedRelatedModel = $hasOne;
-					return false;
-				} else {
-					return true;
-				}
+				return $this->_setHasOne($model, $value);
 
 			case self::TYPE_BELONGS_TO:
-				//will be set immediately in the model. save not needed here.
-				
-				if(is_array($value)){
-					if(!isset($value[$this->foreignKey])){
-						$rmn = $this->relatedModelName;
-						$belongsTo = new $rmn;
-						$belongsTo->setAttributes($value);
-					
-						if(!$belongsTo->save()){							
-							
-							$this->failedRelatedModel = $belongsTo;
-							
-							throw new Exception("Could not set belongs to relation because it didn't validate: ".var_export($belongsTo->getValidationErrors(), true));
-						}else
-						{
-														
-							$model->{$this->key} = $belongsTo->{$this->foreignKey};
-						}					
-					}else
-					{
-						$model->{$this->key} = $value[$this->foreignKey];
-					}
-				}elseif(is_a($value, AbstractRecord::className()))
-				{
-					$model->{$this->key} = $value->{$this->foreignKey};
-				}else
-				{
-					throw new Exception("Invalid value in Relation::set(): ".var_export($value, true));
-				}
-				
-				
-				return true;
+				return $this->_setBelongsTo($model, $value);
+
 
 			case self::TYPE_HAS_MANY:
-				foreach ($value as &$hasMany) {
-					$hasMany = $this->_createOrFindHasMany($model, $hasMany);
-
-					if (!$hasMany->save()) {
-						
-						//return failed model
-						$value = [$hasMany];
-						
-						$this->failedRelatedModel = $hasMany;
-						return false;
-					}
+				if (isset($this->viaModelClassName)) {
+					return $this->_setManyMany($model, $value);
+				} else {
+					return $this->_setHasMany($model, $value);
 				}
-				return true;
 		}
 	}
-	
-	private function _buildPk($primaryKeyColumn, $attributes){
-		if(is_array($primaryKeyColumn)){
+
+	private function _buildPk($primaryKeyColumn, $attributes) {
+		if (is_array($primaryKeyColumn)) {
 			$pk = [];
 
-			foreach($primaryKeyColumn as $col) {
-				
-				if(empty($attributes[$col])){
+			foreach ($primaryKeyColumn as $col) {
+
+				if (empty($attributes[$col])) {
 					return false;
 				}
 				$pk[$col] = $attributes[$col];
 			}
-			
+
 			return $pk;
-		}else
-		{
+		} else {
 			return empty($attributes[$primaryKeyColumn]) ? false : $attributes[$primaryKeyColumn];
 		}
-
 	}
 
 	private function _createOrFindHasMany(AbstractRecord $model, &$hasMany) {
@@ -370,30 +524,24 @@ class Relation {
 		if ($hasMany instanceof AbstractRecord) {
 			$hasMany->{$this->foreignKey} = $model->{$this->key};
 		} else {
-			
-			if(!is_array($hasMany)){
-				throw new \Exception("Should be an array: ".var_export($hasMany, true));				
+
+			if (!is_array($hasMany)) {
+				throw new \Exception("Should be an array: " . var_export($hasMany, true));
 			}
-			
+
 			//It's an array of attributes of the has many related model
 			$modelArray = $hasMany;
-			
+
 			//Set the foreign key
 			$modelArray[$this->foreignKey] = $model->{$this->key};
-			
-			$pk = $this->_buildPk($primaryKeyColumn, $modelArray);
-			
-//			var_dump($primaryKeyColumn);
-//			var_dump($modelArray);
 
+			$pk = $this->_buildPk($primaryKeyColumn, $modelArray);
 			$hasMany = $pk ? $rmn::findByPk($pk) : false;
-			if(!$hasMany){
+			if (!$hasMany) {
 				$hasMany = new $rmn;
 			}
 
 			$hasMany->setAttributes($modelArray);
-
-			
 		}
 
 		return $hasMany;
@@ -416,37 +564,60 @@ class Relation {
 	 * @return AbstractRecord[]
 	 */
 	public function find(AbstractRecord $model, Criteria $extraQuery = null) {
-		
-	
-		if(!isset($extraQuery) && $model->getIsNew() && $this->autoCreate){
-			if($this->type === self::TYPE_HAS_ONE){
-				return new $this->relatedModelName;
-			}else
-			{
-				return [new $this->relatedModelName];
-			}
-		}
 
-		$query = isset($this->query) ? clone $this->query : Query::newInstance();
-		
-		$value = $model->{$this->key};
-		
-//		if($this->name == 'company'){
-////			var_dump($value);
-//		}
-		
-		if(empty($value)){
-			
-			switch($this->type){
+		if (empty($model->{$this->key})) {
+
+			switch ($this->type) {
 				case self::TYPE_HAS_ONE:
-					case self::TYPE_BELONGS_TO:
+				case self::TYPE_BELONGS_TO:
 					return null;
-						
+
 				default:
 					return [];
 			}
 		}
 
+		switch ($this->type) {
+
+			case self::TYPE_HAS_ONE:
+			case self::TYPE_BELONGS_TO:
+				return $this->_findHasOne($model, $extraQuery);
+
+
+			case self::TYPE_HAS_MANY:
+				if (isset($this->viaModelClassName)) {
+					return $this->_findManyMany($model, $extraQuery);
+				} else {
+					return $this->_findHasMany($model, $extraQuery);
+				}
+		}
+	}
+
+	private function _findHasOne(AbstractRecord $model, Criteria $extraQuery = null) {
+
+		$value = $model->{$this->key};
+
+
+		$query = isset($this->query) ? clone $this->query : Query::newInstance();
+		$query->andWhere([$this->foreignKey => $value]);
+
+		if (isset($extraQuery)) {
+			$query->mergeWith($extraQuery);
+		}
+
+		$relatedModelName = $this->relatedModelName;
+
+		$finder = $relatedModelName::find($query);
+		$relation = $finder->single();
+		return $relation ? $relation : null;
+	}
+
+	private function _findHasMany(AbstractRecord $model, Criteria $extraQuery = null) {
+
+		$value = $model->{$this->key};
+
+
+		$query = isset($this->query) ? clone $this->query : Query::newInstance();
 		$query->andWhere([$this->foreignKey => $value]);
 
 		if (isset($extraQuery)) {
@@ -457,13 +628,31 @@ class Relation {
 
 		$finder = $relatedModelName::find($query);
 
-		if ($this->type === self::TYPE_BELONGS_TO || $this->type === self::TYPE_HAS_ONE) {
-			
-			$relation = $finder->single();
-			
-			return $relation ? $relation : null;
-		} else {
-			return $finder;
-		}
+		return $finder;
 	}
+
+	private function _findManyMany(AbstractRecord $model, Criteria $extraQuery = null) {
+
+		$linkTableAlias = 'manyManyLink';
+		
+		//eg. Role
+		$relatedModelName = $this->relatedModelName;
+
+		$query = isset($this->query) ? clone $this->query : Query::newInstance();
+
+		//join Role.id = UserRole.roleId				//role.id								//roleId
+		
+		$query->joinModel($this->viaModelClassName, $this->viaForeignKey, $linkTableAlias, $this->viaKey);
+
+		//where				UserRole.userId = User.id
+		$query->andWhere([$linkTableAlias . '.' . $this->foreignKey => $model->{$this->key}]);
+
+		if (isset($extraQuery)) {
+			$query->mergeWith($extraQuery);
+		}
+		
+		//Role::find()
+		return $relatedModelName::find($query);
+	}
+
 }

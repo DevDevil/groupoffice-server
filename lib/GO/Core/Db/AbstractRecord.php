@@ -833,6 +833,8 @@ abstract class AbstractRecord extends AbstractModel {
 				App::debug("Saving relation". $r['name'].' failed: '.var_export($r['relation']->getValidationErrors(), true));
 
 				$this->setValidationError($r['name'], 'relation', $r['relation']->getValidationErrors());				
+						
+				if($useTransaction)
 				App::dbConnection()->getPDO()->rollBack();				
 				
 				return false;
@@ -1670,9 +1672,9 @@ abstract class AbstractRecord extends AbstractModel {
 	
 	
 	/**
-	 * Create a belongs to relation. For example an "Addressbook" belongs to a user.
+	 * Create a belongs to relation. For example a "Contact" belongs to a user.
 	 *
-	 * @param string $relatedModelName The class name of the related model. eg. User::className()
+	 * @param string $relatedModelName The class name of the related model. eg. Contact::className()
 	 * @param string $key eg. 'ownerUserId'
 	 * @return Relation
 	 */
@@ -1685,11 +1687,23 @@ abstract class AbstractRecord extends AbstractModel {
 	}
 
 	/**
-	 * Create a hasMany relation. For example a user has many address books.
+	 * Create a hasMany relation. 
+	 * 
+	 * For example a user has many user roles.
+	 * 
+	 * <code>
+	 * public static function defineRelations() {
+	 *	...
+	 * 
+	 *	self::hasMany('userRole', UserRole::className(), ["id" => "userId"]);
+	 * 
+	 *	...
+	 * }
+	 * </code>
 	 *
-	 * @param string $relatedModelName The class name of the related model. eg. Addressbook::className()
-	 * @param string $foreignKey eg. ownerUserId This key points to the main model name
-	 * @param string $key You can leave this empty in most cases. Except when the primary key is an array. Then you must select one of the primary key columns.
+	 * @param string $relatedModelName The class name of the related model. eg. UserRole::className()
+	 * @param string $foreignKey The attribute name in the related model that points to the main model. eg. userId of the UserRole model.
+	 * @param string $key The key in the main model. This defaults to the primary key. eg. id of the User model.
 	 * @return Relation
 	 */
 	public static function hasMany($name, $relatedModelName, $foreignKey, $key=null){
@@ -1704,12 +1718,22 @@ abstract class AbstractRecord extends AbstractModel {
 	}
 
 	/**
-	 * Creates a has one relation. For example a user has one addressbook.
+	 * Creates a has one relation. For example a user has one contact.
 	 * This one is similar to hasMany but only one item exists.
+	 * 
+	 * <code>	 
+	 * public static function defineRelations() {
+	 *	...
+	 * 
+	 *	self::hasOne('contact', Contact::className(), 'userId');		
+	 * 
+	 *	...
+	 * }
+	 * </code>
 	 *
-	 * @param string $relatedModelName The class name of the related model.
-	 * @param string $foreignKey The attribute name in the related model that points to the main model.
-	 * @param string $key You can leave this empty in most cases. Except when the primary key is an array. Then you must select one of the primary key columns.
+	 * @param string $relatedModelName The class name of the related model. eg. Contact::className()
+	 * @param string $foreignKey The attribute name in the related model that points to the main model. eg. "userId" of the Contact model.
+	 * @param string $key The key in the main model. This defaults to the primary key. eg. id of the User model.
 	 * @return Relation
 	 */
 	public static function hasOne($name, $relatedModelName, $foreignKey, $key=null){
@@ -1721,36 +1745,5 @@ abstract class AbstractRecord extends AbstractModel {
 		}
 
 		return self::$_relations[$calledClass][$name] = new Relation($name, Relation::TYPE_HAS_ONE, $calledClass, $relatedModelName, $key, $foreignKey);
-	}
-
-	/**
-	 * Create a many many relation
-	 *
-	 * @param string $relatedModelName The class name of the related model.
-	 * @param string $linkModelName The model class name that links this model to the relation model.
-	 * @param string $mainTableColumn The column of link model that points to the main model.
-	 * @return ManyManyRelation
-	 */
-	public static function manyMany($name, $relatedModelName, $linkModelName, $mainTableColumn, $foreignTableColumn = null){
-		
-		
-		$calledClass = get_called_class();
-		
-		//eg. roleId
-		
-		if(!isset($foreignTableColumn)){
-			
-			$primaryKeys = $linkModelName::primaryKeyColumn();
-			if(!is_array($primaryKeys)){
-				throw new \Exception ("Fatal error: Primary key of linkModel '".$linkModelName."' should be an array if used in a many many relation.");
-			}
-
-			$foreignTableColumn = $primaryKeys[0]==$mainTableColumn ? $primaryKeys[1] : $primaryKeys[0];
-		}
-
-		$r = new ManyManyRelation($name, Relation::TYPE_MANY_MANY, $calledClass, $relatedModelName, $mainTableColumn, $foreignTableColumn);
-		$r->setLinkModel($linkModelName);
-
-		return self::$_relations[$calledClass][$name] = $r;
 	}
 }

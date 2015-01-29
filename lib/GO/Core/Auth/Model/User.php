@@ -74,13 +74,24 @@ class User extends AbstractRecord {
 	 * @inheritdoc
 	 */
 	public static function defineRelations() {		
-		self::manyMany('roles', Role::className(), UserRole::className(), "userId");
-		self::hasMany('userRole', UserRole::className(), "userId");
+		
+		self::hasMany('roles', Role::className(), "userId")
+				->via(UserRole::className());
+		
+		self::hasMany('userRole', UserRole::className(), ["id" => "userId"]);
 		self::hasOne('role', Role::className(), 'userId');
 		self::hasMany('sessions', Session::className(), "userId");
 		self::hasMany('tokens', Token::className(), "userId");			
-		self::hasOne('contact', Contact::className(), 'userId')->autoCreate();		
+		self::hasOne('contact', Contact::className(), 'userId');		
 	}
+	
+//	public function __construct() {
+//		parent::__construct();
+//		
+//		if($this->getIsNew()){
+//			$this->contact = new Contact();
+//		}
+//	}
 
 	/**
 	 * Get the current logged in user.

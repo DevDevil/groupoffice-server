@@ -9,13 +9,7 @@ class TestController extends AbstractRESTController {
 
 	public function httpGet() {
 		
-		$contact = new Contact();
 		
-		var_dump($contact->isNew);
-		
-		$contact = Contact::find()->single();
-		
-		var_dump($contact->isNew);
 	}
 
 }
