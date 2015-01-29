@@ -12,23 +12,58 @@ use GO\Core\AbstractObject;
  */
 class Connection extends AbstractObject{
 	
+	/**
+	 *
+	 * @var PDO 
+	 */
 	private $_pdo;
 	
-	
+	/**
+	 * Database name
+	 * @var string 
+	 */
 	public $database;
 	
+	/**
+	 * MySQL user
+	 * 
+	 * @var string 
+	 */
 	public $user;
 	
+	/**
+	 * MySQL user password
+	 * @var string 
+	 */
 	public $pass;
 	
+	/**
+	 * Port
+	 * 
+	 * @var int 
+	 */
 	public $port;
 	
+	/**
+	 * MySQL Hostname
+	 * 
+	 * @var string 
+	 */
 	public $host;
 	
-	public $options=array();
+	
+	/**
+	 * Connection options
+	 * {@link http://php.net/manual/en/pdo.construct.php}
+	 * 
+	 * @var array 
+	 */
+	public $options=[];
 	
 	/**
 	 * Gets the global database connection object.
+	 * 
+	 * {@link http://php.net/manual/en/pdo.construct.php}
 	 *
 	 * @return PDO Database connection object
 	 */
@@ -67,16 +102,27 @@ class Connection extends AbstractObject{
 		$this->_pdo=null;
 	}
 
+	/**
+	 * Set's a new PDO object base on the current connection settings
+	 */
 	public function setPDO(){				
 		$this->_pdo = null;				
 		$dsn = "mysql:host=".$this->host.";dbname=".$this->database.";port=".$this->port;
 		$this->_pdo = new PDO($dsn, $this->user, $this->pass, $this->options);
 	}	
 	
-	
-	public function query($statement){
-		\GO\Core\App::debug($statement, 'sql');
-		return $this->pdo->query($statement);
+	/**
+	 * Execute an SQL string
+	 * 
+	 * Should be properly escaped!
+	 * {@link http://php.net/manual/en/pdo.query.php}
+	 * 
+	 * @param string $sql
+	 * @return \PDOStatement
+	 */
+	public function query($sql){
+		\GO\Core\App::debug($sql, 'sql');
+		return $this->_pdo->query($sql);
 	}
 	
 	/**

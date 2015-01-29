@@ -232,8 +232,11 @@ abstract class AbstractRecord extends AbstractModel {
 	protected $isDeleted = false;
 	
 	/**
-	 *
-	 * @param boolean $isNew
+	 * Constructor
+	 * 
+	 * It checks if the record is new or exisiting in the database. It also sets
+	 * default attributes and casts mysql values to int, floats or booleans as 
+	 * mysql values from PDO are always strings.
 	 */
 	public function __construct() {
 
@@ -847,7 +850,6 @@ abstract class AbstractRecord extends AbstractModel {
 
 				$this->setValidationError($r['name'], 'relation', $r['relation']->getValidationErrors());				
 						
-				if($useTransaction)
 				App::dbConnection()->getPDO()->rollBack();				
 				
 				return false;
@@ -1361,9 +1363,7 @@ abstract class AbstractRecord extends AbstractModel {
 			$sql .= "`" . $this->primaryKeyColumn() . '`=' . App::dbConnection()->getPDO()->quote($this->{$this->primaryKeyColumn()}, $column->pdoType);
 		}
 
-		App::debug($sql, 'sql');
-
-		$success = App::dbConnection()->getPDO()->query($sql);
+		$success = App::dbConnection()->query($sql);
 
 		if (!$success){
 			throw new Exception("Could not delete from database");
@@ -1678,7 +1678,7 @@ abstract class AbstractRecord extends AbstractModel {
 			
 	public static function lock($write = true){
 		$mode = $write ? 'WRITE' : 'READ';
-		return App::dbConnection()->getPDO()->query("LOCK TABLES `".static::tableName()."`  $mode, `".static::tableName()."` AS t $mode");
+		return App::dbConnection()->query("LOCK TABLES `".static::tableName()."`  $mode, `".static::tableName()."` AS t $mode");
 	}
 	
 	/**
