@@ -4,14 +4,14 @@ namespace GO\Modules\Import\Controller;
 
 use Exception;
 use GO\Core\App;
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Db\Column;
 use GO\Core\Db\Relation;
 use GO\Core\Auth\Model\Role;
 use GO\Modules\Contacts\Model\Contact;
 use GO\Modules\Contacts\Model\ContactRole;
 
-class CsvController extends AbstractRESTController {
+class CsvController extends AbstractController {
 
 	public static $delimiter = ',';
 	public static $enclosure = '"';

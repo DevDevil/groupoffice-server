@@ -1,10 +1,10 @@
 <?php
 namespace GO\Modules\Email\Controller;
 
-use GO\Core\Controller\AbstractCrudController;
+use GO\Core\Controller\AbstractController;
 use GO\Modules\Email\Model\Attachment;
 
-class AttachmentController extends AbstractCrudController {
+class AttachmentController extends AbstractController {
 
 
 

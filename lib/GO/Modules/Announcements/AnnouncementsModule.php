@@ -8,6 +8,9 @@ use GO\Modules\Announcements\Controller\ThumbController;
 class AnnouncementsModule extends AbstractModule {
 
 	public function routes() {
+		
+		
+		
 		return [
 			'announcements' => [
 				'controller' => Controller\AnnouncementController::className(),

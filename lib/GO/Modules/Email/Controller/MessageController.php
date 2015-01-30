@@ -2,7 +2,7 @@
 namespace GO\Modules\Email\Controller;
 
 use GO\Core\App;
-use GO\Core\Controller\AbstractCrudController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Exception\NotFound;
@@ -17,7 +17,7 @@ use GO\Modules\Email\Model\Message;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class MessageController extends AbstractCrudController {
+class MessageController extends AbstractController {
 
 	/**
 	 * Fetch messages

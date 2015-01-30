@@ -3,7 +3,7 @@
 namespace GO\Modules\Contacts\Controller;
 
 use GO\Core\App;
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Modules\Timeline\Model\Item;
@@ -15,7 +15,7 @@ use GO\Modules\Timeline\Model\Item;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class TimelineController extends AbstractRESTController {
+class TimelineController extends AbstractController {
 
 	protected function httpGet($itemId = null, $returnAttributes = []) {
 		if (!isset($itemId)) {

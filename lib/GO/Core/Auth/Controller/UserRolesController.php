@@ -2,14 +2,14 @@
 
 namespace GO\Core\Auth\Controller;
 
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Criteria;
 use GO\Core\Db\Query;
 use GO\Core\Auth\Model\Role;
 use GO\Core\Auth\Model\UserRole;
 
-class UserRolesController extends AbstractRESTController {
+class UserRolesController extends AbstractController {
 
 	protected function httpGet($userId, $orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $availableOnly = false) {
 

@@ -2,13 +2,13 @@
 namespace GO\Modules\Email\Controller;
 
 use GO\Core\App;
-use GO\Core\Controller\AbstractCrudController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Exception\NotFound;
 use GO\Modules\Email\Imap\Mailbox;
 use GO\Modules\Email\Imap\Message;
 use GO\Modules\Email\Model\Account;
 
-class MessageController extends AbstractCrudController {
+class MessageController extends AbstractController {
 
 	/**
 	 * Fetch accounts

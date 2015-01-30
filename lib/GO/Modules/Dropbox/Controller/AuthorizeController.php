@@ -5,11 +5,11 @@ namespace GO\Modules\Dropbox\Controller;
 use Dropbox as dbx;
 use Dropbox\WebAuth;
 use GO\Core\App;
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 use GO\Modules\Dropbox\Config;
 use GO\Modules\Dropbox\CsrfTokenStore;
 
-class AuthorizeController extends AbstractRESTController {
+class AuthorizeController extends AbstractController {
 	
 	/**
 	 * 

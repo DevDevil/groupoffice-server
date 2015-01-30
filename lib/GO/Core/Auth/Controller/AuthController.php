@@ -13,7 +13,7 @@ use GO\Core\App;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class AuthController extends \GO\Core\Controller\AbstractRESTController {
+class AuthController extends \GO\Core\Controller\AbstractController {
 
 	protected function authenticate() {
 		return true;
@@ -22,7 +22,7 @@ class AuthController extends \GO\Core\Controller\AbstractRESTController {
 	/**
 	 * Logs the current user out.
 	 */
-	protected function httpDelete() {
+	protected function actionLogout() {
 
 		App::session()->end();
 
@@ -43,7 +43,7 @@ class AuthController extends \GO\Core\Controller\AbstractRESTController {
 	 *
 	 * @returns JSON {"userId": "Current ID of user", "securityToken": "token required in each request"}
 	 */
-	public function httpPost() {
+	public function actionLogin() {
 
 
 		$user = User::login(App::request()->payload['username'], App::request()->payload['password'], true);
@@ -62,7 +62,7 @@ class AuthController extends \GO\Core\Controller\AbstractRESTController {
 		return $this->renderJson($response);
 	}
 
-	public function httpGet() {
+	public function ationIsLoggedIn() {
 		$user = User::current();
 
 		$response = [

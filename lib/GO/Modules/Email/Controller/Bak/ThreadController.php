@@ -2,13 +2,13 @@
 namespace GO\Modules\Email\Controller;
 
 use GO\Core\App;
-use GO\Core\Controller\AbstractCrudController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Exception\NotFound;
 use GO\Modules\Email\Imap\Mailbox;
 use GO\Modules\Email\Imap\Message;
 use GO\Modules\Email\Model\Account;
 
-class ThreadController extends AbstractCrudController {
+class ThreadController extends AbstractController {
 
 
 	private function _decamelCasify($str) {

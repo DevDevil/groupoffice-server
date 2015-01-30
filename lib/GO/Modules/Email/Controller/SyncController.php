@@ -1,7 +1,7 @@
 <?php
 namespace GO\Modules\Email\Controller;
 
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 use GO\Modules\Email\Model\Account;
 
 
@@ -13,7 +13,7 @@ use GO\Modules\Email\Model\Account;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class SyncController extends AbstractRESTController {
+class SyncController extends AbstractController {
 	protected function httpGet($accountId, $messageId=null, $resync=null){
 		
 		if(isset($messageId)){

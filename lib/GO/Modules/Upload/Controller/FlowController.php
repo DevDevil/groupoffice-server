@@ -5,7 +5,7 @@ namespace GO\Modules\Upload\Controller;
 use Flow\Basic;
 use Flow\Request;
 use GO\Core\App;
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 
 /**
  * The controller that handles file uploads and can thumbnail the temporary files.
@@ -14,7 +14,7 @@ use GO\Core\Controller\AbstractRESTController;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class FlowController extends AbstractRESTController {
+class FlowController extends AbstractController {
 
 	/**
 	 * Use Flow.js to upload files. This controller returns the filenames relative

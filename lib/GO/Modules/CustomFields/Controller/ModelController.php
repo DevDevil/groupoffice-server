@@ -2,10 +2,10 @@
 
 namespace GO\Modules\CustomFields\Controller;
 
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Modules\ModuleUtils;
 
-class ModelController extends AbstractRESTController{
+class ModelController extends AbstractController{
 	
 	
 	protected function httpGet() {

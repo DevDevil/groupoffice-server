@@ -3,7 +3,7 @@
 namespace GO\Modules\CustomFields\Controller;
 
 use GO\Core\App;
-use GO\Core\Controller\AbstractCrudController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Exception\NotFound;
@@ -18,7 +18,7 @@ use GO\Modules\CustomFields\Model\FieldSet;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class FieldSetController extends AbstractCrudController {
+class FieldSetController extends AbstractController {
 
 	/**
 	 * Fetch fieldSets

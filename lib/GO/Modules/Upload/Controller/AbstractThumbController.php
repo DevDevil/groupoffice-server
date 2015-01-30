@@ -3,7 +3,7 @@
 namespace GO\Modules\Upload\Controller;
 
 use GO\Core\App;
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Exception\Forbidden;
 use GO\Core\Fs\File;
 use GO\Core\Util\Image;
@@ -31,7 +31,7 @@ use GO\Core\Util\Image;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-abstract class AbstractThumbController extends AbstractRESTController {
+abstract class AbstractThumbController extends AbstractController {
 
 	/**
 	 * Get the relative folder the image should be fetched from.

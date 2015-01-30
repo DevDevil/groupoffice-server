@@ -2,7 +2,7 @@
 namespace GO\Core\Auth\Controller;
 
 use GO\Core\App;
-use GO\Core\Controller\AbstractCrudController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Exception\NotFound;
@@ -19,7 +19,7 @@ use GO\Core\Auth\Model\User;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class UserController extends AbstractCrudController {
+class UserController extends AbstractController {
 
 
 	protected function authenticate() {

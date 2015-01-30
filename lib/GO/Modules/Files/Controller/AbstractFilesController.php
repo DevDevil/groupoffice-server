@@ -3,7 +3,7 @@
 namespace GO\Modules\Files\Controller;
 
 use GO\Core\App;
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Exception\NotFound;
@@ -16,7 +16,7 @@ use GO\Modules\Files\Model\File;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-abstract class AbstractFilesController extends AbstractRESTController {
+abstract class AbstractFilesController extends AbstractController {
 	
 	/**
 	 * 

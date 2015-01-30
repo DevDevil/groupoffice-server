@@ -2,7 +2,7 @@
 
 namespace GO\Core\Modules\Controller;
 
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Exception\NotImplemented;
@@ -16,7 +16,7 @@ use GO\Core\Modules\Model\Module;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class ModuleController extends AbstractRESTController {
+class ModuleController extends AbstractController {
 
 
 	protected function httpGet($moduleId=null){

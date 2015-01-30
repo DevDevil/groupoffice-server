@@ -4,7 +4,7 @@ namespace GO\Core\Auth\Controller;
 
 use Exception;
 use GO\Core\App;
-use GO\Core\Controller\AbstractCrudController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Criteria;
 use GO\Core\Db\Query;
@@ -21,7 +21,7 @@ use GO\Core\Auth\Model\User;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class RoleController extends AbstractCrudController {
+class RoleController extends AbstractController {
 
 	protected function authenticate() {
 		return parent::authenticate() && User::current()->isAdmin();

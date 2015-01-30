@@ -1,12 +1,12 @@
 <?php
 namespace GO\Modules\ApiBrowser\Controller;
 
-use GO\Core\Controller\AbstractCrudController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Modules\ModuleUtils;
 use ReflectionClass;
 use ReflectionMethod;
 
-class BrowseController extends AbstractCrudController{
+class BrowseController extends AbstractController{
 	
 	
 	

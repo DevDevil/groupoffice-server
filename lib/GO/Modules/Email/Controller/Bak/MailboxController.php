@@ -1,12 +1,12 @@
 <?php
 namespace GO\Modules\Email\Controller;
 
-use GO\Core\Controller\AbstractCrudController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Exception\NotFound;
 use GO\Modules\Email\Imap\Mailbox;
 use GO\Modules\Email\Model\Account;
 
-class MailboxController extends AbstractCrudController{
+class MailboxController extends AbstractController{
 	
 	/**
 	 * Fetch accounts

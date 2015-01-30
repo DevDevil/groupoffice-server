@@ -4,7 +4,7 @@ namespace GO\Core\Auth\Controller;
 
 use Flow\Exception;
 use GO\Core\App;
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Criteria;
 use GO\Core\Db\Query;
@@ -12,7 +12,7 @@ use GO\Core\Db\Query;
 use GO\Core\Exception\Forbidden;
 use GO\Core\Auth\Model\Role;
 
-class PermissionsController extends AbstractRESTController {
+class PermissionsController extends AbstractController {
 
 	public function httpGet($modelId, $modelName, $orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
 

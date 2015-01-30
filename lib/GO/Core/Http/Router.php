@@ -2,17 +2,12 @@
 
 namespace GO\Core\Http;
 
-use Exception;
 use GO\Core\App;
 use GO\Core\Auth\Controller\AuthController;
-use GO\Core\Auth\Controller\PermissionsController;
 use GO\Core\Auth\Controller\RoleController;
-use GO\Core\Auth\Controller\RoleUsersController;
 use GO\Core\Auth\Controller\UserController;
-use GO\Core\Auth\Controller\UserRolesController;
-use GO\Core\Install\Controller\CheckController;
-use GO\Core\Install\Controller\InstallController;
-use GO\Core\Install\Controller\UpgradeController;
+use GO\Core\Exception\HttpException;
+use GO\Core\Install\Controller\SystemController;
 use GO\Core\Install\Model\System;
 use GO\Core\Modules\Controller\ModuleController;
 use GO\Core\Modules\Model\Module;
@@ -23,7 +18,7 @@ use GO\Core\Modules\Model\Module;
  * Each module can add routes See {@see \GO\Core\AbstractModule} for information
  * about creating routes
  * 
- * {@see \GO\Core\Controller\AbstractRESTController} and {@see \GO\Core\Controller\AbstractCrudController}
+ * {@see \GO\Core\Controller\AbstractController}
  * 
  * Available routes:
  * 
@@ -102,79 +97,219 @@ use GO\Core\Modules\Model\Module;
 class Router {
 	
 	
-	private function coreRoutes(){
-		return [
-				'auth' => [
-					'controller' => AuthController::className(),
-					'children' => [
-						'users' => [
-							'routeParams' => ['userId'],
-							'controller' => UserController::className(),
-							'children' => [
-								'roles' =>[
-									'controller' => UserRolesController::className()
-								]
-							]
-						],
-						'roles' => [
-							'routeParams' => ['roleId'],
-							'controller' => RoleController::className(),
-							'children' => [
-								'users' =>[
-									'controller' => RoleUsersController::className()
-								],
-								
-							]
-						],
-						'permissions' => [
-							'routerParams' => ['modelId', 'modelName'],
-							'controller' => PermissionsController::className()
-						]
-					]
-				],
-				
-				'system' => [
-					'children' => [
-						'check' => [						
-							'controller' => CheckController::className()
-						],
-						'upgrade' => [						
-							'controller' => UpgradeController::className()
-						],
-						'install' => [						
-							'controller' => InstallController::className()
-						]
-				]				
-			],
-			'modules' => [
-				'controller' => ModuleController::className()
-			]
-		];
+	/**
+	 *
+	 * @var RoutesCollection[] 
+	 */
+	private $_routeCollections = [];
+	
+	/**
+	 * Adds route collestions. 
+	 * 
+	 * Don't call this function yourself. Use {@see \GO\Core\Controller\AbstractController::routes()}.
+	 * 
+	 * @param \GO\Core\Http\RoutesCollection $routes
+	 */
+	public function addRoutes(RoutesCollection $routes) {
+		$this->_routeCollections[] = $routes;
 	}
+	
+	
+//	private function coreRoutes(){		
+		
+	
+		
+		
+//		return [
+//				'auth' => [
+//					'controller' => AuthController::className(),
+//					'children' => [
+//						'users' => [
+//							'routeParams' => ['userId'],
+//							'controller' => UserController::className(),
+//							'children' => [
+//								'roles' =>[
+//									'controller' => UserRolesController::className()
+//								]
+//							]
+//						],
+//						'roles' => [
+//							'routeParams' => ['roleId'],
+//							'controller' => RoleController::className(),
+//							'children' => [
+//								'users' =>[
+//									'controller' => RoleUsersController::className()
+//								],
+//								
+//							]
+//						],
+//						'permissions' => [
+//							'routerParams' => ['modelId', 'modelName'],
+//							'controller' => PermissionsController::className()
+//						]
+//					]
+//				],
+//				
+//				'system' => [
+//					'children' => [
+//						'check' => [						
+//							'controller' => CheckController::className()
+//						],
+//						'upgrade' => [						
+//							'controller' => UpgradeController::className()
+//						],
+//						'install' => [						
+//							'controller' => InstallController::className()
+//						]
+//				]				
+//			],
+//			'modules' => [
+//				'controller' => ModuleController::className()
+//			]
+//		];
+//	}
 
 	/**
-	 * Get routing tables from all modules
-	 * 
-	 * @todo cache this
+	 * Defines core routes and collects routes from all modules
 	 * 
 	 * @return array[]
 	 */
-	public function getRoutes() {
+	private function _collectRoutes() {
+		
+		AuthController::routes()
+				->get('auth', 'isLoggedIn')
+				->post('auth', 'login')
+				->delete('auth', 'logout');
+		
+		UserController::routes()				
+				->get('auth/users', 'store')
+				->get('auth/users/0','new')
+				->get('auth/users/:userId','read')
+				->put('auth/users/:userId', 'update')
+				->post('auth/users', 'create')
+				->delete('auth/users','delete');
+		
+		RoleController::routes()				
+				->get('auth/roles', 'store')
+				->get('auth/roles/0','new')
+				->get('auth/roles/:roleId','read')
+				->put('auth/roles/:roleId', 'update')
+				->post('auth/roles', 'create')
+				->delete('auth/roles','delete');
+		
+		SystemController::routes()
+				->get('system/install', 'install')
+				->get('system/upgrade', 'upgrade')
+				->get('system/check', 'check');
+		
+		ModuleController::routes()
+				->get('modules', 'store');
 
 		
-		$routes = $this->coreRoutes();
 		
 		if(System::isDatabaseInstalled()){
 			$modules = Module::find();		
 		
 			foreach($modules as $module){
-
-				$routes = array_merge($routes, $module->manager()->routes());
+				$module->manager()->routes();
+			}
+		}
+	}
+	
+	
+	private $_optimizedRoutes = [];
+	
+	
+	/**
+	 * Converts route definitions to an optimized array for the router
+	 * 
+	 * <code>
+	 *[
+	 * 	'GET' => [
+	 *			'auth' => [
+	 *				'controller' => AuthController::className(),
+	 *				'action' => 'login',
+	 *				'actionWithParams' => null,
+	 *				'routeParams' => [],
+	 *				'children' => [
+	 *					'users' => [
+	 *						'controller' => UserController::className(),				
+	 *						'routeParams' => ['userId'],
+	 *						'actionWithParams' => 'read',
+	 *						'action' => 'store',
+	 *						'childen' => [
+	 *							'0'=> [
+	 *								'controller' => UserController::className(),				
+	 *								'routeParams' => [],
+	 *								'actionWithParams' => null,
+	 *								'action' => 'new',
+	 *							]
+	 *						]
+	 *					]
+	 *				]
+	 *			]
+	 *		]
+	 *		
+	 *	];
+	 * </code>
+	 * 
+	 * @return array
+	 */
+	private function _convertRoutes(){		
+		foreach($this->_routeCollections as $routeCollection){
+			$controller = $routeCollection->getController();
+			
+			$routes = $routeCollection->getRoutes();
+			
+			foreach($routes as $route){
+				$method = $route[0];
+				$action = $route[2];				
+				$routeParts = explode('/', $route[1]);
+				
+				$this->_addRouteParts($routeParts, $method, $action, $controller);
 			}
 		}
 		
-		return $routes;
-	}	
+		return $this->_optimizedRoutes;
+	}
+	
+	private function _addRouteParts($routeParts, $method, $action, $controller){
+		if(!isset($this->_optimizedRoutes[$method])){
+			$this->_optimizedRoutes[$method] = [];
+		}
+		
+		$cur['children'] = &$this->_optimizedRoutes[$method];
+		
+		foreach($routeParts as $part) {
+			
+			if(substr($part, 0, 1) != ':'){			
+				if(!isset($cur['children'][$part])) {
+					$cur['children'][$part] = [
+						'routeParams' => [],
+						'actionWithParams' => null,
+						'action' => null,
+						'controller' => $controller,
+						'children' => []
+					];
+				}
+
+				$cur = &$cur['children'][$part];
+			}else
+			{
+				//route parameter
+				
+				$cur['routeParams'][] = substr($part, 1);
+			}
+		}
+		
+		if(!empty($cur['routeParams'])) {
+			$cur['actionWithParams'] = $action;
+		}else
+		{
+			$cur['action'] = $action;
+		}
+	}
+	
 	
 	/**
 	 * The current route. 
@@ -196,13 +331,19 @@ class Router {
 				App::request()->redirect($this->buildUrl('system/check'));
 			}
 		
-			$this->route = ltrim($_SERVER['PATH_INFO'],'/');
+			$this->route = ltrim($_SERVER['PATH_INFO'],	'/');
 
 			$this->_routeParts = explode('/', $this->route);			
 
-			$routes = $this->getRoutes();
+			$this->_collectRoutes();
+			$this->_convertRoutes();
+			
+			
+			if(!isset($this->_optimizedRoutes[$_SERVER['REQUEST_METHOD']])){
+				throw new HttpException(404);
+			}
 
-			$this->walkRoute($routes);
+			$this->_walkRoute($this->_optimizedRoutes[$_SERVER['REQUEST_METHOD']]);
 //		} catch (\Exception $e) {
 //			
 //		}
@@ -242,23 +383,26 @@ class Router {
 
 	
 
-	private function walkRoute($routes) {
+	private function _walkRoute($routes) {
 
 		$routePart = array_shift($this->_routeParts);
 
 		foreach ($routes as $path => $config) {
 			if ($routePart === $path) {
-				$this->getParams($config);
+				$this->_getRouteParams($config);
 
 				if (!empty($this->_routeParts)) {
 					if (!isset($config['children'])) {
 						$config['children'] = [];
 					}
-					return $this->walkRoute($config['children']);
+					return $this->_walkRoute($config['children']);
 				} else {
+					
+					$action = empty($this->routeParams) ? $config['action'] : $config['actionWithParams'];
 
-					if (!isset($config['controller'])) {
-						throw new Exception("No controller defined for this route!");
+					if (empty($action)) {
+						//throw new Exception("No action defined for this route!");
+						throw new HttpException(404, "No action defined for route");
 					}
 
 					if (!isset($config['constructorArgs'])) {
@@ -268,19 +412,37 @@ class Router {
 					$this->routeConfig = $config;
 
 					$controller = new $config['controller']($this);
-					return $controller->run();
+					return $controller->run($action);
 				}
 			}
 		}
 
-		throw new Exception("Route $routePart not found! " . var_export($routes, true));
+		throw new HttpException(404, "Route $routePart not found! " . var_export($routes, true));
 	}
 
-	private function getParams($options) {
-		if (!empty($options['routeParams'])) {
-			foreach ($options['routeParams'] as $paramName) {
-				$this->routeParams[$paramName] = array_shift($this->_routeParts);
+	
+	private function _getRouteParams($options) {
+		foreach ($options['routeParams'] as $paramName) {
+			
+			if(empty($this->_routeParts)){
+				break;
 			}
+			
+			$part = array_shift($this->_routeParts);			
+			if(isset($options['children'][$part])){
+				
+				// If there's an exact child match.
+				// Like 0 here matches both rules. In this case the rule with the exact match wins.
+				//
+				// Rules example:
+				// ->get('auth/users/0','new')
+				// ->get('auth/users/:userId','read')
+				
+				break;
+			}
+			
+			//add the param
+			$this->routeParams[$paramName] = $part;
 		}
 	}
 

@@ -1,12 +1,12 @@
 <?php
 namespace GO\Modules\Tennis\Controller;
 
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Db\Query;
 use GO\Core\Http\Client;
 use GO\Modules\Contacts\Model\Contact;
 
-class SpeelsterkteController extends AbstractRESTController{
+class SpeelsterkteController extends AbstractController{
 	
 	protected function authenticate() {
 		return true;

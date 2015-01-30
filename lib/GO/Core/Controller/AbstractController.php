@@ -38,7 +38,21 @@ use ReflectionMethod;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 
-abstract class AbstractRESTController extends AbstractObject {
+abstract class AbstractController extends AbstractObject {
+	
+	
+	/**
+	 * Create routes for this controller
+	 * 
+	 * @return \GO\Core\Http\RoutesCollection
+	 */
+	public static function routes() {
+		$routes = new \GO\Core\Http\RoutesCollection(self::className());
+		
+		App::router()->addRoutes($routes);
+		
+		return $routes;
+	}	
 
 	/**
 	 * The router object
@@ -126,7 +140,7 @@ abstract class AbstractRESTController extends AbstractObject {
 	 * 
 	 * @return mixed
 	 */
-	public function run() {
+	public function run($action) {
 		
 		
 		try{
@@ -135,7 +149,7 @@ abstract class AbstractRESTController extends AbstractObject {
 				throw new HttpException(403);
 			}
 
-			$data = $this->callMethodWithParams("http" . $_SERVER['REQUEST_METHOD']);		
+			$data = $this->callMethodWithParams("action".$action);		
 
 			if(isset($data)){
 				$data = $this->jsonEncode($data);
@@ -144,7 +158,7 @@ abstract class AbstractRESTController extends AbstractObject {
 					$this->cacheHeaders(null, md5($data));
 				}
 				
-				header("Allow: GET, HEAD, PUT, POST, DELETE");
+				//header("Allow: GET, HEAD, PUT, POST, DELETE");
 				echo $data;
 			}
 

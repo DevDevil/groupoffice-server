@@ -3,7 +3,7 @@
 namespace GO\Modules\CustomFields\Controller;
 
 use GO\Core\App;
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Exception\NotFound;
@@ -16,7 +16,7 @@ use GO\Modules\CustomFields\Model\Field;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class FieldController extends AbstractRESTController {
+class FieldController extends AbstractController {
 
 	protected function httpGet($fieldId = null, $returnAttributes = []){
 		if(!isset($fieldId)){

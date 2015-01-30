@@ -3,9 +3,9 @@
 namespace GO\Modules\DevTools\Controller;
 
 use GO\Core\App;
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 
-class RoutesController extends AbstractRESTController {
+class RoutesController extends AbstractController {
 
 	public function httpGet() {
 		//{@link http://intermesh.nl description}

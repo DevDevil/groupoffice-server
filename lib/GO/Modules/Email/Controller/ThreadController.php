@@ -2,14 +2,14 @@
 namespace GO\Modules\Email\Controller;
 
 use GO\Core\App;
-use GO\Core\Controller\AbstractCrudController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Exception\NotFound;
 use GO\Modules\Email\Model\Message;
 use GO\Modules\Email\Model\Thread;
 
-class ThreadController extends AbstractCrudController {
+class ThreadController extends AbstractController {
 
 
 

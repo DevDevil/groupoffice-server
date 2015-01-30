@@ -2,7 +2,7 @@
 namespace GO\Modules\Notes\Controller;
 
 use GO\Core\App;
-use GO\Core\Controller\AbstractCrudController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Exception\Forbidden;
@@ -18,7 +18,7 @@ use GO\Modules\Notes\NotesModule;
  * @author Wesley Smits <wsmits@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class NoteController extends AbstractCrudController{	
+class NoteController extends AbstractController{	
 	
 	/**
 	 * Fetch notes

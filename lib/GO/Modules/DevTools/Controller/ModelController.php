@@ -2,10 +2,10 @@
 
 namespace GO\Modules\DevTools\Controller;
 
-use GO\Core\Controller\AbstractRESTController;
+use GO\Core\Controller\AbstractController;
 use GO\Core\Db\Column;
 
-class ModelController extends AbstractRESTController {
+class ModelController extends AbstractController {
 
 	public function httpGet($modelName) {
 
