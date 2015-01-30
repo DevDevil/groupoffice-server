@@ -49,27 +49,7 @@ abstract class AbstractThumbController extends AbstractController {
 	 */
 	abstract protected function thumbUseCache();
 
-	/**
-	 * Get the original image
-	 * 
-	 * @param string $src
-	 */
-	protected function actionOriginal() {
-//		$relFolder = $this->thumbGetFolder();
-		$file = $this->thumbGetFile();
-		
-		if (!$file->exists()) {
-			App::request()->redirect('https://www.placehold.it/200x150/EFEFEF/AAAAAA&text=File+not+found');
-		}
 
-		if ($file->getSize() > 4 * 1024 * 1024) {
-			App::request()->redirect('https://www.placehold.it/200x150/EFEFEF/AAAAAA&text=Image+too+large');
-		}
-		
-		$this->_thumbHeaders(false, $file);
-		$file->output();
-	}
-	
 	/**
 	 * Image thumbnailer.
 	 *
@@ -79,7 +59,7 @@ abstract class AbstractThumbController extends AbstractController {
 	 * @param bool $zoomCrop
 	 * @param bool $fitBox
 	 */
-	protected function httpGet($w = 0, $h = 0, $zoomCrop = false, $fitBox = false) {
+	protected function actionDownload($w = 0, $h = 0, $zoomCrop = false, $fitBox = false) {
 
 		App::session()->closeWriting();
 

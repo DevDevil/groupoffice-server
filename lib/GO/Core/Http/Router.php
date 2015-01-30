@@ -386,38 +386,36 @@ class Router {
 	private function _walkRoute($routes) {
 
 		$routePart = array_shift($this->_routeParts);
-
-		foreach ($routes as $path => $config) {
-			if ($routePart === $path) {
-				$this->_getRouteParams($config);
-
-				if (!empty($this->_routeParts)) {
-					if (!isset($config['children'])) {
-						$config['children'] = [];
-					}
-					return $this->_walkRoute($config['children']);
-				} else {
-					
-					$action = empty($this->routeParams) ? $config['action'] : $config['actionWithParams'];
-
-					if (empty($action)) {
-						//throw new Exception("No action defined for this route!");
-						throw new HttpException(404, "No action defined for route");
-					}
-
-					if (!isset($config['constructorArgs'])) {
-						$config['constructorArgs'] = [];
-					}
-					
-					$this->routeConfig = $config;
-
-					$controller = new $config['controller']($this);
-					return $controller->run($action);
-				}
-			}
+		
+		if(!isset($routes[$routePart])){
+			throw new HttpException(404, "Route $routePart not found! " . var_export($routes, true));
 		}
+		
+		
+		$config = $routes[$routePart];
 
-		throw new HttpException(404, "Route $routePart not found! " . var_export($routes, true));
+		$this->_getRouteParams($config);
+		
+
+		if (!empty($this->_routeParts)) {
+			return $this->_walkRoute($config['children']);
+		} else {
+
+			$action = empty($this->routeParams) ? $config['action'] : $config['actionWithParams'];
+
+			if (empty($action)) {
+				//throw new Exception("No action defined for this route!");
+				throw new HttpException(404, "No action defined for route");
+			}
+			
+			
+			//Is this needed?
+			$this->routeConfig = $config;
+
+			$controller = new $config['controller']($this);
+			return $controller->run($action);
+		}
+		
 	}
 
 	
@@ -430,6 +428,9 @@ class Router {
 			
 			$part = array_shift($this->_routeParts);			
 			if(isset($options['children'][$part])){
+				
+				//put back the part
+				$this->_routeParts[] = $part;
 				
 				// If there's an exact child match.
 				// Like 0 here matches both rules. In this case the rule with the exact match wins.

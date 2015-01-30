@@ -10,18 +10,19 @@ class AnnouncementsModule extends AbstractModule {
 	public function routes() {
 		
 		
+		Controller\AnnouncementController::routes()
+				->get('announcements', 'store')
+				->get('announcements/0','new')
+				->get('announcements/:announcementId','read')
+				->put('announcements/:announcementId', 'update')
+				->post('announcements', 'create')
+				->delete('announcements/:announcementId','delete');
 		
-		return [
-			'announcements' => [
-				'controller' => Controller\AnnouncementController::className(),
-				'routeParams' => ['announcementId'],
-				'children' => [
-					'thumb' => [
-						'controller' => ThumbController::className(),
-					],
-				]
-			]
-		];
+		
+		ThumbController::routes()
+				->get('announcements/:announcementId/thumb', 'download');
+		
+		
 	}
 
 }
