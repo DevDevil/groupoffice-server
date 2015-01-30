@@ -71,7 +71,7 @@ class User extends AbstractRecord {
 		self::hasMany('roles', Role::className(), "userId")
 				->via(UserRole::className());
 		
-		self::hasMany('userRole', UserRole::className(), ["id" => "userId"]);
+		self::hasMany('userRole', UserRole::className(), "userId");
 		self::hasOne('role', Role::className(), 'userId');
 		self::hasMany('sessions', Session::className(), "userId");
 		self::hasMany('tokens', Token::className(), "userId");			

@@ -325,7 +325,7 @@ class Router {
 	 */
 	public function run() {
 		
-//		try {
+		try {
 		
 			if(!isset($_SERVER['PATH_INFO'])){
 				App::request()->redirect($this->buildUrl('system/check'));
@@ -344,9 +344,12 @@ class Router {
 			}
 
 			$this->_walkRoute($this->_optimizedRoutes[$_SERVER['REQUEST_METHOD']]);
-//		} catch (\Exception $e) {
-//			
-//		}
+		} catch (HttpException $e) {
+			header("HTTP/1.1 " . $e->getCode());
+			header("Status: ".$e->getCode());
+			
+			echo $e->getMessage();
+		}
 	}
 
 	/**
@@ -490,5 +493,4 @@ class Router {
 
 		return $url;
 	}
-
 }

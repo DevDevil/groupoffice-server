@@ -5,7 +5,6 @@ namespace GO\Core\Modules\Controller;
 use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
-use GO\Core\Exception\NotImplemented;
 use GO\Core\Modules\Model\Module;
 
 
@@ -17,17 +16,6 @@ use GO\Core\Modules\Model\Module;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class ModuleController extends AbstractController {
-
-
-	protected function httpGet($moduleId=null){
-		if(!isset($moduleId)){
-			return $this->callMethodWithParams('store');
-		}else
-		{
-			return $this->renderError(501); //Not implemented
-		}
-	}
-	
 	/**
 	 * Fetch modules
 	 *
@@ -39,7 +27,7 @@ class ModuleController extends AbstractController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see GO\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function store($orderColumn = 'id', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
+	protected function actionStore($orderColumn = 'id', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
 
 		$query = Query::newInstance()
 				->orderBy([$orderColumn => $orderDirection])

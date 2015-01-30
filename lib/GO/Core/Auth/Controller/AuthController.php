@@ -62,7 +62,7 @@ class AuthController extends \GO\Core\Controller\AbstractController {
 		return $this->renderJson($response);
 	}
 
-	public function ationIsLoggedIn() {
+	public function actionIsLoggedIn() {
 		$user = User::current();
 
 		$response = [
