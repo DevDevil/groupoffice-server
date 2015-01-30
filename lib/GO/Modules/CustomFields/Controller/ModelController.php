@@ -22,4 +22,19 @@ class ModelController extends AbstractController{
 		
 		return $this->renderJson(['results' => $customFieldModels, 'success' => true]);
 	}
+	
+	protected function actionGet() {
+		
+		$modelClasses = ModuleUtils::getModelNames();
+		
+		$customFieldModels = [];
+		foreach($modelClasses as $modelClass){
+			
+			if(is_subclass_of($modelClass, "\GO\Core\Db\AbstractRecord") && ($relation = $modelClass::getRelation('customfields'))){
+				$customFieldModels[] = ['modelName' => $modelClass, 'customFieldsModelName' => $relation->getRelatedModelName()];
+			}
+		}
+		
+		return $this->renderJson(['results' => $customFieldModels, 'success' => true]);
+	}
 }

@@ -13,31 +13,17 @@ use GO\Modules\Tags\TagsModule;
 
 class ContactsModule extends AbstractModule{
 	public function routes(){
-		return [
-//			'addressbooks' => [
-//				'routeParams' => ['addressbookId'],
-//				'children' => [
-					'contacts' => [
-						'routeParams' => ['contactId'], 
-						'controller' => ContactController::className(),						
-						'children' => [
-								'thumb' => [
-									'controller' => ThumbController::className(),
-								],
-							
-								'files' => [
-									'routeParams' => ['fileId'],
-									'controller' => FilesController::className()
-								],
-								'timeline' => [
-									'routeParams' => ['itemId'],
-									'controller' => TimelineController::className()
-								],
-							]
-						]
-//				]
-//			]
-		];
+		ContactController::routes()
+				->get('contacts', 'store')
+				->get('contacts/0','new')
+				->get('contacts/:contactId','read')
+				->put('contacts/:contactId', 'update')
+				->post('contacts', 'create')
+				->delete('contacts/:contactId','delete');
+		
+		TimelineController::routes();
+		ThumbController::routes();
+		FilesController::routes();
 	}
 	
 	

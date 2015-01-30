@@ -5,6 +5,16 @@ use GO\Core\AbstractModule;
 
 class DevToolsModule extends AbstractModule{
 	public function routes() {
+		
+		Controller\TestController::routes()
+			->get('devtools', 'store')
+			->get('devtools/0','new')
+			->get('devtools/:fieldSetId','read')
+			->put('devtools/:fieldSetId', 'update')
+			->post('devtools', 'create')
+			->delete('devtools/:fieldSetId','delete');
+		
+		
 		return [
 			'devtools' => [
 				'children' =>[

@@ -9,7 +9,6 @@ class AnnouncementsModule extends AbstractModule {
 
 	public function routes() {
 		
-		
 		Controller\AnnouncementController::routes()
 				->get('announcements', 'store')
 				->get('announcements/0','new')
@@ -18,11 +17,8 @@ class AnnouncementsModule extends AbstractModule {
 				->post('announcements', 'create')
 				->delete('announcements/:announcementId','delete');
 		
-		
 		ThumbController::routes()
 				->get('announcements/:announcementId/thumb', 'download');
-		
-		
 	}
 
 }

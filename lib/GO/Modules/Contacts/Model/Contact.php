@@ -2,15 +2,13 @@
 namespace GO\Modules\Contacts\Model;
 
 use GO\Core\App;
-use GO\Core\Db\AbstractRecord;
-
-use GO\Core\Db\SoftDeleteTrait;
-use GO\Core\Fs\File;
-use GO\Core\Fs\Folder;
-use GO\Core\REST\RESTModelInterface;
 use GO\Core\Auth\Model\RecordPermissionTrait;
 use GO\Core\Auth\Model\Role;
 use GO\Core\Auth\Model\User;
+use GO\Core\Db\AbstractRecord;
+use GO\Core\Db\SoftDeleteTrait;
+use GO\Core\Fs\File;
+use GO\Core\Fs\Folder;
 use GO\Modules\Files\Model\RecordFolderTrait;
 use GO\Modules\Tags\Model\Tag;
 use GO\Modules\Timeline\Model\Item;
