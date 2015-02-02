@@ -9,16 +9,13 @@ use GO\Modules\Upload\Controller\ThumbController;
 class UploadModule extends AbstractModule {
 
 	public function routes() {
-		return [
-			'upload' => [
-				'controller' => FlowController::className(),
-				'children' => [
-					'thumb' => [
-						'routeParams' => ['tempFile'],
-						'controller' => ThumbController::className()
-					]
-				],
-			],
-		];
+		
+		FlowController::routes()
+						->get('upload', 'upload')
+						->post('upload', 'upload');
+		
+		ThumbController::routes()
+						->get('upload/thumb/:tempFile', 'download');
+		
 	}
 }

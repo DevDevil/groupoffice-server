@@ -14,23 +14,8 @@ use GO\Core\Controller\AbstractController;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class FlowController extends AbstractController {
-
-	/**
-	 * Use Flow.js to upload files. This controller returns the filenames relative
-	 *
-	 * to the App::session()->getTempFolder();
-	 */
-	public function httpGet() {
-
-		return $this->handleUpload();
-	}
-	
-	public function httpPost(){
-		return $this->handleUpload();
-	}
-	
-	private function handleUpload(){
+class FlowController extends AbstractController {	
+	protected function actionUpload(){
 		$chunksTempFolder = App::session()->getTempFolder(true)->createFolder('uploadChunks')->create();
 
 		$request = new Request();

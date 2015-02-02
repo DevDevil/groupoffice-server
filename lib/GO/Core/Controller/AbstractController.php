@@ -330,6 +330,10 @@ abstract class AbstractController extends AbstractObject {
 				$response['data'] = $model->toArray();
 			}
 			
+			if($model->isNew()){
+				//TODO stip out Read only properties
+			}
+			
 		}
 		
 		$response['success'] = !$model->hasValidationErrors();

@@ -56,6 +56,11 @@ class Module extends AbstractRecord{
 	 */
 	public function manager(){	
 		
+		
+		if(!class_exists($this->name)){
+			throw new \Exception("Module ".$this->name." is not found!");
+		}
+		
 		return new $this->name;
 	}
 	

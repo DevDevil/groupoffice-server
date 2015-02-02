@@ -43,9 +43,9 @@ class ThumbController extends AbstractThumbController {
 			$contact = new Contact();
 		}else
 		{			
-			if (!$contact->checkPermission('readAccess')) {
-				throw new Forbidden();
-			}
+//			if (!$contact->checkPermission('readAccess')) {
+//				throw new Forbidden();
+//			}
 		}
 
 		return $contact->photoFile();

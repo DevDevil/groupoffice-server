@@ -22,7 +22,10 @@ class ContactsModule extends AbstractModule{
 				->delete('contacts/:contactId','delete');
 		
 		TimelineController::routes();
-		ThumbController::routes();
+		
+		ThumbController::routes()
+						->get('contacts/:contactId/thumb', 'download');
+		
 		FilesController::routes();
 	}
 	
