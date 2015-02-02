@@ -7,21 +7,28 @@ use GO\Core\Controller\AbstractController;
 
 class RoutesController extends AbstractController {
 
-	public function httpGet() {
+	public function actionMarkdown() {
 		//{@link http://intermesh.nl description}
 		
-		$routes = $this->getRoutesAsString();
+		$this->setContentType('text/plain');
 		
-		echo "<pre>";
-		
-		echo " * | Route | Controller     |\n";
-		echo " * |-------|----------------|\n";
+		echo " * | Method | Route | Controller     |\n";
+		echo " * |--------|-------|----------------|\n";
  	
-		foreach($routes as $routeStr => $config){			
-			echo ' * |'.$routeStr.' | {@link '.$config['controller']."}|\n";
+		foreach(App::router()->getRouteCollections() as $routeCollection){
+			$controller = $routeCollection->getController();
+			
+			$routes = $routeCollection->getRoutes();
+			
+			foreach($routes as $route){
+				$method = $route[0];
+				$path = $route[1];
+				$action = $route[2];				
+				
+				echo ' * |'.$method.' | '.$path.' | {@link '.$controller."::action".$action."}|\n";
+			}	
+			
 		}
-		
-		echo "</pre>";
 	}
 	/**
 	 * Get all routes

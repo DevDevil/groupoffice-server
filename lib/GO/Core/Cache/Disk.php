@@ -1,7 +1,9 @@
 <?php
 namespace GO\Core\Cache;
 
-use GO\Core\App as App;
+use GO\Core\App;
+use GO\Core\Cache\CacheInterface;
+use GO\Core\Fs\File;
 
 /**
  * Cache implementation that uses serialized objects in files on disk.
@@ -57,7 +59,7 @@ class Disk implements CacheInterface{
 		if($key===false)
 			return true;
 
-		$key = \GO\Core\Fs\File::stripInvalidChars($key,'-');
+		$key = File::stripInvalidChars($key,'-');
 						
 		if($ttl){
 			$this->_ttls[$key]=$this->_time+$ttl;
@@ -79,7 +81,7 @@ class Disk implements CacheInterface{
 	 */
 	public function get($key){
 		
-		$key = \GO\Core\Fs\File::stripInvalidChars($key, '-');
+		$key = File::stripInvalidChars($key, '-');
 		
 		if(!empty($this->_ttls[$key]) && $this->_ttls[$key]<$this->_time){
 			unlink($this->_folder.$key);
@@ -108,7 +110,7 @@ class Disk implements CacheInterface{
 	 * @param string $key 
 	 */
 	public function delete($key){
-		$key = \GO\Core\Fs\File::stripInvalidChars($key, '-');
+		$key = File::stripInvalidChars($key, '-');
 		
 		unset($this->_ttls[$key]);
 		$this->_ttlsDirty=true;

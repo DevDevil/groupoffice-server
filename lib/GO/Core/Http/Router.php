@@ -22,72 +22,69 @@ use GO\Core\Modules\Model\Module;
  * 
  * Available routes:
  * 
-  * | Route | Controller     |
- * |-------|----------------|
- * |/modules | {@link GO\Core\Modules\Controller\ModuleController}|
- * |/modules/check | {@link GO\Core\Modules\Controller\CheckController}|
- * |/modules/upgrade | {@link GO\Core\Modules\Controller\UpgradeController}|
- * |/auth | {@link GO\Core\Auth\Controller\AuthController}|
- * |/auth/users | {@link GO\Core\Auth\Controller\UserController}|
- * |/auth/users/[userId] | {@link GO\Core\Auth\Controller\UserController}|
- * |/auth/users/[userId]/roles | {@link GO\Core\Auth\Controller\UserRolesController}|
- * |/auth/roles | {@link GO\Core\Auth\Controller\RoleController}|
- * |/auth/roles/[roleId] | {@link GO\Core\Auth\Controller\RoleController}|
- * |/auth/roles/[roleId]/users | {@link GO\Core\Auth\Controller\RoleUsersController}|
- * |/auth/permissions | {@link GO\Core\Auth\Controller\PermissionsController}|
- * |/notes | {@link GO\Modules\Notes\Controller\NoteController}|
- * |/notes/[noteId] | {@link GO\Modules\Notes\Controller\NoteController}|
- * |/notes/[noteId]/noteImages | {@link GO\Modules\Notes\Controller\ThumbController}|
- * |/notes/[noteId]/noteImages/[noteImageId] | {@link GO\Modules\Notes\Controller\ThumbController}|
- * |/notes/[noteId]/noteImages/[noteImageId]/thumb | {@link GO\Modules\Notes\Controller\ThumbController}|
- * |/tennis | {@link GO\Modules\Tennis\Controller\SpeelsterkteController}|
- * |/tags | {@link GO\Modules\Tags\Controller\TagController}|
- * |/tags/[tagId] | {@link GO\Modules\Tags\Controller\TagController}|
- * |/customfields/models | {@link GO\Modules\CustomFields\Controller\ModelController}|
- * |/customfields/fieldsets | {@link GO\Modules\CustomFields\Controller\FieldSetController}|
- * |/customfields/fieldsets/[modelName] | {@link GO\Modules\CustomFields\Controller\FieldSetController}|
- * |/customfields/fieldsets/[modelName]/[fieldSetId] | {@link GO\Modules\CustomFields\Controller\FieldSetController}|
- * |/customfields/fieldsets/[modelName]/[fieldSetId]/fields | {@link GO\Modules\CustomFields\Controller\FieldController}|
- * |/customfields/fieldsets/[modelName]/[fieldSetId]/fields/[fieldId] | {@link GO\Modules\CustomFields\Controller\FieldController}|
- * |/upload | {@link GO\Modules\Upload\Controller\FlowController}|
- * |/upload/thumb | {@link GO\Modules\Upload\Controller\ThumbController}|
- * |/upload/thumb/[tempFile] | {@link GO\Modules\Upload\Controller\ThumbController}|
- * |/email/test | {@link GO\Modules\Email\Controller\TestController}|
- * |/email/sync | {@link GO\Modules\Email\Controller\SyncController}|
- * |/email/sync/[accountId] | {@link GO\Modules\Email\Controller\SyncController}|
- * |/email/accounts | {@link GO\Modules\Email\Controller\AccountController}|
- * |/email/accounts/[accountId] | {@link GO\Modules\Email\Controller\AccountController}|
- * |/email/accounts/[accountId]/mailboxes/[mailboxName]/messages | {@link GO\Modules\Email\Controller\ImapMessageController}|
- * |/email/accounts/[accountId]/mailboxes/[mailboxName]/messages/[uid] | {@link GO\Modules\Email\Controller\ImapMessageController}|
- * |/email/accounts/[accountId]/mailboxes/[mailboxName]/messages/[uid]/attachments | {@link GO\Modules\Email\Controller\AttachmentController}|
- * |/email/accounts/[accountId]/mailboxes/[mailboxName]/messages/[uid]/attachments/[partNumber] | {@link GO\Modules\Email\Controller\AttachmentController}|
- * |/email/accounts/[accountId]/folders | {@link GO\Modules\Email\Controller\FolderController}|
- * |/email/accounts/[accountId]/folders/[folderId] | {@link GO\Modules\Email\Controller\FolderController}|
- * |/email/accounts/[accountId]/folders/[folderId]/threads | {@link GO\Modules\Email\Controller\ThreadController}|
- * |/email/accounts/[accountId]/folders/[folderId]/threads/[threadId] | {@link GO\Modules\Email\Controller\ThreadController}|
- * |/email/accounts/[accountId]/folders/[folderId]/threads/[threadId]/attachments | {@link GO\Modules\Email\Controller\AttachmentController}|
- * |/email/accounts/[accountId]/folders/[folderId]/threads/[threadId]/attachments/[attachmentId] | {@link GO\Modules\Email\Controller\AttachmentController}|
- * |/email/accounts/[accountId]/folders/[folderId]/messages | {@link GO\Modules\Email\Controller\MessageController}|
- * |/email/accounts/[accountId]/folders/[folderId]/messages/[messageId] | {@link GO\Modules\Email\Controller\MessageController}|
- * |/email/accounts/[accountId]/folders/[folderId]/messages/[messageId]/attachments | {@link GO\Modules\Email\Controller\AttachmentController}|
- * |/email/accounts/[accountId]/folders/[folderId]/messages/[messageId]/attachments/[attachmentId] | {@link GO\Modules\Email\Controller\AttachmentController}|
- * |/announcements | {@link GO\Modules\Announcements\Controller\AnnouncementController}|
- * |/announcements/[announcementId] | {@link GO\Modules\Announcements\Controller\AnnouncementController}|
- * |/announcements/[announcementId]/thumb | {@link GO\Modules\Announcements\Controller\ThumbController}|
- * |/projects | {@link GO\Modules\Projects\Controller\ProjectController}|
- * |/projects/[projectId] | {@link GO\Modules\Projects\Controller\ProjectController}|
- * |/projects/[projectId]/tasks | {@link GO\Modules\Projects\Controller\TaskController}|
- * |/projects/[projectId]/tasks/[taskId] | {@link GO\Modules\Projects\Controller\TaskController}|
- * |/contacts | {@link GO\Modules\Contacts\Controller\ContactController}|
- * |/contacts/[contactId] | {@link GO\Modules\Contacts\Controller\ContactController}|
- * |/contacts/[contactId]/thumb | {@link GO\Modules\Contacts\Controller\ThumbController}|
- * |/contacts/[contactId]/files | {@link GO\Modules\Contacts\Controller\FilesController}|
- * |/contacts/[contactId]/files/[fileId] | {@link GO\Modules\Contacts\Controller\FilesController}|
- * |/contacts/[contactId]/timeline | {@link GO\Modules\Contacts\Controller\TimelineController}|
- * |/contacts/[contactId]/timeline/[itemId] | {@link GO\Modules\Contacts\Controller\TimelineController}|
- * |/devtools/model | {@link GO\Modules\DevTools\Controller\ModelController}|
- * |/devtools/model/[modelName] | {@link GO\Modules\DevTools\Controller\ModelController}|
- * |/devtools/routes | {@link GO\Modules\DevTools\Controller\RoutesController}|
+ * | Method | Route | Controller     |
+ * |--------|-------|----------------|
+ * |GET | auth | {@link GO\Core\Auth\Controller\AuthController::actionisLoggedIn}|
+ * |POST | auth | {@link GO\Core\Auth\Controller\AuthController::actionlogin}|
+ * |DELETE | auth | {@link GO\Core\Auth\Controller\AuthController::actionlogout}|
+ * |GET | auth/users | {@link GO\Core\Auth\Controller\UserController::actionstore}|
+ * |GET | auth/users/0 | {@link GO\Core\Auth\Controller\UserController::actionnew}|
+ * |GET | auth/users/:userId | {@link GO\Core\Auth\Controller\UserController::actionread}|
+ * |PUT | auth/users/:userId | {@link GO\Core\Auth\Controller\UserController::actionupdate}|
+ * |POST | auth/users | {@link GO\Core\Auth\Controller\UserController::actioncreate}|
+ * |DELETE | auth/users | {@link GO\Core\Auth\Controller\UserController::actiondelete}|
+ * |GET | auth/roles | {@link GO\Core\Auth\Controller\RoleController::actionstore}|
+ * |GET | auth/roles/0 | {@link GO\Core\Auth\Controller\RoleController::actionnew}|
+ * |GET | auth/roles/:roleId | {@link GO\Core\Auth\Controller\RoleController::actionread}|
+ * |PUT | auth/roles/:roleId | {@link GO\Core\Auth\Controller\RoleController::actionupdate}|
+ * |POST | auth/roles | {@link GO\Core\Auth\Controller\RoleController::actioncreate}|
+ * |DELETE | auth/roles | {@link GO\Core\Auth\Controller\RoleController::actiondelete}|
+ * |GET | system/install | {@link GO\Core\Install\Controller\SystemController::actioninstall}|
+ * |GET | system/upgrade | {@link GO\Core\Install\Controller\SystemController::actionupgrade}|
+ * |GET | system/check | {@link GO\Core\Install\Controller\SystemController::actioncheck}|
+ * |GET | modules | {@link GO\Core\Modules\Controller\ModuleController::actionstore}|
+ * |GET | announcements | {@link GO\Modules\Announcements\Controller\AnnouncementController::actionstore}|
+ * |GET | announcements/0 | {@link GO\Modules\Announcements\Controller\AnnouncementController::actionnew}|
+ * |GET | announcements/:announcementId | {@link GO\Modules\Announcements\Controller\AnnouncementController::actionread}|
+ * |PUT | announcements/:announcementId | {@link GO\Modules\Announcements\Controller\AnnouncementController::actionupdate}|
+ * |POST | announcements | {@link GO\Modules\Announcements\Controller\AnnouncementController::actioncreate}|
+ * |DELETE | announcements/:announcementId | {@link GO\Modules\Announcements\Controller\AnnouncementController::actiondelete}|
+ * |GET | announcements/:announcementId/thumb | {@link GO\Modules\Announcements\Controller\ThumbController::actiondownload}|
+ * |GET | bands | {@link GO\Modules\Bands\Controller\BandController::actionstore}|
+ * |GET | bands/0 | {@link GO\Modules\Bands\Controller\BandController::actionnew}|
+ * |GET | bands/:bandId | {@link GO\Modules\Bands\Controller\BandController::actionread}|
+ * |PUT | bands/:bandId | {@link GO\Modules\Bands\Controller\BandController::actionupdate}|
+ * |POST | bands | {@link GO\Modules\Bands\Controller\BandController::actioncreate}|
+ * |DELETE | bands/:bandId | {@link GO\Modules\Bands\Controller\BandController::actiondelete}|
+ * |GET | hello | {@link GO\Modules\Bands\Controller\HelloController::actionname}|
+ * |GET | contacts | {@link GO\Modules\Contacts\Controller\ContactController::actionstore}|
+ * |GET | contacts/0 | {@link GO\Modules\Contacts\Controller\ContactController::actionnew}|
+ * |GET | contacts/:contactId | {@link GO\Modules\Contacts\Controller\ContactController::actionread}|
+ * |PUT | contacts/:contactId | {@link GO\Modules\Contacts\Controller\ContactController::actionupdate}|
+ * |POST | contacts | {@link GO\Modules\Contacts\Controller\ContactController::actioncreate}|
+ * |DELETE | contacts/:contactId | {@link GO\Modules\Contacts\Controller\ContactController::actiondelete}|
+ * |GET | customfields/models | {@link GO\Modules\CustomFields\Controller\ModelController::actionget}|
+ * |GET | customfields/fieldsets | {@link GO\Modules\CustomFields\Controller\FieldSetController::actionstore}|
+ * |GET | customfields/fieldsets/0 | {@link GO\Modules\CustomFields\Controller\FieldSetController::actionnew}|
+ * |GET | customfields/fieldsets/:fieldSetId | {@link GO\Modules\CustomFields\Controller\FieldSetController::actionread}|
+ * |PUT | customfields/fieldsets/:fieldSetId | {@link GO\Modules\CustomFields\Controller\FieldSetController::actionupdate}|
+ * |POST | customfields/fieldsets | {@link GO\Modules\CustomFields\Controller\FieldSetController::actioncreate}|
+ * |DELETE | customfields/fieldsets/:fieldSetId | {@link GO\Modules\CustomFields\Controller\FieldSetController::actiondelete}|
+ * |GET | customfields/:fieldSetId/fields | {@link GO\Modules\CustomFields\Controller\FieldController::actionstore}|
+ * |GET | customfields/:fieldSetId/fields/0 | {@link GO\Modules\CustomFields\Controller\FieldController::actionnew}|
+ * |GET | customfields/:fieldSetId/fields/:fieldId | {@link GO\Modules\CustomFields\Controller\FieldController::actionread}|
+ * |PUT | customfields/:fieldSetId/fields/:fieldId | {@link GO\Modules\CustomFields\Controller\FieldController::actionupdate}|
+ * |POST | customfields/:fieldSetId/fields | {@link GO\Modules\CustomFields\Controller\FieldController::actioncreate}|
+ * |DELETE | customfields/:fieldSetId/fields/:fieldId | {@link GO\Modules\CustomFields\Controller\FieldController::actiondelete}|
+ * |GET | devtools/models | {@link GO\Modules\DevTools\Controller\ModelController::actionlist}|
+ * |GET | devtools/models/:modelName/props | {@link GO\Modules\DevTools\Controller\ModelController::actionprops}|
+ * |GET | devtools/routes | {@link GO\Modules\DevTools\Controller\RoutesController::actionmarkdown}|
+ * |GET | email/accounts | {@link GO\Modules\Email\Controller\AccountController::actionstore}|
+ * |GET | email/accounts/0 | {@link GO\Modules\Email\Controller\AccountController::actionnew}|
+ * |GET | email/accounts/:accountId | {@link GO\Modules\Email\Controller\AccountController::actionread}|
+ * |PUT | email/accounts/:accountId | {@link GO\Modules\Email\Controller\AccountController::actionupdate}|
+ * |POST | email/accounts | {@link GO\Modules\Email\Controller\AccountController::actioncreate}|
+ * |DELETE | email/accounts/:accountId | {@link GO\Modules\Email\Controller\AccountController::actiondelete}|
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -273,6 +270,17 @@ class Router {
 		return $this->_optimizedRoutes;
 	}
 	
+	/**
+	 * Get all the route collections
+	 * 
+	 * Each controller has a route collection
+	 * 
+	 * @return RoutesCollection[]
+	 */
+	public function getRouteCollections(){
+		return $this->_routeCollections;
+	}
+	
 	private function _addRouteParts($routeParts, $method, $action, $controller){
 		if(!isset($this->_optimizedRoutes[$method])){
 			$this->_optimizedRoutes[$method] = [];
@@ -280,14 +288,18 @@ class Router {
 		
 		$cur['children'] = &$this->_optimizedRoutes[$method];
 		
+		//eg /bands/:bandId/albums/:albumId
+		//At the bands we store bandId as routeParams and at albums we store albumId.
+		//But the total of route params is 2 for this route.		
+		$totalRouteParams = 0; 
+		
 		foreach($routeParts as $part) {
 			
 			if(substr($part, 0, 1) != ':'){			
 				if(!isset($cur['children'][$part])) {
 					$cur['children'][$part] = [
 						'routeParams' => [],
-						'actionWithParams' => null,
-						'action' => null,
+						'actions' => [], //indexed with no. of params
 						'controller' => $controller,
 						'children' => []
 					];
@@ -296,18 +308,13 @@ class Router {
 				$cur = &$cur['children'][$part];
 			}else
 			{
-				//route parameter
-				
+				//route parameter				
 				$cur['routeParams'][] = substr($part, 1);
+				
+				$totalRouteParams++;
 			}
-		}
-		
-		if(!empty($cur['routeParams'])) {
-			$cur['actionWithParams'] = $action;
-		}else
-		{
-			$cur['action'] = $action;
-		}
+		}		
+		$cur['actions'][$totalRouteParams] = $action;		
 	}
 	
 	
@@ -393,22 +400,19 @@ class Router {
 		if(!isset($routes[$routePart])){
 			throw new HttpException(404, "Route $routePart not found! " . var_export($routes, true));
 		}
-		
-		
 		$config = $routes[$routePart];
 
 		$this->_getRouteParams($config);
 		
-
 		if (!empty($this->_routeParts)) {
 			return $this->_walkRoute($config['children']);
 		} else {
 
-			$action = empty($this->routeParams) ? $config['action'] : $config['actionWithParams'];
-
-			if (empty($action)) {
+			$paramCount = count($this->routeParams);
+			
+			if (empty($config['actions'][$paramCount])) {
 				//throw new Exception("No action defined for this route!");
-				throw new HttpException(404, "No action defined for route");
+				throw new HttpException(404, "No action defined for route ".$this->route." params: ".var_export($this->routeParams, true));
 			}
 			
 			
@@ -416,7 +420,7 @@ class Router {
 			$this->routeConfig = $config;
 
 			$controller = new $config['controller']($this);
-			return $controller->run($action);
+			return $controller->run($config['actions'][$paramCount]);
 		}
 		
 	}

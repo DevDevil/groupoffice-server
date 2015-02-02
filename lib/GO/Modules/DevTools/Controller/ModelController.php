@@ -6,10 +6,28 @@ use GO\Core\Controller\AbstractController;
 use GO\Core\Db\Column;
 
 class ModelController extends AbstractController {
+	
+	
+	public function actionList(){
+		
+		
+		$this->setContentType('text/html');
+		
+		$models = \GO\Core\Modules\ModuleUtils::getModelNames();
+		
+		foreach($models as $model){
+			
+			$url = \GO\Core\App::router()->buildUrl('devtools/models/'.urlencode($model).'/props');
+			
+			echo '<a href="'.$url.'">'.$model."</a><br />";
+			
+		}
+		
+	}
 
-	public function httpGet($modelName) {
+	public function actionProps($modelName) {
 
-		header('Content-Type:text/plain;charset=utf-8;');
+		$this->setContentType('text/plain');
 
 		$columns = $modelName::getColumns();
 

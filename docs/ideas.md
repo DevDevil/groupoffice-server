@@ -59,6 +59,10 @@ Perhaps it should have a model name and ID property to be able to store it to an
 It should of course have customer info too.
 
 
+#contracts
+Notification when contract ends.
+
+
 # Module store
 Everybody can create modules and deliver them to Intermesh to put them in our module store. Users can browse the store from within Group-Office and click on an install button to install them.
 Developers can either build the AngularJS client with own script themselves or put the scripts on the server.

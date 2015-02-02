@@ -63,7 +63,7 @@ class ModuleUtils{
 	/**
 	 * Get model classes of all modules.
 	 * 
-	 * @return string[]
+	 * @return string[] eg. ["GO\Core\Auth\Model\User", "etc.."]
 	 */
 	public static function getModelNames(){
 		

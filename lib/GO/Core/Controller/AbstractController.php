@@ -87,6 +87,16 @@ abstract class AbstractController extends AbstractObject {
 		header("HTTP/1.1 " . $httpCode);
 		header("Status: $httpCode " . HttpException::$codes[$httpCode]);
 	}
+	
+	/**
+	 * Set the content type for the response
+	 * 
+	 * @param string $type eg. "application/json"
+	 * @param string $charset
+	 */
+	protected function setContentType($type, $charset = "UTF-8") {
+		header('Content-Type:'.$type.';charset='.$charset.';');
+	}
 
 	/**
 	 * Return error code and exit
@@ -230,8 +240,8 @@ abstract class AbstractController extends AbstractObject {
 	 * @throws Exception
 	 */
 	protected function renderJson(array $json = []) {
-
-		header('Content-Type: application/json;charset=UTF-8');
+		
+		$this->setContentType("application/json");
 		
 		if (isset($json['debug'])) {
 			throw new Exception('debug is a reserved data object');
