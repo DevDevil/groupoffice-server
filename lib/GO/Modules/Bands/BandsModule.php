@@ -16,6 +16,6 @@ class BandsModule extends AbstractModule {
 				->delete('bands/:bandId','delete');
 		
 		HelloController::routes()
-				->get('hello', 'name');
+				->get('bands/hello', 'name');
 	}
 }
