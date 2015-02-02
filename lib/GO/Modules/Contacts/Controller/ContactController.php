@@ -151,9 +151,9 @@ class ContactController extends AbstractController {
 		}
 
 
-		if (!$contact->checkPermission('readAccess')) {
-			throw new Forbidden();
-		}
+//		if (!$contact->permission()->readAccess) {
+//			throw new Forbidden();
+//		}
 
 		return $this->renderModel($contact, $returnAttributes);
 
@@ -176,9 +176,9 @@ class ContactController extends AbstractController {
 	public function actionCreate($returnAttributes = []) {
 		
 		
-		if (!ContactsModule::model()->checkPermission('createAccess')) {
-			throw new Forbidden();
-		}
+//		if (!ContactsModule::model()->checkPermission('createAccess')) {
+//			throw new Forbidden();
+//		}
 
 		$contact = new Contact();
 		$contact->setAttributes(App::request()->payload['data']);
@@ -216,9 +216,9 @@ class ContactController extends AbstractController {
 			throw new NotFound();
 		}
 		
-		if (!$contact->checkPermission('editAccess')) {
-			throw new Forbidden();
-		}
+//		if (!$contact->checkPermission('editAccess')) {
+//			throw new Forbidden();
+//		}
 
 		$contact->setAttributes(App::request()->payload['data']);
 		$contact->save();
@@ -239,9 +239,9 @@ class ContactController extends AbstractController {
 			throw new NotFound();
 		}
 		
-		if (!$contact->checkPermission('deleteAccess')) {
-			throw new Forbidden();
-		}
+//		if (!$contact->checkPermission('deleteAccess')) {
+//			throw new Forbidden();
+//		}
 
 		$contact->delete();
 
