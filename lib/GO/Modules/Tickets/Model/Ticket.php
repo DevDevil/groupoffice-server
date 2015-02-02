@@ -30,7 +30,7 @@ class Ticket extends AbstractRecord{
     protected static function defineRelations() {
 
 		self::belongsTo('agent', Agent::className(), 'agentUserId');
-		self::hasMany('roles', TicketRole::className(), 'ticketId');
+		//self::hasMany('roles', TicketRole::className(), 'ticketId');
 		//self::hasOne('customfields', Record::className(), 'id');
 
     }

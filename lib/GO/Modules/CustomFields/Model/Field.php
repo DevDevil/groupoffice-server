@@ -276,7 +276,7 @@ class Field extends AbstractRecord {
 
 			$table = $this->fieldSet->customFieldsTableName();
 
-			if ($this->isNew) {
+			if ($this->isNew()) {
 				$sql = "ALTER TABLE `" . $table . "` ADD `" . $this->databaseName . "` " . $this->_getTypeSql() . ";";
 			} else {
 				$tableName = $this->getOldAttributeValue('databaseName');

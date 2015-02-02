@@ -209,7 +209,7 @@ abstract class AbstractController extends AbstractObject {
 	protected function callMethodWithParams($methodName){
 		
 		if(!method_exists($this, $methodName)){
-			throw new HttpException(501);
+			throw new HttpException(501, $methodName." defined but doesn't exist in controller ".$this->className());
 		}
 		
 		$method = new ReflectionMethod($this, $methodName);

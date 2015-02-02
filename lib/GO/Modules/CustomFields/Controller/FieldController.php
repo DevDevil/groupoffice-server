@@ -17,26 +17,41 @@ use GO\Modules\CustomFields\Model\Field;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class FieldController extends AbstractController {
+	
+	
+	/**
+	 * GET a list of fields or fetch a single field
+	 *
+	 * 
+	 * @param int $fieldId The ID of the role
+	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see GO\Core\Db\ActiveRecord::getAttributes()} for more information.
+	 * @return JSON Model data
+	 */
+	protected function actionRead($fieldId = null, $returnAttributes = []) {
 
-	protected function httpGet($fieldId = null, $returnAttributes = []){
-		if(!isset($fieldId)){
-			return $this->callMethodWithParams('store');
-		}  else {
-			
-			if($fieldId == 0){
-				$field = new Field();
-			}else
-			{
-				$field = Field::findByPk($fieldId);
-			}
+		$field = Field::findByPk($fieldId);
 
-			if (!$field) {
-				return $this->renderError(404);					
-			}
-			
-			return $this->renderModel($field, $returnAttributes);
+		if (!$field) {
+			throw new NotFound();
 		}
+
+		return $this->renderModel($field, $returnAttributes);
 	}
+
+	/**
+	 * Get's the default data for a new field
+	 * 
+	 * @param array $returnAttributes
+	 * @return array
+	 */
+	protected function actionNew($fieldSetId, $returnAttributes = []) {
+
+		$field = new Field();
+		$field->fieldSetId = $fieldSetId;
+
+		return $this->renderModel($field, $returnAttributes);
+	}
+
 	/**
 	 * Fetch fields
 	 *
@@ -48,7 +63,7 @@ class FieldController extends AbstractController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see GO\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function store($fieldSetId, $orderColumn = 'sortOrder', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = [], $where=null) {
+	protected function actionStore($fieldSetId, $orderColumn = 'sortOrder', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = [], $where=null) {
 
 
 		$query = Query::newInstance()
@@ -85,7 +100,7 @@ class FieldController extends AbstractController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see GO\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function httpPost($fieldSetId, $returnAttributes = []) {
+	public function actionCreate($fieldSetId, $returnAttributes = []) {
 
 		$field = new Field();
 		$field->fieldSetId = $fieldSetId;
@@ -108,14 +123,14 @@ class FieldController extends AbstractController {
 	 * {"field":{"attributes":{"fieldname":"test",...}}}
 	 * </code>
 	 * 
-	 * @param int $id The ID of the field
+	 * @param int $fieldId The ID of the field
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see GO\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function httpPut($id, $returnAttributes = []) {
+	public function actionUpdate($fieldId, $returnAttributes = []) {
 
-		$field = Field::findByPk($id);
+		$field = Field::findByPk($fieldId);
 
 		if (!$field) {
 			return $this->renderError(404);
@@ -130,11 +145,11 @@ class FieldController extends AbstractController {
 	/**
 	 * Delete a field
 	 *
-	 * @param int $id
+	 * @param int $fieldId
 	 * @throws NotFound
 	 */
-	public function httpDelete($id) {
-		$field = Field::findByPk($id);
+	public function actionDelete($fieldId) {
+		$field = Field::findByPk($fieldId);
 
 		if (!$field) {
 			return $this->renderError(404);

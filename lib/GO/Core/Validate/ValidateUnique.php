@@ -70,7 +70,7 @@ class ValidateUnique extends AbstractValidationRule {
 //				}
 			}
 
-			if (!$model->isNew) {
+			if (!$model->isNew()) {
 				$query->andWhere(['!=', [$model->primaryKeyColumn() => $model->{$model->primaryKeyColumn()}]]);
 			}
 

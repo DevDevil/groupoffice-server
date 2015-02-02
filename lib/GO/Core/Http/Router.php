@@ -308,8 +308,14 @@ class Router {
 				$cur = &$cur['children'][$part];
 			}else
 			{
+				
 				//route parameter				
-				$cur['routeParams'][] = substr($part, 1);
+				
+				$routeParam = substr($part, 1);
+				
+				if(!in_array($routeParam, $cur['routeParams'])){
+					$cur['routeParams'][] = $routeParam;
+				}
 				
 				$totalRouteParams++;
 			}
@@ -401,6 +407,9 @@ class Router {
 			throw new HttpException(404, "Route $routePart not found! " . var_export($routes, true));
 		}
 		$config = $routes[$routePart];
+		
+		//var_dump($routePart);
+		//var_dump($config);
 
 		$this->_getRouteParams($config);
 		

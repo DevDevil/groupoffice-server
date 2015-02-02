@@ -14,20 +14,20 @@ class CustomFieldsModule extends AbstractModule {
 			->get('customfields/models', 'get');
 		
 		FieldSetController::routes()
-			->get('customfields/fieldsets', 'store')
-			->get('customfields/fieldsets/0','new')
-			->get('customfields/fieldsets/:fieldSetId','read')
-			->put('customfields/fieldsets/:fieldSetId', 'update')
-			->post('customfields/fieldsets', 'create')
-			->delete('customfields/fieldsets/:fieldSetId','delete');
+			->get('customfields/fieldsets/:modelName', 'store')
+			->get('customfields/fieldsets/:modelName/0','new')
+			->get('customfields/fieldsets/:modelName/:fieldSetId','read')
+			->put('customfields/fieldsets/:modelName/:fieldSetId', 'update')
+			->post('customfields/fieldsets/:modelName', 'create')
+			->delete('customfields/fieldsets/:modelName/:fieldSetId','delete');
 		
 		FieldController::routes()
-			->get('customfields/:fieldSetId/fields', 'store')
-			->get('customfields/:fieldSetId/fields/0','new')
-			->get('customfields/:fieldSetId/fields/:fieldId','read')
-			->put('customfields/:fieldSetId/fields/:fieldId', 'update')
-			->post('customfields/:fieldSetId/fields', 'create')
-			->delete('customfields/:fieldSetId/fields/:fieldId','delete');
+			->get('customfields/fieldsets/:modelName/:fieldSetId/fields', 'store')
+			->get('customfields/fieldsets/:modelName/:fieldSetId/fields/0','new')
+			->get('customfields/fieldsets/:modelName/:fieldSetId/fields/:fieldId','read')
+			->put('customfields/fieldsets/:modelName/:fieldSetId/fields/:fieldId', 'update')
+			->post('customfields/fieldsets/:modelName/:fieldSetId/fields', 'create')
+			->delete('customfields/fieldsets/:modelName/:fieldSetId/fields/:fieldId','delete');
 	}
 
 //	return [
