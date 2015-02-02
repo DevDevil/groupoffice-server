@@ -105,7 +105,7 @@ class Permission {
 			$userId = User::current()->id;
 		}		
 		
-		if($this->_record->isNew){
+		if($this->_record->isNew()){
 			return $this->canCreate($userId);
 		}
 
