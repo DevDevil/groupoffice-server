@@ -117,7 +117,7 @@ class ContactController extends AbstractController {
 		return $this->renderStore($store);
 	}
 	
-	protected function actionNew($returnAttributes){
+	protected function actionNew($returnAttributes = []){
 		$contact = new Contact();
 		return $this->renderModel($contact, $returnAttributes);
 	}

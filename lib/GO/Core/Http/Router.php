@@ -374,30 +374,7 @@ class Router {
 	 */
 	public $routeParams = [];
 	
-	/**
-	 * The configuration of the current route
-	 * 
-	 * eg.
-	 * 
-	 * 'contacts' => [
-						'routeParams' => ['contactId'], 
-						'controller' => "GO\Core\Controller\RESTController",						
-						'children' => [
-								'thumb' => [
-									'routeParams' => ['contactId'],
-									'controller' => "GO\Contacts\Controller\Contact"									
-								]
-							]
-						]
-	 * 
-	 * @var array
-	 */
-	
-	public $routeConfig;
-	
 	private $_routeParts;
-
-	
 
 	private function _walkRoute($routes) {
 
@@ -407,9 +384,6 @@ class Router {
 			throw new HttpException(404, "Route $routePart not found! " . var_export($routes, true));
 		}
 		$config = $routes[$routePart];
-		
-		//var_dump($routePart);
-		//var_dump($config);
 
 		$this->_getRouteParams($config);
 		
@@ -423,10 +397,6 @@ class Router {
 				//throw new Exception("No action defined for this route!");
 				throw new HttpException(404, "No action defined for route ".$this->route." params: ".var_export($this->routeParams, true));
 			}
-			
-			
-			//Is this needed?
-			$this->routeConfig = $config;
 
 			$controller = new $config['controller']($this);
 			return $controller->run($config['actions'][$paramCount]);
@@ -444,9 +414,9 @@ class Router {
 			
 			$part = array_shift($this->_routeParts);			
 			if(isset($options['children'][$part])){
-				
+			
 				//put back the part
-				$this->_routeParts[] = $part;
+				array_unshift($this->_routeParts, $part);
 				
 				// If there's an exact child match.
 				// Like 0 here matches both rules. In this case the rule with the exact match wins.

@@ -24,6 +24,7 @@ class ContactsModule extends AbstractModule{
 		TimelineController::routes();
 		
 		ThumbController::routes()
+						->get('contacts/0/thumb', 'download')
 						->get('contacts/:contactId/thumb', 'download');
 		
 		FilesController::routes();

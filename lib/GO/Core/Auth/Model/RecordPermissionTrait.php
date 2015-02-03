@@ -88,11 +88,70 @@ trait RecordPermissionTrait {
 		$relation = self::getRelation('roles');
 		
 		if(!$relation){
-			throw new Exception('"'.$this->_record->className().'" must have a "roles" relation is it uses RecordPermissionTrait');
+			throw new Exception('"'.$this->className().'" must have a "roles" relation is it uses RecordPermissionTrait');
 		}
 		
 		return $relation;
 
+	}
+	
+		/**
+	 * Get an array of all the permissions that a user has.
+	 * 
+	 * @return array eg ['readAccess' => true, 'editAccess' => false, 'deleteAccess'=>false]
+	 */
+	public function getPermissions(){
+//		if (!isset($userId)) {			
+			
+//		}
+		if($this->isNew()){
+			return false;
+		}
+		
+		$relation = self::getRolesRelation();
+		$roleModelName = $relation->getRelatedModelName();
+		
+		$permissionColumns = $roleModelName::getPermissionColumns();
+		
+		$return = [];
+		
+		$colCount = count($permissionColumns);
+		
+		foreach($permissionColumns as $col){
+			$return[$col->name] = false;
+		}
+		
+		if(User::current()) {
+			$userId = User::current()->id;
+
+			$query = Query::newInstance()
+					->joinRelation('users', false);
+
+			$query->where([
+				$roleModelName::resourceKey() => $this->{$this->primaryKeyColumn()},
+				'users.userId' => $userId
+			]);
+
+			$roles = $roleModelName::find($query);
+
+			$enabledCount = 0;
+			foreach($roles as $role){
+				foreach($return as $key => $value) {
+
+					if(!$value && $role->{$key}){
+						$return[$key] = true;
+						$enabledCount++;
+
+						if($colCount == $enabledCount){
+							//All permissions enabled so we can stop here
+							return $return;
+						}							
+					}				
+				}
+			}
+		}
+		
+		return $return;
 	}
 	
 	/**

@@ -37,7 +37,7 @@ class ThumbController extends AbstractThumbController {
 //			$contact = Contact::findPermitted($query, 'readAccess')->single();
 //		}
 
-		$contact = Contact::findByPk($this->router->routeParams['contactId']);
+		$contact = !empty($this->router->routeParams['contactId']) ? Contact::findByPk($this->router->routeParams['contactId']) : false;
 
 		if (!$contact) {
 			$contact = new Contact();
