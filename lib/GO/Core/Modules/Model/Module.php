@@ -28,6 +28,11 @@ use SebastianBergmann\Exporter\Exception;
  */
 class Module extends AbstractRecord{
 	
+	const PERMISSION_CREATE = 'createAccess';
+	
+	const PERMISSION_USE = 'useAccess';
+	
+	
 	/**
 	 * When a module is installed it will install dependencies allong
 	 * This boolean prevents an endless loop installation

@@ -1,10 +1,12 @@
 <?php
+
 namespace GO\Core\Auth\Model;
 
-use Exception;
+use GO\Core\ArrayConvertableInterface;
+use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Query;
-use GO\Core\Db\Relation;
-use PDO;
+use GO\Core\Modules\Model\Module;
+use GO\Modules\Contacts\Model\ContactRole;
 
 /**
  * Permission
@@ -50,40 +52,60 @@ use PDO;
  * 
  * @see ContactRole
  * 
+ * @property boolean $create Check if the user is allowed to create new instances of the model
+ * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Permission {
-	
+class Permission implements ArrayConvertableInterface {
+
 	/**
 	 * The record there permission apply to
 	 * @var AbstractRecord 
 	 */
 	private $_record;
-	
+	private $_userId;
+
 	public function __construct($record) {
 		$this->_record = $record;
 	}
-	
+
 	public function __get($name) {
 		return $this->check($name);
 	}
+
+	/**
+	 * Change the user to check permissions for.
+	 * 
+	 * @param int $userId
+	 * @return Permission
+	 */
+	public function forUser($userId) {
+		$this->_userId = $userId;
+
+		return $this;
+	}
 	
+		
 	/**
 	 * Returns true if the user is allowed to create new instances of this model.
 	 * By default this returns true if the user has createAccess on the module. 
 	 * Override this function if you need other permissions.
 	 * 
+	 * @param $userId Defaults to current user
 	 * @return bool
 	 */
-	protected function canCreate($userId){
-		//retun module permission
+	public function canCreate($userId = null) {	
+		if (!isset($userId)) {
+			$userId = User::current()->id;
+		}
 		
-		$module = $this->_record->getModule();	
-		return $module::model()->check('createAccess', $userId);	
+		$module = $this->_record->getModule();
+		return $module::model()->permissions->check(Module::PERMISSION_CREATE, $userId);	
 	}
 	
+
 	/**
 	 * Use this function to set conditions on the findParams so that only
 	 * authorized resource models are returned.
@@ -93,21 +115,20 @@ class Permission {
 	 * @param int $userId The user to check for. Leave null for the current user
 	 */
 	public function check($accessName = null, $userId = null) {
-		
-	
-		
+
 		//always allow for admin
-		if(User::current()->isAdmin()) {
+		if (User::current()->isAdmin()) {
 			return true;
 		}
-		
+
 		if (!isset($userId)) {
 			$userId = User::current()->id;
-		}		
-		
-		if($this->_record->isNew()){
-			return $this->canCreate($userId);
 		}
+		
+		if($accessName === 'create') {
+			return $this->canCreate();
+		}
+
 
 		$relation = self::getRolesRelation();
 		$roleModelName = $relation->getRelatedModelName();
@@ -120,25 +141,81 @@ class Permission {
 			$roleModelName::resourceKey() => $this->_record->{$this->_record->primaryKeyColumn()},
 			'users.userId' => $userId
 		]);
-				
+
 		$result = $roleModelName::find($query)->single();
 
 		return $result !== false;
 	}
-	
 
-	
 	/**
 	 * Check if the current logged in user may manage permissions
 	 * 
 	 * @return bool
 	 */
-	public function canManage(){
-		
-		if(!User::current()){
+	public function canManage() {
+
+		if (!User::current()) {
 			return false;
 		}
 		return isset($this->_record->ownerUserId) ? $this->_record->ownerUserId == User::current()->id : User::current()->id == 1;
 	}
-	
+
+	/**
+	 * Get an array of all the permissions that a user has.
+	 * 
+	 * @return array eg ['readAccess' => true, 'editAccess' => false, 'deleteAccess'=>false]
+	 */
+	public function toArray(array $attributes = []) {
+
+		if ($this->_record->isNew()) {
+			return false;
+		}
+
+		$relation = $this->_record->getRolesRelation();
+		$roleModelName = $relation->getRelatedModelName();
+
+		$permissionColumns = $roleModelName::getPermissionColumns();
+
+		$return = [];
+
+		$colCount = count($permissionColumns);
+
+		foreach ($permissionColumns as $col) {
+			$return[$col->name] = false;
+		}
+
+		if (!User::current()) {
+			return $return;
+		}
+		
+		$userId = User::current()->id;
+
+		$query = Query::newInstance()
+				->joinRelation('users', false);
+
+		$query->where([
+			$roleModelName::resourceKey() => $this->_record->{$this->_record->primaryKeyColumn()},
+			'users.userId' => $userId
+		]);
+
+		$roles = $roleModelName::find($query);
+
+		$enabledCount = 0;
+		foreach ($roles as $role) {
+			foreach ($return as $key => $value) {
+
+				if (!$value && $role->{$key}) {
+					$return[$key] = true;
+					$enabledCount++;
+
+					if ($colCount == $enabledCount) {
+						//All permissions enabled so we can stop here
+						return $return;
+					}
+				}
+			}
+		}
+
+		return $return;
+	}
 }

@@ -4,7 +4,8 @@ namespace GO\Core\Auth\Model;
 use Exception;
 use GO\Core\Db\Query;
 use GO\Core\Db\Relation;
-use GO\Core\Exception\Forbidden;
+use GO\Core\Modules\Model\Module;
+use GO\Modules\Contacts\Model\ContactRole;
 use PDO;
 
 /**
@@ -48,17 +49,25 @@ use PDO;
  * 
  * @see ContactRole
  * 
+ * @property $permissions {@see RecordPermissionTrait::getPermissions()}
+ * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 trait RecordPermissionTrait {
 	
-	private $_permission = null;
+	private $_permission;
 	
-	public function permission() {
-		if($this->_permission === null)
+	/**
+	 * Get's a permissions object to check access
+	 * 
+	 * @return Permission
+	 */
+	public function getPermissions() {
+		if(!isset($this->_permission)) {
 			$this->_permission = new Permission($this);
+		}
 		return $this->_permission;
 	}	
 	
@@ -92,68 +101,9 @@ trait RecordPermissionTrait {
 		}
 		
 		return $relation;
-
 	}
 	
-		/**
-	 * Get an array of all the permissions that a user has.
-	 * 
-	 * @return array eg ['readAccess' => true, 'editAccess' => false, 'deleteAccess'=>false]
-	 */
-	public function getPermissions(){
-//		if (!isset($userId)) {			
-			
-//		}
-		if($this->isNew()){
-			return false;
-		}
-		
-		$relation = self::getRolesRelation();
-		$roleModelName = $relation->getRelatedModelName();
-		
-		$permissionColumns = $roleModelName::getPermissionColumns();
-		
-		$return = [];
-		
-		$colCount = count($permissionColumns);
-		
-		foreach($permissionColumns as $col){
-			$return[$col->name] = false;
-		}
-		
-		if(User::current()) {
-			$userId = User::current()->id;
 
-			$query = Query::newInstance()
-					->joinRelation('users', false);
-
-			$query->where([
-				$roleModelName::resourceKey() => $this->{$this->primaryKeyColumn()},
-				'users.userId' => $userId
-			]);
-
-			$roles = $roleModelName::find($query);
-
-			$enabledCount = 0;
-			foreach($roles as $role){
-				foreach($return as $key => $value) {
-
-					if(!$value && $role->{$key}){
-						$return[$key] = true;
-						$enabledCount++;
-
-						if($colCount == $enabledCount){
-							//All permissions enabled so we can stop here
-							return $return;
-						}							
-					}				
-				}
-			}
-		}
-		
-		return $return;
-	}
-	
 	/**
 	 * Use this function to set conditions on the Query so that only
 	 * permitted models are returned.

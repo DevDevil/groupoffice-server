@@ -6,10 +6,10 @@ use GO\Core\Auth\Model\AbstractRole;
 /**
  * The band roles model
  * 
- * @var int $roleId
- * @var int $moduleId
- * @var bool $readAccess 
- * @var bool $editAccess
+ * @property int $roleId
+ * @property int $bandId
+ * @property bool $readAccess  
+ * @property bool $editAccess
  */
 class BandRole extends AbstractRole{	
 	

@@ -82,7 +82,7 @@ class BandController extends AbstractController {
 		}
 		
 		//Check read permission
-		if(!$band->checkPermission('readAccess')) {
+		if(!$band->permissions->read){
 			throw new Forbidden();
 		}
 
@@ -96,14 +96,13 @@ class BandController extends AbstractController {
 	 * @return array
 	 */
 	protected function actionNew($returnAttributes = ['*','albums']) {
-		
-		//Check the module createAccess boolean here
-		if (BandsModule::model()->checkPermission('createAccess')) {
+				
+		//Check edit permission		
+		$band = new Band();		
+		if(!$band->permissions->create){
 			throw new Forbidden();
 		}
-
-		$band = new Band();
-
+		
 		return $this->renderModel($band, $returnAttributes);
 	}
 
@@ -122,12 +121,11 @@ class BandController extends AbstractController {
 	 */
 	public function actionCreate($returnAttributes = ['*','albums']) {
 		
-
-		$band = new Band();
 		//Check edit permission
-		if(!$band->permissions->create) {
+		$band = new Band();	
+		if(!$band->permissions->create){
 			throw new Forbidden();
-		}
+		}		
 		
 		$band->setAttributes(App::request()->payload['data']);
 		$band->save();

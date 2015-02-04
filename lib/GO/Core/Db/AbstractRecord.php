@@ -3,13 +3,14 @@
 namespace GO\Core\Db;
 
 use Exception;
-use GO\Core\App;
-use GO\Core\Db\Exception\DeleteRestrict;
 use GO\Core\AbstractModel;
+use GO\Core\App;
+use GO\Core\ArrayConvertableInterface;
+use GO\Core\Auth\Model\User;
+use GO\Core\Db\Exception\DeleteRestrict;
 use GO\Core\Util\String;
 use GO\Core\Validate\AbstractValidationRule;
 use GO\Core\Validate\ValidateUnique;
-use GO\Core\Auth\Model\User;
 
 /**
  * AbstractRecord class.
@@ -1500,7 +1501,11 @@ abstract class AbstractRecord extends AbstractModel {
 				$return[$part] = $this->_relationToAttributeArray($attr, $attributes);			
 			}else
 			{
-				//just plain single attribute
+				//just plain single attribute				
+				if($attr instanceof ArrayConvertableInterface){
+					$attr = $attr->toArray();
+				}			
+				
 				$return[$part] = $attr;
 			}
 		}
