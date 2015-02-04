@@ -8,7 +8,6 @@ use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Exception\Forbidden;
 use GO\Core\Exception\NotFound;
-use GO\Modules\Bands\BandsModule;
 use GO\Modules\Bands\Model\Band;
 
 /**
@@ -157,7 +156,7 @@ class BandController extends AbstractController {
 		}
 		
 		//Check edit permission
-		if(!$band->permissions->write) {
+		if(!$band->permissions->edit) {
 			throw new Forbidden();
 		}
 
@@ -182,8 +181,7 @@ class BandController extends AbstractController {
 			throw new NotFound();
 		}
 		
-		//Check edit permission
-		if(!$band->checkPermission('editAccess')) {
+		if(!$band->permissions->delete) {
 			throw new Forbidden();
 		}
 

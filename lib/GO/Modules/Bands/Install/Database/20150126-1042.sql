@@ -1,8 +1,9 @@
 CREATE TABLE IF NOT EXISTS `bandsBandRole` (
 	`bandId` int(11) NOT NULL,
 	`roleId` int(11) NOT NULL,
-	`readAccess` tinyint(1) NOT NULL DEFAULT '0',
-	`editAccess` tinyint(1) NOT NULL DEFAULT '0',
+	`read` tinyint(1) NOT NULL DEFAULT '0',
+	`edit` tinyint(1) NOT NULL DEFAULT '0',
+	`delete` tinyint(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY (`bandId`,`roleId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
