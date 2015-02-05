@@ -52,8 +52,6 @@ use GO\Modules\Contacts\Model\ContactRole;
  * 
  * @see ContactRole
  * 
- * @property boolean $create Check if the user is allowed to create new instances of the model
- * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
@@ -87,24 +85,6 @@ class Permission implements ArrayConvertableInterface {
 		return $this;
 	}
 	
-		
-	/**
-	 * Returns true if the user is allowed to create new instances of this model.
-	 * By default this returns true if the user has createAccess on the module. 
-	 * Override this function if you need other permissions.
-	 * 
-	 * @param $userId Defaults to current user
-	 * @return bool
-	 */
-	public function canCreate($userId = null) {	
-		if (!isset($userId)) {
-			$userId = User::current()->id;
-		}
-		
-		$module = $this->_record->getModule();
-		return $module::model()->permissions->check(Module::PERMISSION_CREATE, $userId);	
-	}
-	
 
 	/**
 	 * Use this function to set conditions on the findParams so that only
@@ -114,7 +94,7 @@ class Permission implements ArrayConvertableInterface {
 	 * @param string $accessName The boolean column in the role model to check. Leave null to disable.
 	 * @param int $userId The user to check for. Leave null for the current user
 	 */
-	public function check($accessName = null, $userId = null) {
+	public function check($permissionType = null, $userId = null) {
 
 		//always allow for admin
 		if (User::current()->isAdmin()) {
@@ -123,21 +103,17 @@ class Permission implements ArrayConvertableInterface {
 
 		if (!isset($userId)) {
 			$userId = User::current()->id;
-		}
+		}		
 		
-		if($accessName === 'create') {
-			return $this->canCreate();
-		}
-
-
 		$relation = self::getRolesRelation();
 		$roleModelName = $relation->getRelatedModelName();
+		$permissionTypeInt = $roleModelName::permisionTypeNameToValue($permissionType);
 
 		$query = Query::newInstance()
 				->joinRelation('users', false);
 
 		$query->where([
-			$accessName => true,
+			'permissionType' => $permissionTypeInt,
 			$roleModelName::resourceKey() => $this->_record->{$this->_record->primaryKeyColumn()},
 			'users.userId' => $userId
 		]);
@@ -147,18 +123,7 @@ class Permission implements ArrayConvertableInterface {
 		return $result !== false;
 	}
 
-	/**
-	 * Check if the current logged in user may manage permissions
-	 * 
-	 * @return bool
-	 */
-	public function canManage() {
-
-		if (!User::current()) {
-			return false;
-		}
-		return isset($this->_record->ownerUserId) ? $this->_record->ownerUserId == User::current()->id : User::current()->id == 1;
-	}
+	
 
 	/**
 	 * Get an array of all the permissions that a user has.
@@ -170,19 +135,23 @@ class Permission implements ArrayConvertableInterface {
 		if ($this->_record->isNew()) {
 			return false;
 		}
-
+		
+		
 		$relation = $this->_record->getRolesRelation();
 		$roleModelName = $relation->getRelatedModelName();
 
-		$permissionColumns = $roleModelName::getPermissionColumns();
+		$permissionTypes = $roleModelName::permissionTypes();
+		
 
 		$return = [];
 
-		$colCount = count($permissionColumns);
+		//$colCount = count($permissionColumns);
 
-		foreach ($permissionColumns as $col) {
-			$return[$col->name] = false;
+		foreach ($permissionTypes as $name => $value) {
+			$return[$name] = false;
 		}
+		
+		$flippedTypes = array_flip($permissionTypes);
 
 		if (!User::current()) {
 			return $return;
@@ -192,28 +161,35 @@ class Permission implements ArrayConvertableInterface {
 
 		$query = Query::newInstance()
 				->joinRelation('users', false);
+		
+		$resourceKey = $roleModelName::resource()->getKey();
 
 		$query->where([
-			$roleModelName::resourceKey() => $this->_record->{$this->_record->primaryKeyColumn()},
+			$resourceKey => $this->_record->{$this->_record->primaryKeyColumn()},
 			'users.userId' => $userId
 		]);
 
 		$roles = $roleModelName::find($query);
 
-		$enabledCount = 0;
+		//$enabledCount = 0;
 		foreach ($roles as $role) {
-			foreach ($return as $key => $value) {
-
-				if (!$value && $role->{$key}) {
-					$return[$key] = true;
-					$enabledCount++;
-
-					if ($colCount == $enabledCount) {
-						//All permissions enabled so we can stop here
-						return $return;
-					}
-				}
-			}
+			
+			$return[$flippedTypes[$role->permissionType]] = true;
+			
+//			foreach ($return as $key => $value) {
+//
+//				if (!$value && $role->{$key}) {
+//					$return[$key] = true;
+//					$enabledCount++;
+//
+//					if ($colCount == $enabledCount) {
+//						//All permissions enabled so we can stop here
+//						return $return;
+//					}
+//				}
+//			}
+			
+			
 		}
 
 		return $return;

@@ -158,7 +158,7 @@ class Finder extends AbstractObject implements IteratorAggregate {
 			}
 			
 			if(!isset($this->_query->fetchMode)){
-				$stmt->setFetchMode(PDO::FETCH_CLASS, $this->recordClassName, array(false));
+				$stmt->setFetchMode(PDO::FETCH_CLASS, $this->recordClassName);
 			}else
 			{
 				call_user_func_array([$stmt, 'setFetchMode'], $this->_query->fetchMode);
@@ -592,10 +592,10 @@ class Finder extends AbstractObject implements IteratorAggregate {
 				$r = $relationModel::getRelation($name);
 
 				if (!$r) {
-					throw new Exception("Can't join non existing relation '" . $name . '"');
+					throw new Exception("Can't join non existing relation '$name' of model '$relationModel'.");
 				}
 
-				$attributePrefix.= $name . '@';
+				$attributePrefix .= $name . '@';
 
 				$joinParams = $this->_joinRelation($r, $relationAlias, $joinRelation['type'], $attributePrefix, $joinRelation['criteria']);
 
@@ -612,8 +612,6 @@ class Finder extends AbstractObject implements IteratorAggregate {
 				if ($joinRelation['selectAttributes']) {
 					$select .= ",\n" . $joinParams['selectCols'];
 				}
-
-				
 
 				$relationModel = $r->getRelatedModelName();
 				$relationAlias = $name;

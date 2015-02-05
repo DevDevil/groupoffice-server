@@ -8,6 +8,7 @@ use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Exception\Forbidden;
 use GO\Core\Exception\NotFound;
+use GO\Modules\Bands\BandsModule;
 use GO\Modules\Bands\Model\Band;
 
 /**
@@ -97,8 +98,9 @@ class BandController extends AbstractController {
 	protected function actionNew($returnAttributes = ['*','albums']) {
 				
 		//Check edit permission		
-		$band = new Band();		
-		if(!$band->permissions->create){
+		$band = new Band();	
+		
+		if(BandsModule::newInstance()->permissions->create){
 			throw new Forbidden();
 		}
 		
@@ -122,7 +124,7 @@ class BandController extends AbstractController {
 		
 		//Check edit permission
 		$band = new Band();	
-		if(!$band->permissions->create){
+		if(BandsModule::newInstance()->permissions->create){
 			throw new Forbidden();
 		}		
 		

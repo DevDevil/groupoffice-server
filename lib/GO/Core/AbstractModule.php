@@ -64,7 +64,6 @@ abstract class AbstractModule extends AbstractObject {
 	 * @return array[]
 	 */
 	public function routes() {
-		return [];
 	}
 
 	/**

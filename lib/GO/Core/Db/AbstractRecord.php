@@ -441,11 +441,12 @@ abstract class AbstractRecord extends AbstractModel {
 	 * @param string $name
 	 * @return mixed
 	 */
-	public function __get($name) {
-		
-//		App::debug($name, '__get');
-		
-		if (key_exists($name, $this->_attributes)) {
+	public function __get($name) {		
+		$getter = 'get'.$name;
+
+		if(method_exists($this,$getter)){
+			return $this->$getter();
+		}elseif (key_exists($name, $this->_attributes)) {
 			return $this->getAttribute($name);
 		} elseif ($this->getColumn($name)) {
 			//it's a db column but it's not set in the attributes array.
@@ -580,35 +581,30 @@ abstract class AbstractRecord extends AbstractModel {
 			//Simply set the db attribute
 			$this->_attributes[$name] = $value;
 		} else {
-			if (($col = $this->getColumn($name))) {
-				
-				$value = $col->formatInput($value);
-				
-				$this->setAttribute($name, $value);
-				
+			
+			$setter = 'set'.$name;
+			
+			if(method_exists($this,$setter)){
+				$this->$setter($value);
+			}elseif (($col = $this->getColumn($name))) {				
+				$value = $col->formatInput($value);				
+				$this->setAttribute($name, $value);				
 			} elseif(array_key_exists($name, $this->_attributes)){
 				$this->_attributes[$name] = $value;
 			} elseif (($relation = $this->getRelation($name))) {
 
 				if ($relation->isA(Relation::TYPE_BELONGS_TO)) {
 					//belongs to must be set immediately.
-//					App::debug("SET BELONGS TO");
-//					App::debug($value);
-					
-					$relation->set($this, $value);				
-					
+					$relation->set($this, $value);					
 				}else
-				{				
-					
-					App::debug("Set relation for save: ".$name." ".var_export($value, true));
-					
+				{
+					App::debug("Set relation for save: ".$name." ".var_export($value, true));					
 					//processed in the save() function
 					$this->_saveRelations[$name] = ['relation' => $relation, 'value' => &$value, 'name' => $name];
 				}
 				
 				//cache it here so __get can return it.
-				$this->_setRelations[$name] = &$value;
-				
+				$this->_setRelations[$name] = &$value;				
 			} else {
 				parent::__set($name, $value);
 			}
@@ -1216,10 +1212,14 @@ abstract class AbstractRecord extends AbstractModel {
 		foreach ($fieldsToCheck as $colName) {
 
 			$column = $this->getColumn($colName);
-
-			if ($column->required && empty($this->_attributes[$colName])) {
-				$this->setValidationError($colName, "required");
-			} elseif (!empty($column->length) && !empty($this->_attributes[$colName]) && String::length($this->_attributes[$colName]) > $column->length) {
+			
+			if(!$this->_validateRequired($column)){
+				
+				//only one error per column
+				continue;
+			}
+			
+			if (!empty($column->length) && !empty($this->_attributes[$colName]) && String::length($this->_attributes[$colName]) > $column->length) {
 				$this->setValidationError($colName, 'maxLength', ['length' => $column->length, 'value'=>$this->_attributes[$colName]]);
 			}
 			
@@ -1254,7 +1254,29 @@ abstract class AbstractRecord extends AbstractModel {
 
 		return !$this->hasValidationErrors();
 	}
+	
+	
+	private function _validateRequired(Column $column) {
+		if ($column->required) {
 
+			switch ($column->pdoType) {
+				case PDO::PARAM_INT:
+					if (!isset($this->_attributes[$column->name])) {
+						$this->setValidationError($column->name, "required");
+						return false;
+					}
+					break;
+				default:
+					if (empty($this->_attributes[$column->name])) {
+						$this->setValidationError($column->name, "required");
+						return false;
+					}
+					break;
+			}
+		}
+		
+		return true;
+	}
 
 	/**
 	 * Check if a given ActiveRecord is the same as this ActiveRecord.
@@ -1742,7 +1764,7 @@ abstract class AbstractRecord extends AbstractModel {
 			$key = static::primaryKeyColumn();
 		}
 
-		return self::$_relations[$calledClass][$name] =  new Relation($name, Relation::TYPE_HAS_MANY, $calledClass, $relatedModelName, $key, $foreignKey);
+		return self::$_relations[$calledClass][$name] = new Relation($name, Relation::TYPE_HAS_MANY, $calledClass, $relatedModelName, $key, $foreignKey);
 	}
 
 	/**

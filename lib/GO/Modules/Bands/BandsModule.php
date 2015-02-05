@@ -18,4 +18,6 @@ class BandsModule extends AbstractModule {
 		HelloController::routes()
 				->get('bands/hello', 'name');
 	}
+	
+	
 }

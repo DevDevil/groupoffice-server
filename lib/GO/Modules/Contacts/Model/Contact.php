@@ -180,16 +180,32 @@ class Contact extends AbstractRecord {
 			$model = new ContactRole();
 			$model->contactId=$this->id;
 			$model->roleId=$this->owner->role->id;
-			$model->editAccess=1;
-			$model->readAccess=1;
-			$model->deleteAccess=1;
+			$model->permissionType = ContactRole::PERMISSION_READ;
+			$model->save();
+			
+			$model = new ContactRole();
+			$model->contactId=$this->id;
+			$model->roleId=$this->owner->role->id;
+			$model->permissionType = ContactRole::PERMISSION_WRITE;
+			$model->save();
+			
+			$model = new ContactRole();
+			$model->contactId=$this->id;
+			$model->roleId=$this->owner->role->id;
+			$model->permissionType = ContactRole::PERMISSION_DELETE;
 			$model->save();
 			
 			if($this->userId > 0){
 				$contactRole = new ContactRole();
 				$contactRole->contactId = $this->id;
 				$contactRole->roleId = $this->user->role->id;
-				$contactRole->editAccess = true;
+				$contactRole->permissionType = ContactRole::PERMISSION_READ;
+				$contactRole->save();
+				
+				$contactRole = new ContactRole();
+				$contactRole->contactId = $this->id;
+				$contactRole->roleId = $this->user->role->id;
+				$contactRole->permissionType = ContactRole::PERMISSION_WRITE;
 				$contactRole->save();
 			}
 			
@@ -199,9 +215,7 @@ class Contact extends AbstractRecord {
 				$model = new ContactRole();
 				$model->contactId=$this->id;
 				$model->roleId=$role->id;
-				$model->editAccess=1;
-				$model->readAccess=1;
-				$model->deleteAccess=1;
+				$model->permissionType=ContactRole::PERMISSION_READ;
 				$model->save();
 			}
 		}

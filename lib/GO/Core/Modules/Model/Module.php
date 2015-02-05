@@ -28,11 +28,6 @@ use SebastianBergmann\Exporter\Exception;
  */
 class Module extends AbstractRecord{
 	
-	const PERMISSION_CREATE = 'createAccess';
-	
-	const PERMISSION_USE = 'useAccess';
-	
-	
 	/**
 	 * When a module is installed it will install dependencies allong
 	 * This boolean prevents an endless loop installation
@@ -78,10 +73,9 @@ class Module extends AbstractRecord{
 		
 		$isNew = $this->isNew();
 		
-		if($isNew){
-			
+		if($isNew){			
 			//Grant access to admins by default
-			$this->roles = [['roleId' => 1, 'useAccess' => true, 'createAccess' => true]];
+			$this->roles = [['roleId' => 1, 'permissionType' => ModuleRole::PERMISSION_USE]];
 		}
 		
 		$ret = parent::save();

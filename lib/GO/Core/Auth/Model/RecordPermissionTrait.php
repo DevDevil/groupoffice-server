@@ -109,12 +109,12 @@ trait RecordPermissionTrait {
 	 * permitted models are returned.
 	 * 
 	 * @param Query $query The findParams object to apply the conditions to
-	 * @param string $accessName The boolean column in the role model to check. Leave null to disable.
+	 * @param string $permissionType The boolean column in the role model to check. Leave null to disable.
 	 * @param int $userId The user to check for. Leave null for the current user
 	 * 
 	 * @return Query
 	 */
-	public static function getPermissionsQuery(Query $query = null, $accessName = null, $userId = null){
+	public static function getPermissionsQuery(Query $query = null, $permissionType = null, $userId = null){
 		if(!isset($query)){
 			$query = new Query();
 		}
@@ -151,10 +151,11 @@ trait RecordPermissionTrait {
 		$subQuery = "EXISTS (\n".
 			"  SELECT roles.roleId FROM  `".$roleModelName::tableName()."` roles\n".
 			"  INNER JOIN `authUserRole` users ON `roles`.`roleId` = `users`.`roleId`\n".
-			"  WHERE `t`.`id` = `roles`.`".$roleModelName::resourceKey()."` AND `users`.`userId` = :userId";
+			"  WHERE `t`.`id` = `roles`.`".$roleModelName::resource()->getKey()."` AND `users`.`userId` = :userId";
 		
-		if (isset($accessName)) {			
-			$subQuery .= " AND roles.`".$accessName."` = 1";			
+		if (isset($permissionType)) {			
+			$subQuery .= " AND roles.permissionType = :permissionType";			
+			$query->addBindParameter(':permissionType', $permissionType);
 		}
 		
 		$subQuery .= " LIMIT 0,1\n)";
