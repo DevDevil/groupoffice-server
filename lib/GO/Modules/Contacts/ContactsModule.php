@@ -11,7 +11,10 @@ use GO\Modules\CustomFields\CustomFieldsModule;
 use GO\Modules\Files\FilesModule;
 use GO\Modules\Tags\TagsModule;
 
-class ContactsModule extends AbstractModule{
+class ContactsModule extends AbstractModule{	
+	
+	const PERMISSION_CREATE = 1;
+	
 	public function routes(){
 		ContactController::routes()
 				->get('contacts', 'store')

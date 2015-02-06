@@ -43,6 +43,23 @@ class Contact extends AbstractRecord {
 	
 	use RecordFolderTrait;
 	
+	/**
+	 * Allow read access to the role
+	 */
+	const PERMISSION_READ = 0;
+	
+	/**
+	 * Allow write access to the role
+	 */
+	const PERMISSION_WRITE = 1;	
+	
+	/**
+	 * Allow delete access to the role
+	 */
+	const PERMISSION_DELETE = 2;
+	
+	
+	
 //	public function __construct() {
 //		parent::__construct();
 //		
@@ -180,32 +197,32 @@ class Contact extends AbstractRecord {
 			$model = new ContactRole();
 			$model->contactId=$this->id;
 			$model->roleId=$this->owner->role->id;
-			$model->permissionType = ContactRole::PERMISSION_READ;
+			$model->permissionType = Contact::PERMISSION_READ;
 			$model->save();
 			
 			$model = new ContactRole();
 			$model->contactId=$this->id;
 			$model->roleId=$this->owner->role->id;
-			$model->permissionType = ContactRole::PERMISSION_WRITE;
+			$model->permissionType = Contact::PERMISSION_WRITE;
 			$model->save();
 			
 			$model = new ContactRole();
 			$model->contactId=$this->id;
 			$model->roleId=$this->owner->role->id;
-			$model->permissionType = ContactRole::PERMISSION_DELETE;
+			$model->permissionType = Contact::PERMISSION_DELETE;
 			$model->save();
 			
 			if($this->userId > 0){
 				$contactRole = new ContactRole();
 				$contactRole->contactId = $this->id;
 				$contactRole->roleId = $this->user->role->id;
-				$contactRole->permissionType = ContactRole::PERMISSION_READ;
+				$contactRole->permissionType = Contact::PERMISSION_READ;
 				$contactRole->save();
 				
 				$contactRole = new ContactRole();
 				$contactRole->contactId = $this->id;
 				$contactRole->roleId = $this->user->role->id;
-				$contactRole->permissionType = ContactRole::PERMISSION_WRITE;
+				$contactRole->permissionType = Contact::PERMISSION_WRITE;
 				$contactRole->save();
 			}
 			
@@ -215,7 +232,7 @@ class Contact extends AbstractRecord {
 				$model = new ContactRole();
 				$model->contactId=$this->id;
 				$model->roleId=$role->id;
-				$model->permissionType=ContactRole::PERMISSION_READ;
+				$model->permissionType=Contact::PERMISSION_READ;
 				$model->save();
 			}
 		}

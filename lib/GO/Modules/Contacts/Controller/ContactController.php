@@ -119,7 +119,7 @@ class ContactController extends AbstractController {
 	
 	protected function actionNew($returnAttributes = []){
 		$contact = new Contact();
-		if (!$contact->permissions->create) {
+		if(!ContactsModule::model()->permissions->has(ContactsModule::PERMISSION_CREATE)){
 			throw new Forbidden();
 		}
 		return $this->renderModel($contact, $returnAttributes);
@@ -154,7 +154,7 @@ class ContactController extends AbstractController {
 		}
 
 
-		if (!$contact->permissions->readAccess) {
+		if (!$contact->permissions->has(Contact::PERMISSION_READ)) {
 			throw new Forbidden();
 		}
 
@@ -180,7 +180,7 @@ class ContactController extends AbstractController {
 		
 		$contact = new Contact();		
 		
-		if (!$contact->permissions->create) {
+		if(!ContactsModule::model()->permissions->has(ContactsModule::PERMISSION_CREATE)){
 			throw new Forbidden();
 		}
 		
@@ -219,7 +219,7 @@ class ContactController extends AbstractController {
 			throw new NotFound();
 		}
 		
-		if (!$contact->permissions->editAccess) {
+		if (!$contact->permissions->has(Contact::PERMISSION_WRITE)) {
 			throw new Forbidden();
 		}
 
@@ -242,7 +242,7 @@ class ContactController extends AbstractController {
 			throw new NotFound();
 		}
 		
-		if (!$contact->permissions->deleteAccess) {
+		if (!$contact->permissions->has(Contact::PERMISSION_DELETE)) {
 			throw new Forbidden();
 		}
 
@@ -250,6 +250,4 @@ class ContactController extends AbstractController {
 
 		return $this->renderModel($contact);
 	}
-
-
 }

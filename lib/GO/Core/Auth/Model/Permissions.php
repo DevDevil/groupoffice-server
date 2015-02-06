@@ -1,62 +1,34 @@
 <?php
-
 namespace GO\Core\Auth\Model;
 
 use GO\Core\ArrayConvertableInterface;
+use GO\Core\Auth\Model\Permissions;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Query;
-use GO\Core\Modules\Model\Module;
-use GO\Modules\Contacts\Model\ContactRole;
+
 
 /**
- * Permission
+ * Permissions object
  * 
- * This class is for securing models (resources) based on roles.
- * 
- * <p>For example if you want to create an access control list on the Contact
- * model you have to create an ContactRole model that extends {@see AbstractRole}.</p>
- * 
- * <p>The Contact model must have 'ownerUserId' column and a 'roles' relation defined like this:</p>
+ * This model represents the permissions a user has for an object. It merges
+ * all permissions of the roles the user has into one object.
  * 
  * <code>
- * public static function defineRelations(){
- * 	return array(
- * 		...
- * 
- *      $r->belongsTo('owner', User::className(), 'ownerUserId'),
- * 		$r->hasMany('roles', self::className(), ContactRole::className(), 'contactId')				
  *
- * 		...  
- *
- * 	);
- * 	}
- * </code>
- * 
- * <p>Then you can use the {@see check)} function to check access and 
- * on select queries you can use the {@see findPermitted()} function to find permitted records only.</p>
- * 
- * <p>Examples:</p>
- * <code>
- * 
- * $contact = Contact::findByPk($id);
- * 
- * if(!$contact->permission->check('editAccess')){
- *   throw new Forbidden();
+ * if(!$band->permissions->has(Band::PERMISSION_READ)){
+ *	throw new Forbidden();
  * }
  * 
- * 
- * $permittedContacts = Contact::findPermitted($query);
- * 
  * </code>
- *
  * 
- * @see ContactRole
+ * This object will convert to an array as wel for the API to return permissions 
+ * as well.
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Permission implements ArrayConvertableInterface {
+class Permissions implements ArrayConvertableInterface {
 
 	/**
 	 * The record there permission apply to
@@ -125,19 +97,13 @@ class Permission implements ArrayConvertableInterface {
 
 		if ($this->_record->isNew()) {
 			return false;
-		}
-		
+		}		
 		
 		$relation = $this->_record->getRolesRelation();
 		$roleModelName = $relation->getRelatedModelName();
-
-		$permissionTypes = $this->_record->permissionTypes();
-		
+		$permissionTypes = $this->_record->permissionTypes();		
 
 		$return = [];
-
-		//$colCount = count($permissionColumns);
-
 		foreach ($permissionTypes as $name => $value) {
 			$return[$name] = false;
 		}
@@ -151,7 +117,8 @@ class Permission implements ArrayConvertableInterface {
 		$userId = User::current()->id;
 
 		$query = Query::newInstance()
-				->joinRelation('users', false);
+				->joinRelation('users', false)
+				->groupBy(['permissionType']);
 		
 		$resourceKey = $roleModelName::resource()->getKey();
 
@@ -163,24 +130,8 @@ class Permission implements ArrayConvertableInterface {
 		$roles = $roleModelName::find($query);
 
 		//$enabledCount = 0;
-		foreach ($roles as $role) {
-			
-			$return[$flippedTypes[$role->permissionType]] = true;
-			
-//			foreach ($return as $key => $value) {
-//
-//				if (!$value && $role->{$key}) {
-//					$return[$key] = true;
-//					$enabledCount++;
-//
-//					if ($colCount == $enabledCount) {
-//						//All permissions enabled so we can stop here
-//						return $return;
-//					}
-//				}
-//			}
-			
-			
+		foreach ($roles as $role) {			
+			$return[$flippedTypes[$role->permissionType]] = true;			
 		}
 
 		return $return;

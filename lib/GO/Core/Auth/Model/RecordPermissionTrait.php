@@ -49,7 +49,7 @@ use ReflectionClass;
  * 
  * @see ContactRole
  * 
- * @property $permissions {@see RecordPermissionTrait::getPermissions()}
+ * @property Permissions $permissions {@see RecordPermissionTrait::getPermissions()}
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -66,7 +66,7 @@ trait RecordPermissionTrait {
 	 */
 	public function getPermissions() {
 		if(!isset($this->_permission)) {
-			$this->_permission = new Permission($this);
+			$this->_permission = new Permissions($this);
 		}
 		return $this->_permission;
 	}	
