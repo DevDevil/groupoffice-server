@@ -4,9 +4,9 @@ namespace GO\Core\Auth\Model;
 use Exception;
 use GO\Core\Db\Query;
 use GO\Core\Db\Relation;
-use GO\Core\Modules\Model\Module;
 use GO\Modules\Contacts\Model\ContactRole;
 use PDO;
+use ReflectionClass;
 
 /**
  * RecordPermissionTrait
@@ -70,6 +70,76 @@ trait RecordPermissionTrait {
 		}
 		return $this->_permission;
 	}	
+	
+	
+	private static $_permissionTypes;
+	
+	/**
+	 * Get all permission types.
+	 * 
+	 * Permission types can be set on this class as constants prefixed with "PERMISSION_".
+	 * 
+	 * The types will be returned to the API in lower case and without the prefix.
+	 * 
+	 * eg. "PERMISSION_READ" will become "read" on the API.
+	 * 
+	 * For example:
+	 *
+	 * <code> 
+	 * const PERMISSION_READ = 0;
+	 * const PERMISSION_WRITE = 1;
+	 * const PERMISSION_DELETE = 2;
+	 * </code>
+	 * 	 
+	 * @return array Name as key and value as value. eg. ['read' => 0, 'write'= => 1, 'delete' => 2]
+	 */
+	public function permissionTypes(){
+		
+		$className = $this->className();
+		
+		if(!isset(self::$_permissionTypes[$className])){
+			$reflectionClass = new ReflectionClass($this);
+
+			self::$_permissionTypes[$className] = [];
+			foreach($reflectionClass->getConstants() as $name => $value){
+				if(substr($name, 0, 11) == 'PERMISSION_') {
+					self::$_permissionTypes[$className][strtolower(substr($name,11))] = $value;
+				}
+			}
+		}
+		
+		return self::$_permissionTypes[$className];
+		
+	}
+	
+	/**
+	 * 
+	 * Convert API friendly permission type name to it's int value.
+	 * 
+	 * Converts "read" to PERMISSION_READ = 0 for example
+	 * 
+	 * {@see AbstractRole::permissionTypes()}
+	 * 
+	 * @param string $name
+	 * @return int|false Returns false if the name does not exist.
+	 */
+	public function permisionTypeNameToValue($name){
+		
+		$types = $this->permissionTypes();
+		
+		if(is_int($name)){
+			if(!in_array($name, $types)){
+				throw new Exception("Tried to set invalid permission type '".$name."'. These are allowed: ".implode(', ', array_keys($types)));
+			}
+			return $name;
+		}		
+		
+		if(!isset($types[$name])){
+			throw new Exception("Tried to set invalid permission type '".$name."'. These are allowed: ".implode(', ', array_keys($types)));
+		}
+		
+		return $types[$name];
+	}
 	
 	/**
 	 * Use this function to set conditions on the Query so that only

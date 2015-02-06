@@ -3,12 +3,12 @@ namespace GO\Core\Modules\Model;
 
 use GO\Core\AbstractModule;
 use GO\Core\App;
+use GO\Core\Auth\Model\RecordPermissionTrait;
 use GO\Core\Db\AbstractRecord;
-
 use GO\Core\Db\SoftDeleteTrait;
 use GO\Core\Db\Utils;
-use GO\Core\Auth\Model\RecordPermissionTrait;
 use GO\Modules\Files\Model\File;
+use ReflectionClass;
 use SebastianBergmann\Exporter\Exception;
 
 /**
@@ -28,6 +28,9 @@ use SebastianBergmann\Exporter\Exception;
  */
 class Module extends AbstractRecord{
 	
+	
+	const PERMISSION_USE = 0;
+	
 	/**
 	 * When a module is installed it will install dependencies allong
 	 * This boolean prevents an endless loop installation
@@ -40,7 +43,9 @@ class Module extends AbstractRecord{
         delete as softDelete;
     }	
 	
-	use RecordPermissionTrait;
+	use RecordPermissionTrait{
+		permissionTypes as traitPermissionTypes;
+	}
 	
 	public $ownerUserId = 1;
 	
@@ -180,6 +185,25 @@ class Module extends AbstractRecord{
 		throw new \Exception("todo check module deps!");
 		
 		return $this->softDelete();
+	}
+	
+	
+	
+	public function permissionTypes(){
+		
+		$types = $this->traitPermissionTypes();
+		
+		$reflectionClass = new ReflectionClass($this->name);
+
+		foreach($reflectionClass->getConstants() as $name => $value){
+			if(substr($name, 0, 11) == 'PERMISSION_') {
+				$types[strtolower(substr($name,11))] = $value;
+			}
+		}
+		
+		
+		return $types;
+		
 	}
 	
 }

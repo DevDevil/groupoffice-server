@@ -19,13 +19,30 @@ use GO\Core\Auth\Model\User;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Band extends AbstractRecord{
+class Band extends AbstractRecord{	
 	
-	use \GO\Core\Db\SoftDeleteTrait;
-	
+	use \GO\Core\Db\SoftDeleteTrait;	
 	
 	//Add this line for permissions
 	use \GO\Core\Auth\Model\RecordPermissionTrait;
+	
+	
+	/**
+	 * Allow read access to the role
+	 */
+	const PERMISSION_READ = 0;
+	
+	/**
+	 * Allow write access to the role
+	 */
+	const PERMISSION_WRITE = 1;	
+	
+	/**
+	 * Allow delete access to the role
+	 */
+	const PERMISSION_DELETE = 2;
+	
+	
 	
 	protected static function defineRelations() {
 		

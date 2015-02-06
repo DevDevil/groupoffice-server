@@ -69,9 +69,6 @@ class Permission implements ArrayConvertableInterface {
 		$this->_record = $record;
 	}
 
-	public function __get($name) {
-		return $this->check($name);
-	}
 
 	/**
 	 * Change the user to check permissions for.
@@ -87,14 +84,9 @@ class Permission implements ArrayConvertableInterface {
 	
 
 	/**
-	 * Use this function to set conditions on the findParams so that only
-	 * authorized resource models are returned.
 	 * 
-	 * @param int $resourceKey The primary key of the resource model
-	 * @param string $accessName The boolean column in the role model to check. Leave null to disable.
-	 * @param int $userId The user to check for. Leave null for the current user
 	 */
-	public function check($permissionType = null, $userId = null) {
+	public function has($permissionType = null) {
 
 		//always allow for admin
 		if (User::current()->isAdmin()) {
@@ -107,13 +99,12 @@ class Permission implements ArrayConvertableInterface {
 		
 		$relation = self::getRolesRelation();
 		$roleModelName = $relation->getRelatedModelName();
-		$permissionTypeInt = $roleModelName::permisionTypeNameToValue($permissionType);
-
+		
 		$query = Query::newInstance()
 				->joinRelation('users', false);
 
 		$query->where([
-			'permissionType' => $permissionTypeInt,
+			'permissionType' => $permissionType,
 			$roleModelName::resourceKey() => $this->_record->{$this->_record->primaryKeyColumn()},
 			'users.userId' => $userId
 		]);
@@ -140,7 +131,7 @@ class Permission implements ArrayConvertableInterface {
 		$relation = $this->_record->getRolesRelation();
 		$roleModelName = $relation->getRelatedModelName();
 
-		$permissionTypes = $roleModelName::permissionTypes();
+		$permissionTypes = $this->_record->permissionTypes();
 		
 
 		$return = [];

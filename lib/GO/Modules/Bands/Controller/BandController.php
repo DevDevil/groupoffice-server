@@ -82,7 +82,7 @@ class BandController extends AbstractController {
 		}
 		
 		//Check read permission
-		if(!$band->permissions->read){
+		if(!$band->permissions->has(Band::PERMISSION_READ)){
 			throw new Forbidden();
 		}
 
@@ -100,7 +100,7 @@ class BandController extends AbstractController {
 		//Check edit permission		
 		$band = new Band();	
 		
-		if(BandsModule::newInstance()->permissions->create){
+		if(BandsModule::newInstance()->permissions->has(BandsModule::PERMISSION_CREATE)){
 			throw new Forbidden();
 		}
 		
@@ -124,7 +124,7 @@ class BandController extends AbstractController {
 		
 		//Check edit permission
 		$band = new Band();	
-		if(BandsModule::newInstance()->permissions->create){
+		if(BandsModule::newInstance()->permissions->has(BandsModule::PERMISSION_CREATE)){
 			throw new Forbidden();
 		}		
 		
@@ -158,7 +158,7 @@ class BandController extends AbstractController {
 		}
 		
 		//Check edit permission
-		if(!$band->permissions->edit) {
+		if(!$band->permissions->has(Band::PERMISSION_WRITE)){
 			throw new Forbidden();
 		}
 
@@ -183,7 +183,7 @@ class BandController extends AbstractController {
 			throw new NotFound();
 		}
 		
-		if(!$band->permissions->delete) {
+		if(!$band->permissions->has(Band::PERMISSION_DELETE)){
 			throw new Forbidden();
 		}
 

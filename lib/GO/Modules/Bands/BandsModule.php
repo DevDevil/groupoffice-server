@@ -6,6 +6,9 @@ use GO\Modules\Bands\Controller\BandController;
 use GO\Modules\Bands\Controller\HelloController;
 
 class BandsModule extends AbstractModule {
+	
+	const PERMISSION_CREATE = 1;
+	
 	public function routes() {
 		BandController::routes()
 				->get('bands', 'store')

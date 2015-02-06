@@ -2,6 +2,8 @@
 namespace GO\Core\Db;
 
 use GO\Core\AbstractObject;
+use GO\Core\App;
+use PDOStatement;
 
 /**
  * The database connection object. It uses PDO to connect to the database.
@@ -118,10 +120,10 @@ class Connection extends AbstractObject{
 	 * {@link http://php.net/manual/en/pdo.query.php}
 	 * 
 	 * @param string $sql
-	 * @return \PDOStatement
+	 * @return PDOStatement
 	 */
 	public function query($sql){
-		\GO\Core\App::debug($sql, 'sql');
+		App::debugger()->debugSql($sql);
 		return $this->_pdo->query($sql);
 	}
 	

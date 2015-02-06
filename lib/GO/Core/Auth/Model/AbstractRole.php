@@ -27,7 +27,7 @@ use ReflectionClass;
  */
 abstract class AbstractRole extends AbstractRecord {
 	
-	private static $_permissionTypes;
+	
 	
 	/**
 	 *
@@ -61,43 +61,7 @@ abstract class AbstractRole extends AbstractRecord {
 	}
 	
 	
-	/**
-	 * Get all permission types.
-	 * 
-	 * Permission types can be set on this class as constants prefixed with "PERMISSION_".
-	 * 
-	 * The types will be returned to the API in lower case and without the prefix.
-	 * 
-	 * eg. "PERMISSION_READ" will become "read" on the API.
-	 * 
-	 * For example:
-	 *
-	 * <code> 
-	 * const PERMISSION_READ = 0;
-	 * const PERMISSION_WRITE = 1;
-	 * const PERMISSION_DELETE = 2;
-	 * </code>
-	 * 	 
-	 * @return array Name as key and value as value. eg. ['read' => 0, 'write'= => 1, 'delete' => 2]
-	 */
-	public static function permissionTypes(){
-		
-		$className = get_called_class();
-		
-		if(!isset(self::$_permissionTypes[$className])){
-			$reflectionClass = new ReflectionClass($className);
 
-			self::$_permissionTypes[$className] = [];
-			foreach($reflectionClass->getConstants() as $name => $value){
-				if(substr($name, 0, 11) == 'PERMISSION_') {
-					self::$_permissionTypes[$className][strtolower(substr($name,11))] = $value;
-				}
-			}
-		}
-		
-		return self::$_permissionTypes[$className];
-		
-	}
 	
 //	/**
 //	 * Get an array of permission dependencies.
@@ -167,50 +131,37 @@ abstract class AbstractRole extends AbstractRecord {
 	 * 
 	 * @param string $value
 	 */
-	protected function setPermissionType($value){
-		
-		$converted = self::permisionTypeNameToValue($value);		
+//	protected function setPermissionType($value){
+//		
+//		$converted = self::permisionTypeNameToValue($value);		
+//	
+//		$this->setAttribute('permissionType', $converted);
+//	}
 	
-		$this->setAttribute('permissionType', $converted);
+	
+	private function _convertPermissionType(){
+		if(is_string($this->permissionType)){
+			$this->permissionType = $this->{$this->resource()->getName()}->permisionTypeNameToValue($this->permissionType);		
+		}
 	}
+	
+	
 	
 	public static function findByPk($pk) {
 		
-		$value = self::permisionTypeNameToValue($pk['permissionType']);		
+		
+		$resourceClassName = static::resource()->getRelatedModelName();
+		$resourceKey = static::resource()->getKey();		
+		$resource = $resourceClassName::findByPk($pk[$resourceKey]);
+		
+		$value = $resource->permisionTypeNameToValue($pk['permissionType']);		
 		
 		$pk['permissionType'] = $value;
 		
 		return parent::findByPk($pk);
 	}
 	
-	/**
-	 * 
-	 * Convert API friendly permission type name to it's int value.
-	 * 
-	 * Converts "read" to PERMISSION_READ = 0 for example
-	 * 
-	 * {@see AbstractRole::permissionTypes()}
-	 * 
-	 * @param string $name
-	 * @return int|false Returns false if the name does not exist.
-	 */
-	public static function permisionTypeNameToValue($name){
-		
-		$types = static::permissionTypes();
-		
-		if(is_int($name)){
-			if(!in_array($name, $types)){
-				throw new Exception("Tried to set invalid permission type '".$name."'. These are allowed: ".implode(', ', array_keys($types)));
-			}
-			return $name;
-		}		
-		
-		if(!isset($types[$name])){
-			throw new Exception("Tried to set invalid permission type '".$name."'. These are allowed: ".implode(', ', array_keys($types)));
-		}
-		
-		return $types[$name];
-	}
+	
 	
 	/**
 	 * Check if the current logged in user may manage permissions
@@ -247,6 +198,8 @@ abstract class AbstractRole extends AbstractRecord {
 			throw new Forbidden();
 		}
 		
+		$this->_convertPermissionType();
+		
 		return parent::save();
 	}
 	
@@ -256,6 +209,9 @@ abstract class AbstractRole extends AbstractRecord {
 		if(!$this->_canManagePermission()){
 			throw new Forbidden();
 		}
+		
+		
+		$this->_convertPermissionType();
 		
 		return parent::delete();
 	}
