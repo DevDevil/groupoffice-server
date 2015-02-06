@@ -8,14 +8,9 @@ use GO\Core\Auth\Model\AbstractRole;
  * 
  * @property int $roleId
  * @property int $bandId
- * @property bool $readAccess  
- * @property bool $editAccess
+ * @property int $permissionType
  */
 class BandRole extends AbstractRole {
-	
-
-	
-	
 	protected static function defineResource(){
 		return self::belongsTo('band', Band::className(), 'bandId');
 	}

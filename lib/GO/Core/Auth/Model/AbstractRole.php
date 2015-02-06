@@ -39,7 +39,7 @@ abstract class AbstractRole extends AbstractRecord {
 	 * @return Relation Returns a belongsTo relation that points to the resource these permissions are for.
 	 */
 	protected static function defineResource(){
-		throw new Exception("Please implement static function resource() in ".get_called_class());
+		throw new Exception("Please implement 'protected static function defineResource()' in ".get_called_class());
 	}
 	
 	
