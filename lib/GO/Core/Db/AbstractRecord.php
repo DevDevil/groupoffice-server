@@ -826,7 +826,7 @@ abstract class AbstractRecord extends AbstractModel {
 
 //		$wasNew = $this->isNew;
 
-		$useTransaction = !empty($this->_saveRelations) && !App::dbConnection()->getPDO()->inTransaction();
+		$useTransaction = false && !empty($this->_saveRelations) && !App::dbConnection()->getPDO()->inTransaction();
 
 
 		if ($useTransaction) {
@@ -834,9 +834,13 @@ abstract class AbstractRecord extends AbstractModel {
 		}
 
 		if ($this->_isNew) {
-			$this->_dbInsert();
+			if(!$this->_dbInsert()){
+				throw new \Exception("Could not insert record into database!");
+			}
 		} else {
-			$this->dbUpdate();
+			if(!$this->dbUpdate()){
+				throw new \Exception("Could not update record into database!");
+			}
 		}
 
 		foreach ($this->_saveRelations as $r) {		
@@ -925,11 +929,15 @@ abstract class AbstractRecord extends AbstractModel {
 
 				App::debug($msg);
 			}
-			throw new Exception($msg);
+			throw $e;
 		}
 
 		if (!is_array($this->primaryKeyColumn()) && empty($this->{$this->primaryKeyColumn()})) {
-			$this->{$this->primaryKeyColumn()} = intval(App::dbConnection()->getPDO()->lastInsertId());
+			$lastInsertId = intval(App::dbConnection()->getPDO()->lastInsertId());
+			
+			App::debugger()->debugSql("Last insert ID = ".$lastInsertId);
+			
+			$this->{$this->primaryKeyColumn()} = $lastInsertId;
 
 			$this->_isNew = false;
 		}
@@ -947,8 +955,7 @@ abstract class AbstractRecord extends AbstractModel {
 	 * @return boolean
 	 * @throws Exception
 	 */
-	protected function dbUpdate() {
-		
+	protected function dbUpdate() {		
 		
 		if ($this->getColumn('modifiedAt') && !$this->isModified('modifiedAt')) {
 			$this->modifiedAt = gmdate(Column::DATETIME_API_FORMAT);
@@ -956,15 +963,12 @@ abstract class AbstractRecord extends AbstractModel {
 
 		if (!$this->isModified()) {
 			return true;
-		}
-	
-	
+		}	
 		
-		$i =0;
-		
+		$i =0;		
 		$tags = [];
-
 		$updates = [];
+		
 		foreach ($this->_modifiedAttributes as $colName => $oldValue) {
 			$i++;
 			$tag = ':attr'.$i;
@@ -1032,7 +1036,7 @@ abstract class AbstractRecord extends AbstractModel {
 
 				App::debug($msg);
 			}
-			throw new Exception($msg);
+			throw $e;
 		}
 		return $ret;
 	}

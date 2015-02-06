@@ -12,5 +12,5 @@ ALTER TABLE contactsContactRole DROP INDEX roleId;
 ALTER TABLE `contactsContactRole` ADD `permissionType` INT NOT NULL ; 
 ALTER TABLE `contactsContactRole` ADD PRIMARY KEY( `contactId`, `roleId`, `permissionType`); 
 
-ALTER TABLE `contactsContactRole` ADD FOREIGN KEY (`contactId`) REFERENCES `go7`.`contactsContact`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT; 
-ALTER TABLE `contactsContactRole` ADD FOREIGN KEY (`roleId`) REFERENCES `go7`.`authRole`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT; 
+ALTER TABLE `contactsContactRole` ADD FOREIGN KEY (`contactId`) REFERENCES `contactsContact`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT; 
+ALTER TABLE `contactsContactRole` ADD FOREIGN KEY (`roleId`) REFERENCES `authRole`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT; 

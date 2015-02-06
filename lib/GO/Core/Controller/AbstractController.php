@@ -151,8 +151,6 @@ abstract class AbstractController extends AbstractObject {
 	 * @return mixed
 	 */
 	public function run($action) {
-		
-		
 		try{
 		
 			if(!$this->authenticate()){
@@ -174,13 +172,6 @@ abstract class AbstractController extends AbstractObject {
 
 	//		header('X-XSS-Protection: 1; mode=block');
 	//		header('X-Content-Type-Options: nosniff');
-
-
-			
-
-
-			
-			
 		}catch(HttpException $e){	
 			$data = $this->renderError($e->getCode(), $e->getMessage(), $e);	
 			$data = $this->jsonEncode($data);
@@ -192,9 +183,6 @@ abstract class AbstractController extends AbstractObject {
 			$data = $this->jsonEncode($data);
 			echo $data;
 		}
-		
-		
-		
 	}
 	
 	/**

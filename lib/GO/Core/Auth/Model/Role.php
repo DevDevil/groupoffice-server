@@ -136,25 +136,25 @@ class Role extends AbstractRecord{
 		}
 	}
 	
-	public function getModulesWithPermissions(){
-		
-		$q = Query::newInstance()
-				->select('t.*, roles.useAccess, roles.createAccess')
-				->joinRelation(
-						'roles', 
-						false, 
-						'LEFT', 
-						Criteria::newInstance()->where(['roles.roleId' => $this->id])
-					);
-		
-		$models = Module::find($q)->all();
-		
-		//return as booleans
-		foreach($models as $model){
-			$model->useAccess = (bool) $model->useAccess;		
-			$model->createAccess = (bool) $model->createAccess;			
-		}
-
-		return $models;
-	}
+//	public function getModulesWithPermissions(){
+//		
+//		$q = Query::newInstance()
+//				->select('t.*, roles.useAccess, roles.createAccess')
+//				->joinRelation(
+//						'roles', 
+//						false, 
+//						'LEFT', 
+//						Criteria::newInstance()->where(['roles.roleId' => $this->id])
+//					);
+//		
+//		$models = Module::find($q)->all();
+//		
+//		//return as booleans
+//		foreach($models as $model){
+//			$model->useAccess = (bool) $model->useAccess;		
+//			$model->createAccess = (bool) $model->createAccess;			
+//		}
+//
+//		return $models;
+//	}
 }

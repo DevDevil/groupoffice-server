@@ -42,7 +42,7 @@ class Debugger extends AbstractObject{
 			$this->entries[$section]=array();
 		}
 
-		$this->entries[$section][] = var_export($mixed, true);
+		$this->entries[$section][] = var_export($mixed, true);		
 	}
 	
 	/**

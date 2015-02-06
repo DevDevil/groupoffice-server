@@ -26,9 +26,6 @@ use ReflectionClass;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 abstract class AbstractRole extends AbstractRecord {
-	
-	
-	
 	/**
 	 *
 	 * @var Relation	
@@ -40,8 +37,7 @@ abstract class AbstractRole extends AbstractRecord {
 	 */
 	protected static function defineResource(){
 		throw new Exception("Please implement 'protected static function defineResource()' in ".get_called_class());
-	}
-	
+	}	
 	
 	/**
 	 * Get's the belongsTo relation that points to the model to protect.
@@ -59,8 +55,6 @@ abstract class AbstractRole extends AbstractRecord {
 		
 		return self::$_resource;
 	}
-	
-	
 
 	
 //	/**
@@ -143,10 +137,12 @@ abstract class AbstractRole extends AbstractRecord {
 		if(is_string($this->permissionType)){
 			$this->permissionType = $this->{$this->resource()->getName()}->permisionTypeNameToValue($this->permissionType);		
 		}
-	}
+	}	
 	
-	
-	
+	/**
+	 * Override so we can convert permissionType string to int
+	 * @inherticdoc
+	 */
 	public static function findByPk($pk) {
 		
 		
@@ -159,9 +155,7 @@ abstract class AbstractRole extends AbstractRecord {
 		$pk['permissionType'] = $value;
 		
 		return parent::findByPk($pk);
-	}
-	
-	
+	}	
 	
 	/**
 	 * Check if the current logged in user may manage permissions
@@ -170,7 +164,7 @@ abstract class AbstractRole extends AbstractRecord {
 	 * 
 	 * @return boolean
 	 */
-	private function _canManagePermission(){
+	private function _canManagePermission() {
 		if(!User::current()) {
 			return false;
 		}

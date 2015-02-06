@@ -124,7 +124,7 @@ class Connection extends AbstractObject{
 	 */
 	public function query($sql){
 		App::debugger()->debugSql($sql);
-		return $this->_pdo->query($sql);
+		return $this->getPdo()->query($sql);
 	}
 	
 	/**

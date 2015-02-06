@@ -80,7 +80,7 @@ class Module extends AbstractRecord{
 		
 		if($isNew){			
 			//Grant access to admins by default
-			$this->roles = [['roleId' => 1, 'permissionType' => ModuleRole::PERMISSION_USE]];
+			$this->roles = [['roleId' => 1, 'permissionType' => Module::PERMISSION_USE]];
 		}
 		
 		$ret = parent::save();

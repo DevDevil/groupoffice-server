@@ -34,9 +34,9 @@ class InstallControllerTest extends PHPUnit_Framework_TestCase {
 		App::dbConnection()->database = $testdb;
 		App::dbConnection()->setPDO();
 		
-		$controller = new InstallController(App::router());
+		$controller = new SystemController(App::router());
 		
-		$response = $controller->httpGet();
+		$response = $controller->actionInstall();
 	
 		$this->assertEquals(true, empty($response['errors']));
 		$this->assertEquals(true, $response['success']);

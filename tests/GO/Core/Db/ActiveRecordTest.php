@@ -42,7 +42,7 @@ class ActiveRecordTest extends PHPUnit_Framework_TestCase {
 //		if (!$user) {
 			$user = new User();
 			$user->username = 'test';
-			$user->password = $user->passwordConfirm = 'Test123!';
+			$user->password = 'Test123!';
 //		}
 
 		$user->save();
@@ -134,11 +134,11 @@ class ActiveRecordTest extends PHPUnit_Framework_TestCase {
 	private function _testIsNew(){
 		$user = new User();
 		
-		$this->assertEquals(true, $user->getIsNew());
+		$this->assertEquals(true, $user->isNew());
 		
 		$user = User::find()->single();
 		
-		$this->assertEquals(false, $user->getIsNew());
+		$this->assertEquals(false, $user->isNew());
 	}
 	
 	

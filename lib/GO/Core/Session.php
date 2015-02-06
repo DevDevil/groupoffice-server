@@ -49,7 +49,7 @@ class Session extends AbstractObject implements ArrayAccess, SessionHandlerInter
 		//start session
 		//In some cases it doesn't make sense to use the session because the client is
 		//not capable. (WebDAV for example).
-		if (self::$enabled && !$this->isStarted() && PHP_SAPI !== 'cli') {
+		if (self::$enabled && !$this->isStarted()) {
 			if (!isset($_SESSION)) {
 
 				//without cookie_httponly the cookie can be accessed by malicious scripts

@@ -10,6 +10,10 @@ $configFile = dirname(__FILE__).'/../config.php';
 //Initialize the framework with confuration
 \GO\Core\App::init(require($configFile));
 
+//login as admin
+$adminUser = GO\Core\Auth\Model\User::find(['username' => 'admin'])->single();
+$adminUser->setCurrent();
+
 \GO\Core\App::config()->classLoader = $classLoader;
 
 PHPUnit_TextUI_Command::main();
