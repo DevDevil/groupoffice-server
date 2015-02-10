@@ -30,7 +30,12 @@ class ContactsModule extends AbstractModule{
 						->get('contacts/0/thumb', 'download')
 						->get('contacts/:contactId/thumb', 'download');
 		
-		FilesController::routes();
+		FilesController::routes()
+				->get('contacts/:contactId/files', 'store')
+				->get('contacts/:contactId/files/:fileId','read')
+				->put('contacts/:contactId/files/:fileId', 'update')
+				->post('contacts/:contactId/files', 'create')
+				->delete('contacts/:contactId/files/:fileId','delete');
 	}
 	
 	

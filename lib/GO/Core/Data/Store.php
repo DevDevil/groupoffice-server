@@ -159,7 +159,7 @@ class Store extends AbstractObject{
 	private function _formatRecord($record, $model){
 		foreach($this->_formatters as $attributeName=>$function){
 //			if(empty($this->_returnAttributes) || isset($this->_returnAttributes['attributes'][$attributeName])){
-				$record['attributes'][$attributeName]=$function($model);
+				$record[$attributeName]=$function($model);
 //			}
 		}
 

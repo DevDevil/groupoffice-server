@@ -826,7 +826,7 @@ abstract class AbstractRecord extends AbstractModel {
 
 //		$wasNew = $this->isNew;
 
-		$useTransaction = false && !empty($this->_saveRelations) && !App::dbConnection()->getPDO()->inTransaction();
+		$useTransaction = !empty($this->_saveRelations) && !App::dbConnection()->getPDO()->inTransaction();
 
 
 		if ($useTransaction) {

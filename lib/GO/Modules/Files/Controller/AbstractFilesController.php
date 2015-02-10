@@ -31,7 +31,7 @@ abstract class AbstractFilesController extends AbstractController {
 
 	abstract protected function canUpload(AbstractRecord $model);
 
-	protected function httpGet($fileId = null, $download = false, $returnAttributes = []) {
+	protected function actionRead($fileId = null, $download = false, $returnAttributes = []) {
 		if (!isset($fileId)) {
 			return $this->callMethodWithParams('store');
 		} else {
@@ -59,7 +59,7 @@ abstract class AbstractFilesController extends AbstractController {
 		}
 	}
 
-	public function store($returnAttributes = []) {
+	public function actionStore($returnAttributes = []) {
 
 		$model = $this->getModel();
 
@@ -146,7 +146,7 @@ abstract class AbstractFilesController extends AbstractController {
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see GO\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function httpPost($returnAttributes = []) {
+	public function actionCreate($returnAttributes = []) {
 		
 		$model = $this->getModel();
 
@@ -184,7 +184,7 @@ abstract class AbstractFilesController extends AbstractController {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function httpPut($fileId, $returnAttributes = []) {
+	public function actionUpdate($fileId, $returnAttributes = []) {
 
 		$file = File::findByPk($fileId);
 
@@ -208,7 +208,7 @@ abstract class AbstractFilesController extends AbstractController {
 	 * @param int $fileId
 	 * @throws NotFound
 	 */
-	public function httpDelete($fileId) {
+	public function actionDelete($fileId) {
 		$file = File::findByPk($fileId);
 
 		if (!$file) {

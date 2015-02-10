@@ -22,15 +22,15 @@ class FilesController extends AbstractFilesController{
 	}
 
 	protected function canRead(AbstractRecord $model) {
-		return $model->checkPermission('readAccess');			
+		return $model->permissions->has(Contact::PERMISSION_READ);			
 	}
 
 	protected function canWrite(AbstractRecord $model) {
-		return $model->checkPermission('editAccess');	
+		return $model->permissions->has(Contact::PERMISSION_WRITE);
 	}
 
 	protected function canUpload(AbstractRecord $model) {
-		return $model->checkPermission('uploadAccess');
+		return $model->permissions->has(Contact::PERMISSION_WRITE);
 	}
 
 }
