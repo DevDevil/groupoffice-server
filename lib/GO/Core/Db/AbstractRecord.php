@@ -370,8 +370,14 @@ abstract class AbstractRecord extends AbstractModel {
 		$class = get_called_class();
 
 		$parts = explode("\\", $class);
-
-		$table = lcfirst($parts[2]) . $parts[4];
+		
+		//remove GO\Core or GO\Modules
+		$parts = array_slice($parts, 2);		
+		
+		//remove Model part
+		array_splice($parts, -2, 1);
+		
+		$table = lcfirst(implode('', $parts));
 
 		return $table;
 	}

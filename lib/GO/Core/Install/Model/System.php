@@ -3,7 +3,9 @@ namespace GO\Core\Install\Model;
 
 use GO\Core\AbstractModel;
 use GO\Core\App;
+use GO\Core\Auth\Model\User;
 use GO\Core\Db\Utils;
+use GO\Core\Exception\Forbidden;
 use GO\Core\Fs\File;
 use GO\Core\Fs\Folder;
 use GO\Core\Modules\Model\Module;
@@ -39,6 +41,9 @@ class System extends AbstractModel{
 		
 		$this->runCoreUpdates();
 		
+		$admin = User::findByPk(1);
+		$admin->setCurrent();
+		
 		//Install all modules that should auto install
 		$modules = ModuleUtils::getModules();
 		
@@ -61,6 +66,10 @@ class System extends AbstractModel{
 	 * Run necessary upgrade patches
 	 */
 	public function upgrade(){
+		
+		if(!User::current()->isAdmin()){
+			throw new Forbidden("Only admins may perform the upgrade");
+		}
 		
 		if(!$this->isDatabaseInstalled()){
 			throw new \Exception("The database is not installed");

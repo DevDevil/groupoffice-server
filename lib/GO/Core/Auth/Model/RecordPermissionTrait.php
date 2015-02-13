@@ -68,6 +68,7 @@ trait RecordPermissionTrait {
 		if(!isset($this->_permission)) {
 			$this->_permission = new Permissions($this);
 		}
+		
 		return $this->_permission;
 	}	
 	

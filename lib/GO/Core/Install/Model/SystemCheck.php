@@ -104,7 +104,13 @@ class SystemCheck extends AbstractModel {
 	 */
 	public function run(){
 		
-		$response = ['success' => true, 'checks' => []];
+		$response = [
+			'success' => true, 
+			'databaseInstalled' => System::isDatabaseInstalled(),
+			'installUrl' => App::router()->buildUrl('/system/install'),
+			'upgradeUrl' => App::router()->buildUrl('/system/upgrade'),
+			'checks' => []
+			];
 		
 		foreach($this->_checks as $name => $function){
 			

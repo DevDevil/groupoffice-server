@@ -160,6 +160,9 @@ abstract class AbstractController extends AbstractObject {
 			$data = $this->callMethodWithParams("action".$action);		
 
 			if(isset($data)){
+				
+				$this->setContentType('application/json');
+				
 				$data = $this->jsonEncode($data);
 
 				if ($this->cacheJsonOutput) {

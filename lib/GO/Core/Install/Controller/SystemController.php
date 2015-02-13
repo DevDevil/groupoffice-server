@@ -44,7 +44,7 @@ class SystemController extends AbstractController {
 
 		$systemCheck = new SystemCheck();
 		
-		return $systemCheck->run();
+		return $this->renderJson($systemCheck->run());
 	}
 	
 	/**

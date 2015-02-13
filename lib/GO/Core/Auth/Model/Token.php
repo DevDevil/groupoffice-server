@@ -112,12 +112,22 @@ class Token extends AbstractRecord {
 			return false;
 		}
 		
+		$tokenStr = null;
+		
 		$headers = apache_request_headers();
-		if(!isset($headers['Authorization'])){
+		if(isset($headers['Authorization'])){
+			$tokenStr = $headers['Authorization'];
+		}
+		
+		if(isset($_COOKIE['groupofficeAuthorization'])) {
+			$tokenStr = $_COOKIE['groupofficeAuthorization'];
+		}
+		
+		if(!isset($tokenStr)){
 			return false;
 		}
 
-		$matches = array();
+		$matches = [];
 		preg_match('/Token (.*) (.*)/', $headers['Authorization'], $matches);
 		if(isset($matches[1]) && isset($matches[2])){
 			return array('series'=>$matches[1], 'token'=>$matches[2]);
@@ -168,9 +178,10 @@ class Token extends AbstractRecord {
 			return $token->user;
 		} else {
 			//Theft assumed!
-			foreach ($token->user->sessions as $session) {
-				$session->delete();
-			}
+			
+//			foreach ($token->user->sessions as $session) {
+//				$session->delete();
+//			}
 
 			foreach ($token->user->tokens as $token) {
 				$token->delete();

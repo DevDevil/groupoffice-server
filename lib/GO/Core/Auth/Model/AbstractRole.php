@@ -177,10 +177,8 @@ abstract class AbstractRole extends AbstractRecord {
 		
 		$resource = $this->$resourceName;
 		
-		if($resource && $resource->getColumn('ownerUserId')) {
-			if($resource->ownerUserId == User::current()->userId) {				
-				return true;
-			}
+		if($resource->permissions->hasManagePermission()){
+			return true;
 		}
 		
 		return false;			
@@ -203,7 +201,6 @@ abstract class AbstractRole extends AbstractRecord {
 		if(!$this->_canManagePermission()){
 			throw new Forbidden();
 		}
-		
 		
 		$this->_convertPermissionType();
 		

@@ -178,6 +178,10 @@ class Router {
 				->post('auth', 'login')
 				->delete('auth', 'logout');
 		
+		
+		\GO\Core\Auth\Oauth2\Controller\Oauth2Controller::routes()
+				->post('auth/oauth2/token', 'token');
+		
 		UserController::routes()				
 				->get('auth/users', 'store')
 				->get('auth/users/0','new')

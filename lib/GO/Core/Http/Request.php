@@ -40,27 +40,35 @@ class Request {
 	public function __construct() {
 		if($this->isJson()){
 			
-			$rawPayload = file_get_contents('php://input');
-			
-//			var_dump($rawPayload);
-			
-			
+			$rawPayload = $this->getPayload();
 			$this->payload = $rawPayload != "" ? json_decode($rawPayload, true) : [];
 					
 			// Check if the post is filled with an array. Otherwise make it an empty array.
-			if(!is_array($this->payload)){
-				//$this->post = array();
-				
+			if(!is_array($this->payload)){				
 				throw new \Exception("Malformed JSON posted: \n\n".var_export($rawPayload, true));
 			}
-
 		}else
 		{
 			$this->post=$_POST;
 		}
 
 		$this->get=$_GET;
-	}	
+	}
+	
+	private $_payload;
+	
+	/**
+	 * Get the request payload
+	 * 
+	 * @return string
+	 */
+	public function getPayload(){
+		if(!isset($this->_payload)) {
+			$this->_payload = file_get_contents('php://input');
+		}
+		
+		return $this->_payload;
+	}
 
 
 	/**

@@ -48,6 +48,10 @@ class User extends AbstractRecord {
 	 * @var string 
 	 */
 	public $currentPassword;
+	
+	
+	private static $currentUser;
+	
 
 	/**
 	 *
@@ -94,17 +98,23 @@ class User extends AbstractRecord {
 	 * @return self|boolean
 	 */
 	public static function current() {
-		if (empty(App::session()['userId'])) {		
-			$user = Token::loginWithToken();
-			if($user){
-				return $user;
-			}else
-			{
-				return false;
+		if (!isset(self::$currentUser)) {	
+			
+			$basic = new \GO\Core\Auth\Provider\Basic();
+			
+			self::$currentUser = $basic->getUser();
+			
+			if(self::$currentUser) {
+				return self::$currentUser;
 			}
+			
+			$oauth2Provider = new \GO\Core\Auth\Oauth2\Provider();
+			self::$currentUser = $oauth2Provider->getUser();
+			
+			//self::$currentUser = Token::loginWithToken();			
 		}
 
-		return User::findByPk(App::session()['userId']);
+		return self::$currentUser;
 	}
 	
 
@@ -167,11 +177,11 @@ class User extends AbstractRecord {
 //		App::session()->regenerateId();
 
 		//Store the sessionId in the user table so we can see who's online.
-		$sessionModel = App::session()->getModel();
-		$sessionModel->userId=$this->id;
-		$sessionModel->save();
+//		$sessionModel = App::session()->getModel();
+//		$sessionModel->userId=$this->id;
+//		$sessionModel->save();
 		
-		App::session()['userId'] = $this->id;
+		self::$currentUser = $this;
 	}
 	
 	

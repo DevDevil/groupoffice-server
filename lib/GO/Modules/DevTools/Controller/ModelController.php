@@ -8,6 +8,10 @@ use GO\Core\Db\Column;
 class ModelController extends AbstractController {
 	
 	
+	protected function authenticate() {
+		return true;
+	}
+	
 	public function actionList(){
 		
 		

@@ -54,6 +54,15 @@ class Permissions implements ArrayConvertableInterface {
 		return $this;
 	}
 	
+	
+	private function getUserId(){
+		if (!isset($this->_userId)) {
+			$this->_userId = User::current()->id;
+		}	
+		
+		return $this->_userId;
+	}
+	
 
 	/**
 	 * 
@@ -65,9 +74,8 @@ class Permissions implements ArrayConvertableInterface {
 			return true;
 		}
 
-		if (!isset($userId)) {
-			$userId = User::current()->id;
-		}		
+		$userId = $this->getUserId();
+			
 		
 		$relation = self::getRolesRelation();
 		$roleModelName = $relation->getRelatedModelName();
@@ -84,6 +92,35 @@ class Permissions implements ArrayConvertableInterface {
 		$result = $roleModelName::find($query)->single();
 
 		return $result !== false;
+	}
+	
+	
+	/**
+	 * Check if the user has permissions to manage the permissions
+	 * 
+	 * The current user should be admin or stored in the column ownerUserId
+	 * 
+	 * @return boolean
+	 */
+	public function hasManagePermission() {		
+		
+		$user = User::findByPk($this->getUserId());
+		
+		if($user->isAdmin()){
+			return true;
+		}
+		
+		$resourceName = static::resource()->getName();
+		
+		$resource = $this->$resourceName;
+		
+		if($resource && $resource->getColumn('ownerUserId')) {
+			if($resource->ownerUserId == $user->id) {				
+				return true;
+			}
+		}
+		
+		return false;			
 	}
 
 	
@@ -103,7 +140,8 @@ class Permissions implements ArrayConvertableInterface {
 		$roleModelName = $relation->getRelatedModelName();
 		$permissionTypes = $this->_record->permissionTypes();		
 
-		$return = [];
+		$return = ['manage' => $this->hasManagePermission()];
+		
 		foreach ($permissionTypes as $name => $value) {
 			$return[$name] = false;
 		}
@@ -114,7 +152,7 @@ class Permissions implements ArrayConvertableInterface {
 			return $return;
 		}
 		
-		$userId = User::current()->id;
+		$userId = $this->getUserId();
 
 		$query = Query::newInstance()
 				->joinRelation('users', false)
