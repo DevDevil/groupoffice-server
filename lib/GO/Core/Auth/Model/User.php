@@ -108,8 +108,14 @@ class User extends AbstractRecord {
 				return self::$currentUser;
 			}
 			
-			$oauth2Provider = new \GO\Core\Auth\Oauth2\Provider();
-			self::$currentUser = $oauth2Provider->getUser();
+			//$oauth2Provider = new \GO\Core\Auth\Oauth2\Provider();
+			//self::$currentUser = $oauth2Provider->getUser();
+			
+			$token = \GO\Core\Auth\Browser\Model\Token::findByCookie();
+			
+			if($token) {			
+				self::$currentUser = $token->user;
+			}
 			
 			//self::$currentUser = Token::loginWithToken();			
 		}

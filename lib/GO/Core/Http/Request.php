@@ -1,6 +1,9 @@
 <?php
 namespace GO\Core\Http;
 
+use Exception;
+use GO\Core\AbstractObject;
+
 /**
  * The HTTP request class.
  *
@@ -13,7 +16,7 @@ namespace GO\Core\Http;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Request {
+class Request extends AbstractObject {
 
 	/**
 	 * Contains the POST variables
@@ -45,7 +48,7 @@ class Request {
 					
 			// Check if the post is filled with an array. Otherwise make it an empty array.
 			if(!is_array($this->payload)){				
-				throw new \Exception("Malformed JSON posted: \n\n".var_export($rawPayload, true));
+				throw new Exception("Malformed JSON posted: \n\n".var_export($rawPayload, true));
 			}
 		}else
 		{
@@ -54,6 +57,18 @@ class Request {
 
 		$this->get=$_GET;
 	}
+	
+	private $_headers;
+	
+	public function getHeaders(){
+		
+		if(!isset($this->_headers)){
+			$this->_headers = apache_request_headers();
+		}
+		
+		return $this->_headers;
+	}
+	
 	
 	private $_payload;
 	

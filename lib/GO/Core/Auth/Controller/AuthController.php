@@ -23,8 +23,11 @@ class AuthController extends \GO\Core\Controller\AbstractController {
 	 * Logs the current user out.
 	 */
 	protected function actionLogout() {
-
-		App::session()->end();
+		
+		$token = \GO\Core\Auth\Browser\Model\Token::findByCookie();		
+		if($token) {
+			$token->delete();
+		}
 
 		return $this->renderJson(['success' => true]);
 	}
@@ -47,26 +50,34 @@ class AuthController extends \GO\Core\Controller\AbstractController {
 
 
 		$user = User::login(App::request()->payload['username'], App::request()->payload['password'], true);
+		
+		if($user){
+			$token = new \GO\Core\Auth\Browser\Model\Token();
+			$token->user = $user;
+			$token->save();
+		}
 
 		$response = [
 			'success' => $user !== false
 		];
 
-		if ($response['success']) {
-			//todo remember for different clients
-			if (!empty(App::request()->payload['remember'])) {
-				Token::generateSeries($user->id);
-			}
-		}
+//		if ($response['success']) {
+//			//todo remember for different clients
+//			if (!empty(App::request()->payload['remember'])) {
+//				Token::generateSeries($user->id);
+//			}
+//		}
 
 		return $this->renderJson($response);
 	}
 
 	public function actionIsLoggedIn() {
-		$user = User::current();
-
+		$token = \GO\Core\Auth\Browser\Model\Token::findByCookie(false);
+		if($token) {
+			$token->sendCoookies();
+		}
 		$response = [
-			'success' => $user !== false
+			'success' => $token !== false
 		];
 
 		return $this->renderJson($response);

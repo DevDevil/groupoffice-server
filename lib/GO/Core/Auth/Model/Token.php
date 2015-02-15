@@ -49,7 +49,7 @@ class Token extends AbstractRecord {
 		self::belongsTo('user', User::className(), 'userId');
 		
 	}
-
+	
 	/**
 	 * Generate a new token series when a user authenticates successfully and
 	 * enabled "remember me".
