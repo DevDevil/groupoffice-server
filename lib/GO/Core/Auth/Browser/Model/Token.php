@@ -148,12 +148,6 @@ class Token extends AbstractRecord {
 			return false;
 		}
 		
-		$XSRFToken = self::requestXSRFToken();
-		
-		
-		if($checkXSRFToken && $XSRFToken == false){
-			return false;
-		}
 		
 		$token = Token::findByPk($_COOKIE['accessToken']);
 		
@@ -162,8 +156,11 @@ class Token extends AbstractRecord {
 		}
 		
 				
-		if($checkXSRFToken && $token->XSRFToken != $XSRFToken) {
-			return false;
+		if($checkXSRFToken) {
+			
+			if(self::requestXSRFToken() != $token->XSRFToken) {
+				throw new Exception("XSRFToken doesn't match!");
+			}
 		}
 		
 		//remove cookie as header has been set.
