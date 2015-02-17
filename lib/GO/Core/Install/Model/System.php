@@ -67,9 +67,9 @@ class System extends AbstractModel{
 	 */
 	public function upgrade(){
 		
-		if(!User::current()->isAdmin()){
-			throw new Forbidden("Only admins may perform the upgrade");
-		}
+//		if(!User::current()->isAdmin()){
+//			throw new Forbidden("Only admins may perform the upgrade");
+//		}
 		
 		if(!$this->isDatabaseInstalled()){
 			throw new \Exception("The database is not installed");
@@ -102,10 +102,12 @@ class System extends AbstractModel{
 			}
 			
 			App::dbConnection()->getPDO()->commit();
-		} catch (Exception $e){
+		} catch (\Exception $e){
 			App::dbConnection()->getPDO()->rollBack();
+			
+			$msg = "An exception ocurred in upgrade file ".$file->getPath()."\n\n".$e->getMessage();
 
-			throw $e;
+			throw new \Exception($msg);
 		}
 	}
 	

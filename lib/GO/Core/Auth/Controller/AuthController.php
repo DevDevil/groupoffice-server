@@ -26,6 +26,7 @@ class AuthController extends \GO\Core\Controller\AbstractController {
 		
 		$token = \GO\Core\Auth\Browser\Model\Token::findByCookie();		
 		if($token) {
+			$token->unsetCoookies();
 			$token->delete();
 		}
 
@@ -55,6 +56,7 @@ class AuthController extends \GO\Core\Controller\AbstractController {
 			$token = new \GO\Core\Auth\Browser\Model\Token();
 			$token->user = $user;
 			$token->save();
+			$token->setCoookies();
 		}
 
 		$response = [
@@ -73,9 +75,11 @@ class AuthController extends \GO\Core\Controller\AbstractController {
 
 	public function actionIsLoggedIn() {
 		$token = \GO\Core\Auth\Browser\Model\Token::findByCookie(false);
-		if($token) {
-			$token->sendCoookies();
-		}
+//		if($token) {
+//			
+//			//resend cookies as client might need the XSRFToken again
+//			$token->setCoookies();
+//		}
 		$response = [
 			'success' => $token !== false
 		];

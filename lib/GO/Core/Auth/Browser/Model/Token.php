@@ -4,6 +4,7 @@ namespace GO\Core\Auth\Browser\Model;
 use DateInterval;
 use DateTime;
 use Exception;
+use GO\Core\App;
 use GO\Core\Auth\Model\User;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Column;
@@ -73,25 +74,34 @@ class Token extends AbstractRecord {
 		$ret = parent::save();
 		
 		if($ret) {
-			$this->sendCoookies();
+			
+			//clean garbage in 10% of the logins
+			if (rand(1, 10) === 1) {
+				$this->_collectGarbage();
+			}
 		}
 		
 		return $ret;
+	}
+	
+	private function _collectGarbage() {
+		$tokens = Token::find(['<=', ['expires' => gmdate('Y-m-d H:i:s', time())]]);
+
+		foreach ($tokens as $token) {
+			$token->delete();
+		}
 	}
 	
 	public function delete() {
 		
 		$ret =  parent::delete();
 		
-		$this->accessToken = null;
-		$this->XSRFToken = null;
-		
 		$this->sendCoookies();
 		
 		return $ret;
 	}
 	
-	public function sendCoookies() {
+	public function setCoookies() {
 		
 		//$cookiePath = dirname($_SERVER['SCRIPT_NAME']);
 		$cookieDomain = $_SERVER['HTTP_HOST'];
@@ -101,6 +111,29 @@ class Token extends AbstractRecord {
 		
 		//XSRF is NOT httpOnly because it has to be added by the browser as a header
 		setcookie('XSRFToken', $this->XSRFToken, 0, '/', $cookieDomain, false, false);
+	}
+	
+	public function unsetCookies(){
+			$cookieDomain = $_SERVER['HTTP_HOST'];
+		
+		//Should be httpOnly so XSS exploits can't access this token
+		setcookie('accessToken', NULL, 0, '/', $cookieDomain, false, true);
+		
+		//XSRF is NOT httpOnly because it has to be added by the browser as a header
+		setcookie('XSRFToken', NULL, 0, '/', $cookieDomain, false, false);
+	}
+	
+	
+	private static function requestXSRFToken(){
+		if(isset($_GET['XSRFToken'])) {
+			return $_GET['XSRFToken'];
+		}
+		
+		if(isset(App::request()->headers['X-XSRFToken'])) {
+			return App::request()->headers['X-XSRFToken'];
+		}
+		
+		return false;
 	}
 	
 	
@@ -115,8 +148,10 @@ class Token extends AbstractRecord {
 			return false;
 		}
 		
+		$XSRFToken = self::requestXSRFToken();
 		
-		if($checkXSRFToken && !isset(\GO\Core\App::request()->headers['X-XSRFToken'])){
+		
+		if($checkXSRFToken && $XSRFToken == false){
 			return false;
 		}
 		
@@ -126,16 +161,17 @@ class Token extends AbstractRecord {
 			return false;
 		}
 		
-		if($checkXSRFToken && $token->XSRFToken != \GO\Core\App::request()->headers['X-XSRFToken']) {
+				
+		if($checkXSRFToken && $token->XSRFToken != $XSRFToken) {
 			return false;
 		}
 		
 		//remove cookie as header has been set.
 		//Small security improvement as this token will not be accessible trough document.cookies anymore.
 		//It's still somewhere in javascript but a little bit harder to get.
-		if(isset($_COOKIE['XSRFToken'])) {
-			setcookie('XSRFToken', null, 0, '/', $_SERVER['HTTP_HOST'], false, false);
-		}
+//		if(isset($_COOKIE['XSRFToken'])) {
+//			setcookie('XSRFToken', null, 0, '/', $_SERVER['HTTP_HOST'], false, false);
+//		}
 		
 		return $token;
 	}

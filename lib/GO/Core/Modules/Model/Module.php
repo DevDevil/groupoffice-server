@@ -134,10 +134,12 @@ class Module extends AbstractRecord{
 			}
 			
 			App::dbConnection()->getPDO()->commit();
-		} catch (Exception $e){
+		} catch (\Exception $e){
 			App::dbConnection()->getPDO()->rollBack();
 
-			throw $e;
+			$msg = "An exception ocurred in upgrade file ".$file->getPath()."\n\n".$e->getMessage();
+
+			throw new \Exception($msg);
 		}
 	}
 	
