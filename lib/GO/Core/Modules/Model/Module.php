@@ -137,7 +137,7 @@ class Module extends AbstractRecord{
 		} catch (\Exception $e){
 			App::dbConnection()->getPDO()->rollBack();
 
-			$msg = "An exception ocurred in upgrade file ".$file->getPath()."\n\n".$e->getMessage();
+			$msg = "An exception ocurred in upgrade file ".$file->getPath().". If you're a developer, you might need to skip the upgrade file because you already applied the changes. You can raise the version number in the 'modulesModules' table to do that.\n\n".$e->getMessage();
 
 			throw new \Exception($msg);
 		}

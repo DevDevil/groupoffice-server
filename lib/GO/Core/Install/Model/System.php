@@ -105,7 +105,7 @@ class System extends AbstractModel{
 		} catch (\Exception $e){
 			App::dbConnection()->getPDO()->rollBack();
 			
-			$msg = "An exception ocurred in upgrade file ".$file->getPath()."\n\n".$e->getMessage();
+			$msg = "An exception ocurred in upgrade file ".$file->getPath()."\nIf you're a developer, you might need to skip this file because you already applied the changes to your database. You can do this by raising the dbVersion value in the 'coreConfig' table.\n".$e->getMessage();
 
 			throw new \Exception($msg);
 		}
