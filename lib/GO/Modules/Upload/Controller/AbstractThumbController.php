@@ -17,7 +17,7 @@ use GO\Core\Util\Image;
  * 	use ThumbControllerTrait;	
 
 	protected function thumbGetFolder() {
-		return App::session()->getTempFolder();
+		return App::accessToken()->getTempFolder();
 	}
 
 	protected function thumbUseCache() {
@@ -60,8 +60,6 @@ abstract class AbstractThumbController extends AbstractController {
 	 * @param bool $fitBox
 	 */
 	protected function actionDownload($w = 0, $h = 0, $zoomCrop = false, $fitBox = false) {
-
-		App::session()->closeWriting();
 
 		try{
 			$file = $this->thumbGetFile();

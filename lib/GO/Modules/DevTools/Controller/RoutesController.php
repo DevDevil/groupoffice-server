@@ -23,12 +23,17 @@ class RoutesController extends AbstractController {
 			foreach($routes as $route){
 				$method = $route[0];
 				$path = $route[1];
-				$action = $route[2];				
+				$action = "action".$route[2];				
 				
-				echo ' * |'.$method.' | '.$path.' | {@link '.$controller."::action".$action."}|\n";
-			}	
-			
+				echo ' * |'.$method.' | '.$path.' | {@link '.$controller."::".$this->findMethodCaseInsensitive($controller, $action)."}|\n";
+			}
 		}
+	}
+	
+	private function findMethodCaseInsensitive($class, $method) {
+		$reflection = new \ReflectionClass($class);		
+		$method = $reflection->getMethod($method);		
+		return $method->getName();
 	}
 	/**
 	 * Get all routes

@@ -81,58 +81,6 @@ abstract class AbstractFilesController extends AbstractController {
 		}
 	}
 
-//	/**
-//	 * Use Flow.js to upload files. This controller returns the filenames relative
-//	 *
-//	 * to the App::session()->getTempFolder();
-//	 */
-//	public function actionUpload($modelId) {
-//		$model = $this->getModel($modelId);
-//
-//		if (!$this->canUpload($model)) {
-//			throw new Forbidden();
-//		}
-//
-//		$chunksTempFolder = App::session()->getTempFolder(true)->createFolder('uploadChunks')->create();
-//
-//		$request = new Request();
-//
-//
-//		$finalFile = File2::tempFile();
-//
-//
-//		if (Basic::save($finalFile->getPath(), $chunksTempFolder->getPath())) {
-//			// file saved successfully and can be accessed at './final_file_destination'
-//
-//
-//			$folder = $model->getFolder(true);
-//
-//			$file = new File();
-//			$file->name = $request->getFileName();
-//			$file->parent = $folder;
-//			$file->setModel($model);
-//			$file->setFile($finalFile);
-//
-//			if (!$file->save()) {
-//				throw new \Exception(var_export($file->getValidationErrors()));
-//			}
-//
-//
-//			echo $this->view->render(
-//					'form', [
-//				'file' => $file
-//					]
-//			);
-//		} else {
-//			// This is not a final chunk or request is invalid, continue to upload.
-//			echo $this->view->render('json', array(
-//				'success' => true
-//			));
-//		}
-//	}
-
-
-
 	/**
 	 * Create a new file. Use GET to fetch the default attributes or POST to add a new file.
 	 *

@@ -14,7 +14,7 @@ use GO\Modules\Upload\Controller\AbstractThumbController;
 class ThumbController extends AbstractThumbController {
 
 protected function thumbGetFile() {
-		return App::session()->getTempFolder()->createFile($this->router->routeParams['tempFile']);
+		return App::accessToken()->getTempFolder()->createFile($this->router->routeParams['tempFile']);
 	}
 	
 	protected function thumbUseCache() {

@@ -198,16 +198,22 @@ class App {
 	}
 
 	/**
-	 * Get the session
+	 * Get the access token
 	 * 
-	 * @return Session
+	 * The current token the user identifies with. Can be used for a temporary folder:
+	 * 
+	 * <code>
+	 * $folder = App::accessToken()->temporaryFolder();
+	 * </code>
+	 *  
+	 * @return Token
 	 */
-	public static function session() {
-		if (!isset(self::$cache['session'])) {
-			self::$cache['session'] = new Session();
+	public static function accessToken() {
+		if (empty(self::$cache['accessToken'])) {
+			self::$cache['accessToken'] = Auth\Browser\Model\Token::findByCookie();
 		}
 
-		return self::$cache['session'];
+		return self::$cache['accessToken'];
 	}
 
 	/**

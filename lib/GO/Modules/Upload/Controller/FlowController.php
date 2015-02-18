@@ -16,18 +16,18 @@ use GO\Core\Controller\AbstractController;
  */
 class FlowController extends AbstractController {	
 	protected function actionUpload(){
-		$chunksTempFolder = App::session()->getTempFolder(true)->createFolder('uploadChunks')->create();
+		$chunksTempFolder = App::accessToken()->getTempFolder()->createFolder('uploadChunks')->create();
 
 		$request = new Request();
 
-		$finalFile = App::session()->getTempFolder()->createFile($request->getFileName());
+		$finalFile = App::accessToken()->getTempFolder()->createFile($request->getFileName());
 
 		if (Basic::save($finalFile->getPath(), $chunksTempFolder->getPath())) {
 			// file saved successfully and can be accessed at './final_file_destination'
 
 			return $this->renderJson(array(
 					'success' => true,
-					'file' => $finalFile->getRelativePath(App::session()->getTempFolder())
+					'file' => $finalFile->getRelativePath(App::accessToken()->getTempFolder())
 			));
 		} else {
 			// This is not a final chunk or request is invalid, continue to upload.

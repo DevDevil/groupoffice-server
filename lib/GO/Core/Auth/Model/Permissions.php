@@ -2,7 +2,6 @@
 namespace GO\Core\Auth\Model;
 
 use GO\Core\ArrayConvertableInterface;
-use GO\Core\Auth\Model\Permissions;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Query;
 
@@ -13,16 +12,10 @@ use GO\Core\Db\Query;
  * This model represents the permissions a user has for an object. It merges
  * all permissions of the roles the user has into one object.
  * 
- * <code>
- *
- * if(!$band->permissions->has(Band::PERMISSION_READ)){
- *	throw new Forbidden();
- * }
- * 
- * </code>
- * 
  * This object will convert to an array as wel for the API to return permissions 
  * as well.
+ * 
+ * Also read {@see GO\Core\Auth\Model\RecordPermissionTrait}.
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -65,7 +58,12 @@ class Permissions implements ArrayConvertableInterface {
 	
 
 	/**
+	 * Check if the user has the given permission type
 	 * 
+	 * {@see GO\Core\Auth\Model\RecordPermissionTrait} for more information.
+	 * 
+	 * @param int $permissionType
+	 * @return boolean
 	 */
 	public function has($permissionType = null) {
 

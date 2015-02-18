@@ -55,7 +55,7 @@ class NoteImage extends AbstractRecord{
 
 		$imagesFolder = self::getImagesFolder();
 
-		$file = new File(App::session()->getTempFolder().'/'.$temporaryImagePath);
+		$file = new File(App::accessToken()->getTempFolder().'/'.$temporaryImagePath);
 
 		$file->move($imagesFolder->createFile($file->getName()));
 		$this->path = $file->getRelativePath(self::getImagesFolder());

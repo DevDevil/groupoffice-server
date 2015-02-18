@@ -71,7 +71,7 @@ class Announcement extends AbstractRecord{
 
 		$photosFolder = self::getImagesFolder();
 		
-		$file = new File(App::session()->getTempFolder().'/'.$temporaryImagePath);
+		$file = new File(App::accessToken()->getTempFolder().'/'.$temporaryImagePath);
 		
 		$destinationFile = $photosFolder->createFile($this->id.'.'.$file->getExtension());
 		$destinationFile->delete();

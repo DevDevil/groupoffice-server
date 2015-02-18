@@ -39,7 +39,7 @@ class Client{
 		$this->_curl = curl_init();
 		
 		
-		$this->_cookieFile = App::session()->getTempFolder().'/cookie.txt';
+		$this->_cookieFile = App::accessToken()->getTempFolder().'/cookie.txt';
 		
 		
 		curl_setopt($this->_curl, CURLOPT_COOKIEJAR, $this->_cookieFile);

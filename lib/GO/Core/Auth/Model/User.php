@@ -98,25 +98,16 @@ class User extends AbstractRecord {
 	 * @return self|boolean
 	 */
 	public static function current() {
-		if (!isset(self::$currentUser)) {	
-			
-			$basic = new \GO\Core\Auth\Provider\Basic();
-			
-			self::$currentUser = $basic->getUser();
-			
-			if(self::$currentUser) {
-				return self::$currentUser;
-			}
+		if (!isset(self::$currentUser)) {		
+
 			
 			//$oauth2Provider = new \GO\Core\Auth\Oauth2\Provider();
 			//self::$currentUser = $oauth2Provider->getUser();
 			
-			$token = \GO\Core\Auth\Browser\Model\Token::findByCookie();
-			
+			$token = App::accessToken();			
 			if($token) {			
 				self::$currentUser = $token->user;
-			}
-			
+			}			
 			//self::$currentUser = Token::loginWithToken();			
 		}
 
@@ -180,16 +171,8 @@ class User extends AbstractRecord {
 	 * @return bool|self
 	 */
 	public function setCurrent(){
-//		App::session()->regenerateId();
-
-		//Store the sessionId in the user table so we can see who's online.
-//		$sessionModel = App::session()->getModel();
-//		$sessionModel->userId=$this->id;
-//		$sessionModel->save();
-		
 		self::$currentUser = $this;
-	}
-	
+	}	
 	
 	protected function setAttribute($name, $value) {
 		parent::setAttribute($name, $value);

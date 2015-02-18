@@ -83,7 +83,6 @@ class Connection extends AbstractObject{
 	 * Wierd things happen when using fsockopen. This test case leaves the conneciton open. When removing the fputs call it seems to work.
 	 * 
 	 * 			
-	    App::session()->login('admin','admin');
 			
 			$settings = \GO\Sync\Model\Settings::model()->findForUser(App::user());
 			$account = \GO\Email\Model\Account::model()->findByPk($settings->account_id);

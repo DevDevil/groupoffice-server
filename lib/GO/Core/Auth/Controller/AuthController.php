@@ -8,6 +8,8 @@ use GO\Core\App;
 
 /**
  * The controller that handles authentication
+ * 
+ * {@see \GO\Core\Auth\Browser\Model\Token}
  *
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -26,7 +28,7 @@ class AuthController extends \GO\Core\Controller\AbstractController {
 		
 		$token = \GO\Core\Auth\Browser\Model\Token::findByCookie();		
 		if($token) {
-			$token->unsetCoookies();
+			$token->unsetCookies();
 			$token->delete();
 		}
 

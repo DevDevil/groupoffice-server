@@ -174,7 +174,7 @@ class File extends AbstractRecord {
 	 * @param string $tempFilePath
 	 */
 	public function setTempPath($tempFilePath) {		
-		$file = new FsFile(App::session()->getTempFolder().'/'.$tempFilePath);
+		$file = new FsFile(App::accessToken()->getTempFolder().'/'.$tempFilePath);
 		
 		$this->setFile($file);
 	}

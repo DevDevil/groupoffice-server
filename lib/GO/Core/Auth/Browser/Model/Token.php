@@ -11,11 +11,26 @@ use GO\Core\Db\Column;
 
 /**
  * The Token model
+ * 
+ * Browser authentication works with a token. The server doesn't have session 
+ * support because a RESTful API must be stateless. The token identifies the 
+ * user. When a user logs in with his username and password the server sends the 
+ * token with a HTTPOnly cookie. The HTTPOnly flag is important for security as 
+ * it prevents theft by XSS attacks. While this technique protects the token 
+ * from XSS attacks it opens up the possibility of cross site request forgery or
+ * XSRF attacks. Therefore the server sends a second cookie called XSRFToken 
+ * that does not have the HTTPOnly flag set. This cookie must be read by the 
+ * client and set as a header called X-XSRFToken or pass it as a GET parameter 
+ * "XSRFToken". The header method is preferred but with images in the browser we 
+ * can't use the header method. 
+ * 
+ * 
+ * @link http://jaspan.com/improved_persistent_login_cookie_best_practice
  *
- * @property string $accessToken
- * @property string $XSRFToken
- * @property string $userId
- * @property string $expiresAt
+ * @property string $accessToken The token that identifies the user. Sent in HTTPOnly cookie.
+ * @property string $XSRFToken The extra token that must be set as a header "X-XSRFToken" or GET parameter "XSRFToken" to prevent XSRF attacks.
+ * @property User $user The user that belongs to this token. 
+ * @property string $expiresAt Time this token expires.
  *
  * @copyright (c) 2015, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -101,23 +116,71 @@ class Token extends AbstractRecord {
 			$token->delete();
 		}
 	}
-	
-	
-	public function setCoookies() {				
-		//Should be httpOnly so XSS exploits can't access this token
-		setcookie('accessToken', $this->accessToken, 0, null, null, false, true);
-		
-		//XSRF is NOT httpOnly because it has to be added by the browser as a header
-		setcookie('XSRFToken', $this->XSRFToken, 0, null, null, false, false);
+
+	/**
+	 * Check if the token is expired.
+	 * 
+	 * @return boolean
+	 */
+	public function isExpired(){
+		return strtotime($this->expiresAt) < time();
 	}
 	
+	/**
+	 * Get a temporary folder 
+	 * 
+	 * The folder will be destroyed automatically when the token expires.
+	 * 
+	 * <code>
+	 * $tempFolder = App::accessToken()->tempFolder();
+	 * </code>
+	 * 
+	 * @param boolean $autoCreate
+	 * @return \GO\Core\Fs\Folder
+	 */
+	public function getTempFolder($autoCreate = true){
+		$folder = App::config()->getTempFolder(false)->createFolder($this->accessToken);
+		
+		if($autoCreate){
+			$folder->create();
+		}
+		
+		return $folder;
+		//$folder->delete();
+	}
+	
+	/**
+	 * @inheritdoc
+	 */
+	public function delete() {
+
+		//clean up temp files
+		$this->getTempFolder()->delete();
+
+		return parent::delete();
+	}
+	
+	/**
+	 * Set's the token cookies
+	 */
+	public function setCoookies() {				
+		//Should be httpOnly so XSS exploits can't access this token
+		setcookie('accessToken', $this->accessToken, 0, "/", null, false, true);
+		
+		//XSRF is NOT httpOnly because it has to be added by the browser as a header
+		setcookie('XSRFToken', $this->XSRFToken, 0, "/", null, false, false);		
+	}
+	
+	/**
+	 * Unsets the token cookies
+	 */
 	public function unsetCookies(){
 		
 		//Should be httpOnly so XSS exploits can't access this token
-		setcookie('accessToken', NULL, 0, null, null, false, true);
+		setcookie('accessToken', NULL, 0, "/", null, false, true);
 		
 		//XSRF is NOT httpOnly because it has to be added by the browser as a header
-		setcookie('XSRFToken', NULL, 0, null, null, false, false);
+		setcookie('XSRFToken', NULL, 0, "/", null, false, false);
 	}
 	
 	
@@ -137,6 +200,9 @@ class Token extends AbstractRecord {
 	/**
 	 * Get the user by token cookie
 	 * 
+	 * Also check expiration and XSRFToken.
+	 * 
+	 * @param boolean $checkXSRFToken 
 	 * @return boolean|self
 	 */
 	public static function findByCookie($checkXSRFToken = true){
@@ -148,7 +214,7 @@ class Token extends AbstractRecord {
 		
 		$token = Token::findByPk($_COOKIE['accessToken']);
 		
-		if(!$token) {
+		if(!$token || $token->isExpired()) {
 			return false;
 		}
 		
