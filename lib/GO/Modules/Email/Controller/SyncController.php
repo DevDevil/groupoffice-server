@@ -14,26 +14,5 @@ use GO\Modules\Email\Model\Account;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class SyncController extends AbstractController {
-	protected function httpGet($accountId, $messageId=null, $resync=null){
-		
-		if(isset($messageId)){
-			$message = \GO\Modules\Email\Model\Message::findByPk($messageId);
-			$response['success'] = $message->sync();
-			
-			var_dump($message->getBody());
-			
-			
-		}else
-		{
-			$account = Account::findByPk($accountId);
-			
-			if(!empty($resync)){
-				$account->resync();
-			}
-
-			$response = $account->sync();
-		}
-		
-		return $this->renderJson($response);
-	}
+	
 }

@@ -9,57 +9,52 @@ use GO\Core\Modules\Model\Module;
 use GO\Core\Modules\Model\ModuleConfig;
 use ReflectionClass;
 
+/**
+ * Module class
+ * 
+ * This class manages the module. It controls the installation, upgrades and
+ * routes are defined for it.
+ * 
+ * Eg:
+ * 
+ * <code>
+ * <?php
+ * namespace GO\Modules\Bands;
+ * 
+ * use GO\Core\AbstractModule;
+ * use GO\Modules\Bands\Controller\BandController;
+ * use GO\Modules\Bands\Controller\HelloController;
+ * 
+ * class BandsModule extends AbstractModule {
+ * 	
+ * 	const PERMISSION_CREATE = 1;
+ * 	
+ * 	public function routes() {
+ * 		BandController::routes()
+ * 				->get('bands', 'store')
+ * 				->get('bands/0','new')
+ * 				->get('bands/:bandId','read')
+ * 				->put('bands/:bandId', 'update')
+ * 				->post('bands', 'create')
+ * 				->delete('bands/:bandId','delete');
+ * 		
+ * 		HelloController::routes()
+ * 				->get('bands/hello', 'name');
+ * 	}
+ * }
+ * </code>
+ * 
+ * 
+ * @copyright (c) 2015, Intermesh BV http://www.intermesh.nl
+ * @author Merijn Schering <mschering@intermesh.nl>
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
+ */
 abstract class AbstractModule extends AbstractObject {
 
 	/**
 	 * Returns the routing table for the module
 	 * 
-	 * It's a recursive array with the route part as key and an array of config 
-	 * options.
-	 * 
-	 * The example below builds a routes:
-	 * 
-	 * auth/users/{userId}/roles
-	 * 
-	 * Each part that has a "controller" property can be accessed with the API.
-	 * 
-	 * <code>
-	 * class AuthModule extends AbstractModule{
-	 * 	public function routes(){
-	 * 		return [
-	 * 					'auth' => [
-	 * 						'controller' => AuthController::className(),
-	 * 						'children' => [
-	 * 							'users' => [
-	 * 								'routeParams' => ['userId'],
-	 * 								'controller' => UserController::className(),
-	 * 								'children' => [
-	 * 									'roles' =>[
-	 * 										'controller' => UserRolesController::className()
-	 * 									]
-	 * 								]
-	 * 							],
-	 * 							'roles' => [
-	 * 								'routeParams' => ['roleId'],
-	 * 								'controller' => RoleController::className(),
-	 * 								'children' => [
-	 * 									'users' =>[
-	 * 										'controller' => RoleUsersController::className()
-	 * 									],
-	 *
-	 * 								]
-	 * 							],
-	 * 							'permissions' => [
-	 * 								'routerParams' => ['modelId', 'modelName'],
-	 * 								'controller' => PermissionsController::className()
-	 * 							]
-	 * 						]
-	 * 					]
-	 *
-	 * 			];
-	 * 		}
-	 * 	}
-	 * </code>
+	 * See the {@see Http\Router} documentation for more info .
 	 * 
 	 * @return array[]
 	 */

@@ -49,7 +49,7 @@ class Thread extends AbstractRecord {
 
 		$q = Query::newInstance()
 				->joinRelation('message', false)
-				->select('t.id, t.personal, t.email')
+				//->select('t.id, t.personal, t.email')
 				->where(['message.threadId' => $this->id])
 				->groupBy(['t.email']);
 

@@ -15,8 +15,35 @@ use GO\Core\Modules\Model\Module;
 /**
  * The router routes requests to their controller actions
  *
- * Each module can add routes See {@see \GO\Core\AbstractModule} for information
- * about creating routes
+ * Some core routes are created in this class in the private function "_collectRoutes".
+ * Each module can add routes too in their module file. {@see \GO\Core\AbstractModule}.
+ * 
+ * <code>
+ * <?php
+ * namespace GO\Modules\Bands;
+ * 
+ * use GO\Core\AbstractModule;
+ * use GO\Modules\Bands\Controller\BandController;
+ * use GO\Modules\Bands\Controller\HelloController;
+ * 
+ * class BandsModule extends AbstractModule {
+ * 	
+ * 	const PERMISSION_CREATE = 1;
+ * 	
+ * 	public function routes() {
+ * 		BandController::routes()
+ * 				->get('bands', 'store')
+ * 				->get('bands/0','new')
+ * 				->get('bands/:bandId','read')
+ * 				->put('bands/:bandId', 'update')
+ * 				->post('bands', 'create')
+ * 				->delete('bands/:bandId','delete');
+ * 		
+ * 		HelloController::routes()
+ * 				->get('bands/hello', 'name');
+ * 	}
+ * }
+ * </code>
  * 
  * {@see \GO\Core\Controller\AbstractController}
  * 
@@ -24,8 +51,8 @@ use GO\Core\Modules\Model\Module;
  * 
  * | Method | Route | Controller     |
  * |--------|-------|----------------|
- * |GET | auth | {@link GO\Core\Auth\Controller\AuthController::actionisLoggedIn}|
- * |POST | auth | {@link GO\Core\Auth\Controller\AuthController::actionlogin}|
+ * |GET | auth | {@link GO\Core\Auth\Controller\AuthController::actionIsLoggedIn}|
+ * |POST | auth | {@link GO\Core\Auth\Controller\AuthController::actionLogin}|
  * |DELETE | auth | {@link GO\Core\Auth\Controller\AuthController::actionlogout}|
  * |GET | auth/users | {@link GO\Core\Auth\Controller\UserController::actionstore}|
  * |GET | auth/users/0 | {@link GO\Core\Auth\Controller\UserController::actionnew}|

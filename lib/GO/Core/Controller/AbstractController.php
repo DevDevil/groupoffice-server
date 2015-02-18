@@ -16,20 +16,10 @@ use GO\Core\Auth\Model\User;
 use ReflectionMethod;
 
 /**
- * Abstract controller class for basic REST operations.
+ * Abstract controller class
  *
  * The router routes requests to controller actions.
  * All controllers must extend this or a subclass of this class.
- * The controller will be call it's methods based on the HTTP method. So it may 
- * implement:
- * 
- * 1. httpGet
- * 2. httpPost
- * 3. httpPut
- * 4. httpDelete
- * 5. httpPatch
- * 6. httpOptions
- * 7. httpHead
  * 
  * {@see Router The router routes requests to controllers}
  *
@@ -44,6 +34,7 @@ abstract class AbstractController extends AbstractObject {
 	/**
 	 * Create routes for this controller
 	 * 
+	 * @see Router
 	 * @return \GO\Core\Http\RoutesCollection
 	 */
 	public static function routes() {

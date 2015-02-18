@@ -24,6 +24,8 @@ use GO\Modules\Email\Imap\Mailbox;
  * @property string $encrytion
  * @property string $username
  * @property string $password
+ * @property string $fromEmail
+ * @property string $fromName
  * @propery string $syncedUntil
  * 
  * @property Folder $folders

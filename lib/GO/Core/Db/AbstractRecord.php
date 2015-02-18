@@ -943,7 +943,7 @@ abstract class AbstractRecord extends AbstractModel {
 			
 			App::debugger()->debugSql("Last insert ID = ".$lastInsertId);
 			
-			$this->{$this->primaryKeyColumn()} = $lastInsertId;
+			$this->_attributes[$this->primaryKeyColumn()] = $lastInsertId;
 
 			$this->_isNew = false;
 		}

@@ -7,16 +7,14 @@ use GO\Core\Auth\Model\UserRole;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Relation;
 use GO\Core\Exception\Forbidden;
-use ReflectionClass;
 
 /**
  * Abstract role link model
  * 
- * This model is for securing models (resources) based on roles.
+ * This model is for securing models (resources) based on roles. The classes that
+ * extends this must implement {@see defineResource()}.
  * 
  * See {@see GO\Core\Auth\Model\RecordPermissionTrait} for more information.
- * 
- * @see \GO\Modules\Addressbook\Model\ContactRole
  * 
  * @property int $roleId The role ID peorpery
  * @property string $permissionType {@see AbstractRole::permissionTypes()}
@@ -33,6 +31,18 @@ abstract class AbstractRole extends AbstractRecord {
 	private static $_resource;
 
 	/**
+	 * Return the recource to protect
+	 * 
+	 * Override this function and return a belongsTo relation:
+	 * 
+	 * <code>
+	 * protected static function defineResource(){
+	 * 	 return self::belongsTo('band', Band::className(), 'bandId');
+	 * }
+	 * </code>
+	 * 
+	 * @see \GO\Modules\Bands\Model\BandRole
+	 * 
 	 * @return Relation Returns a belongsTo relation that points to the resource these permissions are for.
 	 */
 	protected static function defineResource(){

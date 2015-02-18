@@ -14,12 +14,12 @@ use GO\Modules\Contacts\Model\Contact;
 /**
  * User model
  *
- * @property int $id
- * @property int $enabled
- * @property string $username
+ * @property int $id Primary key of the model. 
+ * @property int $enabled Disables the user from logging in
+ * @property string $username 
  * @property string $password
- * @property string $digest
- * @property string $email
+ * @property string $digest Digest of the password used for digest auth. (Deprecated?)
+ * @property string $email E-mail address of the user. The system uses this for notifications.
  * @property string $createdAt
  * @property string $modifiedAt
  * 

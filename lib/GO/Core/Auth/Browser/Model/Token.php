@@ -15,7 +15,7 @@ use GO\Core\Db\Column;
  * @property string $accessToken
  * @property string $XSRFToken
  * @property string $userId
- * @property string $expires
+ * @property string $expiresAt
  *
  * @copyright (c) 2015, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -23,6 +23,16 @@ use GO\Core\Db\Column;
  */
 
 class Token extends AbstractRecord {
+	
+	
+	/**
+	 * You can disable this in development environments where you want to be able
+	 * to easily test requests.
+	 * 
+	 * @var boolean 
+	 */
+	public $checkXSRFToken = true;
+	
 	public static function primaryKeyColumn() {
 		return 'accessToken';
 	}
@@ -85,42 +95,29 @@ class Token extends AbstractRecord {
 	}
 	
 	private function _collectGarbage() {
-		$tokens = Token::find(['<=', ['expires' => gmdate('Y-m-d H:i:s', time())]]);
+		$tokens = Token::find(['<=', ['expiresAt' => gmdate('Y-m-d H:i:s', time())]]);
 
 		foreach ($tokens as $token) {
 			$token->delete();
 		}
 	}
 	
-	public function delete() {
-		
-		$ret =  parent::delete();
-		
-		$this->sendCoookies();
-		
-		return $ret;
-	}
 	
-	public function setCoookies() {
-		
-		//$cookiePath = dirname($_SERVER['SCRIPT_NAME']);
-		$cookieDomain = $_SERVER['HTTP_HOST'];
-		
+	public function setCoookies() {				
 		//Should be httpOnly so XSS exploits can't access this token
-		setcookie('accessToken', $this->accessToken, 0, '/', $cookieDomain, false, true);
+		setcookie('accessToken', $this->accessToken, 0, null, null, false, true);
 		
 		//XSRF is NOT httpOnly because it has to be added by the browser as a header
-		setcookie('XSRFToken', $this->XSRFToken, 0, '/', $cookieDomain, false, false);
+		setcookie('XSRFToken', $this->XSRFToken, 0, null, null, false, false);
 	}
 	
 	public function unsetCookies(){
-			$cookieDomain = $_SERVER['HTTP_HOST'];
 		
 		//Should be httpOnly so XSS exploits can't access this token
-		setcookie('accessToken', NULL, 0, '/', $cookieDomain, false, true);
+		setcookie('accessToken', NULL, 0, null, null, false, true);
 		
 		//XSRF is NOT httpOnly because it has to be added by the browser as a header
-		setcookie('XSRFToken', NULL, 0, '/', $cookieDomain, false, false);
+		setcookie('XSRFToken', NULL, 0, null, null, false, false);
 	}
 	
 	
@@ -156,7 +153,7 @@ class Token extends AbstractRecord {
 		}
 		
 				
-		if($checkXSRFToken) {
+		if($checkXSRFToken  && $token->checkXSRFToken) {
 			
 			if(self::requestXSRFToken() != $token->XSRFToken) {
 				throw new Exception("XSRFToken doesn't match!");

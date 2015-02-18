@@ -2,12 +2,13 @@
 namespace GO\Modules\Email\Controller;
 
 use GO\Core\App;
+use GO\Core\Auth\Model\User;
 use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Exception\NotFound;
-use GO\Core\Auth\Model\User;
 use GO\Modules\Email\Model\Account;
+use GO\Modules\Email\Model\Message;
 
 
 
@@ -19,6 +20,30 @@ use GO\Modules\Email\Model\Account;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class AccountController extends AbstractController {
+	
+	
+	protected function actionSync($accountId, $messageId=null, $resync=null){
+		
+		if(isset($messageId)){
+			$message = Message::findByPk($messageId);
+			$response['success'] = $message->sync();
+			
+			var_dump($message->getBody());
+			
+			
+		}else
+		{
+			$account = Account::findByPk($accountId);
+			
+			if(!empty($resync)){
+				$account->resync();
+			}
+
+			$response = $account->sync();
+		}
+		
+		return $this->renderJson($response);
+	}
 
 	/**
 	 * Fetch accounts

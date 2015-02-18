@@ -3,6 +3,7 @@
 namespace GO\Modules\Email\Model;
 
 use GO\Core\Db\AbstractRecord;
+use GO\Core\Db\Query;
 
 
 
@@ -32,6 +33,10 @@ class Address extends AbstractRecord {
 	
 	protected static function defineRelations() {
 		self::belongsTo('message', Message::className(), 'messageId');
+	}
+	
+	public function getIsMe(){		
+		return $this->email == $this->message(Query::newInstance()->select('id, accountId'))->account->fromEmail;
 	}
 	
 	

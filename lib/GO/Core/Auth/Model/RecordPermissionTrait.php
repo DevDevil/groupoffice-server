@@ -4,7 +4,6 @@ namespace GO\Core\Auth\Model;
 use Exception;
 use GO\Core\Db\Query;
 use GO\Core\Db\Relation;
-use GO\Modules\Contacts\Model\ContactRole;
 use PDO;
 use ReflectionClass;
 
@@ -13,10 +12,10 @@ use ReflectionClass;
  * 
  * This trait is for securing models (resources) based on roles.
  * 
- * <p>For example if you want to create an access control list on the Contact
- * model you have to create an ContactRole model that extends {@see AbstractRole}.</p>
+ * <p>For example if you want to create an access control list on the {@see \GO\Modules\Bands\Model\Band}
+ * model you have to create a {@see \GO\Modules\Bands\Model\BandRole} model that extends {@see AbstractRole}.</p>
  * 
- * <p>The Contact model must have 'ownerUserId' column and a 'roles' relation defined like this:</p>
+ * <p>The Band model must have 'ownerUserId' column and a 'roles' relation defined like this:</p>
  * 
  * <code>
  * public static function defineRelations(){
@@ -29,25 +28,31 @@ use ReflectionClass;
  * 	}
  * </code>
  * 
- * <p>Then you can use the {@see checkPermission()} function to check access and 
- * on select queries you can use the {@see findPermitted()} function to find permitted records only.</p>
+ * You can also define permission levels in the {@see \GO\Modules\Bands\Model\Band} 
+ * model. They are constants prefixed by "PERMISSION_" and have an integer value:
+ * 
+ * <code>
+ * const PERMISSION_READ = 0;
+ * const PERMISSION_WRITE = 1;	
+ * const PERMISSION_DELETE = 2;	
+ * </code>
+ * 
+ * <p>Then you can use the {@see Permissions::has()} function to check access 
+ * and on select queries you can use the {@see findPermitted()} function to find 
+ * permitted records only.</p>
  * 
  * <p>Examples:</p>
  * <code>
+ * $band = Band::findByPk($id);
  * 
- * $contact = Contact::findByPk($id);
- * 
- * if(!$contact->checkPermission('editAccess')){
- *   throw new Forbidden();
+ * //Check write permission
+ * if(!$band->permissions->has(Band::PERMISSION_WRITE)){
+ * 	 throw new Forbidden();
  * }
- * 
  * 
  * $permittedContacts = Contact::findPermitted($query);
  * 
  * </code>
- *
- * 
- * @see ContactRole
  * 
  * @property Permissions $permissions {@see RecordPermissionTrait::getPermissions()}
  * 
