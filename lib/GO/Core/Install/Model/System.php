@@ -67,10 +67,6 @@ class System extends AbstractModel{
 	 */
 	public function upgrade(){
 		
-//		if(!User::current()->isAdmin()){
-//			throw new Forbidden("Only admins may perform the upgrade");
-//		}
-		
 		if(!$this->isDatabaseInstalled()){
 			throw new \Exception("The database is not installed");
 		}

@@ -2,9 +2,10 @@
 
 namespace GO\Core\Auth\Controller;
 
-use GO\Core\Auth\Model\Token;
-use GO\Core\Auth\Model\User;
 use GO\Core\App;
+use GO\Core\Auth\Browser\Model\Token;
+use GO\Core\Auth\Model\User;
+use GO\Core\Controller\AbstractController;
 
 /**
  * The controller that handles authentication
@@ -15,7 +16,7 @@ use GO\Core\App;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class AuthController extends \GO\Core\Controller\AbstractController {
+class AuthController extends AbstractController {
 
 	protected function authenticate() {
 		return true;
@@ -26,7 +27,7 @@ class AuthController extends \GO\Core\Controller\AbstractController {
 	 */
 	protected function actionLogout() {
 		
-		$token = \GO\Core\Auth\Browser\Model\Token::findByCookie();		
+		$token = Token::findByCookie();		
 		if($token) {
 			$token->unsetCookies();
 			$token->delete();
@@ -51,14 +52,13 @@ class AuthController extends \GO\Core\Controller\AbstractController {
 	 */
 	public function actionLogin() {
 
-
 		$user = User::login(App::request()->payload['username'], App::request()->payload['password'], true);
 		
 		if($user){
-			$token = new \GO\Core\Auth\Browser\Model\Token();
+			$token = new Token();
 			$token->user = $user;
 			$token->save();
-			$token->setCoookies();
+			$token->setCookies();
 		}
 
 		$response = [
@@ -76,7 +76,7 @@ class AuthController extends \GO\Core\Controller\AbstractController {
 	}
 
 	public function actionIsLoggedIn() {
-		$token = \GO\Core\Auth\Browser\Model\Token::findByCookie(false);
+		$token = Token::findByCookie(false);
 //		if($token) {
 //			
 //			//resend cookies as client might need the XSRFToken again

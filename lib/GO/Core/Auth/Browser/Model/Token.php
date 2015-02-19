@@ -78,18 +78,17 @@ class Token extends AbstractRecord {
 	}
 	
 	private static function generateToken(){
-		if (function_exists('mcrypt_create_iv')) {
-            $randomData = mcrypt_create_iv(20, MCRYPT_DEV_URANDOM);
-            if ($randomData !== false && strlen($randomData) === 20) {
-                return bin2hex($randomData);
-            }
-        }
-        if (function_exists('openssl_random_pseudo_bytes')) {
-            $randomData = openssl_random_pseudo_bytes(20);
-            if ($randomData !== false && strlen($randomData) === 20) {
-                return bin2hex($randomData);
-            }
-        }
+		$randomData = mcrypt_create_iv(20, MCRYPT_DEV_URANDOM);
+		if ($randomData !== false && strlen($randomData) === 20) {
+			return bin2hex($randomData);
+		}
+        
+//        if (function_exists('openssl_random_pseudo_bytes')) {
+//            $randomData = openssl_random_pseudo_bytes(20);
+//            if ($randomData !== false && strlen($randomData) === 20) {
+//                return bin2hex($randomData);
+//            }
+//        }
 		
 		throw new Exception("We need mcrypt or openssl support in PHP!");
 	}
@@ -163,7 +162,7 @@ class Token extends AbstractRecord {
 	/**
 	 * Set's the token cookies
 	 */
-	public function setCoookies() {				
+	public function setCookies() {				
 		//Should be httpOnly so XSS exploits can't access this token
 		setcookie('accessToken', $this->accessToken, 0, "/", null, false, true);
 		

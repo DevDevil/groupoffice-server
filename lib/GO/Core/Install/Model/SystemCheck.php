@@ -45,6 +45,15 @@ class SystemCheck extends AbstractModel {
 				return new SystemCheckResult(false, "Your PHP version ($version) is older then the required version 5.4");
 			}
 		});
+		
+		$this->_registerCheck("Mcrypt extension", function(){			
+			if(function_exists("mcrypt_create_iv")) {
+				return new SystemCheckResult(true);
+			}else
+			{
+				return new SystemCheckResult(false, "Required, but not installed");
+			}
+		});
 
 		$this->_registerCheck(
 						"Database connection", function() {

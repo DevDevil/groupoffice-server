@@ -1,6 +1,7 @@
 <?php
 namespace GO\Core\Install\Controller;
 
+use GO\Core\AbstractModule;
 use GO\Core\Controller\AbstractController;
 use GO\Core\Install\Model\System;
 use GO\Core\Install\Model\SystemCheck;
@@ -52,10 +53,32 @@ class SystemController extends AbstractController {
 	 */
 	public function actionUpgrade() {
 		
+		//Disable because of problem with updates in auth mechanism
+//		if(!User::current()->isAdmin()){
+//			throw new Forbidden("Only admins may perform the upgrade");
+//		}
+//		
 		$system = new System();
 		
 		$system->upgrade();
 	
 		return $this->renderJson([]);
 	}
+	
+//	public function actionInstallModule($moduleName) {
+//		
+//		if(!User::current()->isAdmin()){
+//			throw new Forbidden("Only admins may perform the upgrade");
+//		}
+//		
+//		$success = false;
+//		if(class_exists($moduleName) && is_a($moduleName, AbstractModule::className())) {
+//			/* @var $module AbstractModule */			
+//			$module = new $moduleName;		
+//			$success = $module->install();
+//		}
+//		
+//		return $this->renderJson(['success' => true]);
+//		
+//	}
 }

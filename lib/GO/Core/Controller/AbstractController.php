@@ -121,7 +121,7 @@ abstract class AbstractController extends AbstractObject {
 	 * @return boolean
 	 */
 	protected function authenticate(){
-		return User::current() != false;
+		return App::accessToken() != false;
 	}
 	
 	private function jsonEncode($data){

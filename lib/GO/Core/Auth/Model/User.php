@@ -4,8 +4,8 @@ namespace GO\Core\Auth\Model;
 
 use DateTime;
 use GO\Core\App;
+use GO\Core\Auth\Browser\Model\Token;
 use GO\Core\Db\AbstractRecord;
-
 use GO\Core\Db\SoftDeleteTrait;
 use GO\Core\Model\Session;
 use GO\Core\Validate\ValidatePassword;
@@ -77,7 +77,6 @@ class User extends AbstractRecord {
 		
 		self::hasMany('userRole', UserRole::className(), "userId");
 		self::hasOne('role', Role::className(), 'userId');
-		self::hasMany('sessions', Session::className(), "userId");
 		self::hasMany('tokens', Token::className(), "userId");			
 		self::hasOne('contact', Contact::className(), 'userId');		
 	}

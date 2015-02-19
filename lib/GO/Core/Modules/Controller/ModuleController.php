@@ -2,10 +2,13 @@
 
 namespace GO\Core\Modules\Controller;
 
+use GO\Core\App;
+use GO\Core\Auth\Model\User;
 use GO\Core\Controller\AbstractController;
 use GO\Core\Data\Store;
 use GO\Core\Db\Query;
 use GO\Core\Modules\Model\Module;
+use Sabre\DAV\Exception\Forbidden;
 
 
 /**
@@ -42,4 +45,32 @@ class ModuleController extends AbstractController {
 
 		return $this->renderStore($store);
 	}
+	
+	/**
+	 * Create a new module. Use GET to fetch the default attributes or POST to add a new module.
+	 *
+	 * The attributes of this module should be posted as JSON in a module object
+	 *
+	 * <p>Example for POST and return data:</p>
+	 * <code>
+	 * {"data":{"className":"\GO\Modules\Bands\BandsModule"}}
+	 * </code>
+	 * 
+	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see GO\Core\Db\ActiveRecord::getAttributes()} for more information.
+	 * @return JSON Model data
+	 */
+	public function actionCreate($returnAttributes = []) {
+		
+		//Check edit permission
+		$module = new Module();	
+		if(!User::current()->isAdmin()){
+			throw new Forbidden();
+		}		
+		
+		$module->setAttributes(App::request()->payload['data']);
+		$module->save();
+
+		return $this->renderModel($module, $returnAttributes);
+	}
+
 }

@@ -71,6 +71,7 @@ use GO\Core\Modules\Model\Module;
  * |GET | system/upgrade | {@link GO\Core\Install\Controller\SystemController::actionUpgrade}|
  * |GET | system/check | {@link GO\Core\Install\Controller\SystemController::actionCheck}|
  * |GET | modules | {@link GO\Core\Modules\Controller\ModuleController::actionStore}|
+ * |POST | modules | {@link GO\Core\Modules\Controller\ModuleController::actionCreate}|
  * |GET | customfields/models | {@link GO\Modules\CustomFields\Controller\ModelController::actionGet}|
  * |GET | customfields/fieldsets/:modelName | {@link GO\Modules\CustomFields\Controller\FieldSetController::actionStore}|
  * |GET | customfields/fieldsets/:modelName/0 | {@link GO\Modules\CustomFields\Controller\FieldSetController::actionNew}|
@@ -251,7 +252,8 @@ class Router {
 				->get('system/check', 'check');
 		
 		ModuleController::routes()
-				->get('modules', 'store');
+				->get('modules', 'store')
+				->post('modules', 'create');
 
 		
 		
