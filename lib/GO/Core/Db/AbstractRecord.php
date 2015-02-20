@@ -433,6 +433,14 @@ abstract class AbstractRecord extends AbstractModel {
 		return $this->_isNew;
 	}
 	
+	/**
+	 * Get attribute value
+	 * 
+	 * An attribute is a magic property that comes from the database
+	 * 
+	 * @param string $name
+	 * @return mixed
+	 */
 	protected function getAttribute($name){
 		$col = $this->getColumn($name);
 
@@ -1517,10 +1525,10 @@ abstract class AbstractRecord extends AbstractModel {
 	 */
 	private function _getLastAttributePart(AbstractRecord $model, $part, &$return){		
 		
-		if($part === '*'){
-			$return = array_merge($return, $model->getAttributes());
-		}else
-		{
+//		if($part === '*'){
+//			$return = array_merge($return, $model->getAttributes());
+//		}else
+//		{
 			$attributes = $this->_extractAttributesFromLastPart($part);
 			
 			$attr = $model->{$part};
@@ -1540,7 +1548,7 @@ abstract class AbstractRecord extends AbstractModel {
 				
 				$return[$part] = $attr;
 			}
-		}
+//		}
 	}
 	
 	/**
@@ -1616,9 +1624,13 @@ abstract class AbstractRecord extends AbstractModel {
 	 */
 	public function getAttributes(array $returnAttributes = []) {		
 		
-		if (empty($returnAttributes)) {
-			$returnAttributes = $this->defaultReturnAttributes();
-		}
+		if (empty($returnAttributes) || ($asteriskKey = array_search('*', $returnAttributes)) !== false) {			
+			if(isset($asteriskKey)){
+				unset($returnAttributes[$asteriskKey]);
+			}
+			
+			$returnAttributes = array_unique(array_merge($returnAttributes, $this->defaultReturnAttributes()));
+		} 
 
 		$return = [];
 	

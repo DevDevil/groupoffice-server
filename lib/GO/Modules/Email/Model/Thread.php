@@ -36,7 +36,8 @@ class Thread extends AbstractRecord {
 	public $saveToMessages = false;
 	
 	protected static function defineRelations() {		
-		self::belongsTo('folder', Folder::className(), 'accountId');
+		self::belongsTo('account', Account::className(), 'accountId');
+		self::belongsTo('folder', Folder::className(), 'folderId');
 		self::hasMany('messages', Message::className(), 'threadId')->setQuery(Query::newInstance()->orderBy(['date'=>'DESC']));
 	}
 	

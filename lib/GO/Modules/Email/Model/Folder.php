@@ -95,9 +95,20 @@ class Folder extends AbstractRecord {
 	 * 
 	 * @return int
 	 */
-	public function getMessagesCount(){
+	public function messagesCount(){
 		return (int) $this->messages(Query::newInstance()->select('count(*) AS count')->setFetchMode(\PDO::FETCH_COLUMN, 0))->single();		
 	}
+	
+	
+	public function getUnseenCount(){
+		return (int) $this->messages(
+					Query::newInstance()
+					->select('count(*) AS count')
+					->where(['!=',['seen' => true]])
+					->setFetchMode(\PDO::FETCH_COLUMN, 0)
+				)->single();		
+	}
+	
 	
 	public $syncComplete = false;
 	

@@ -6,6 +6,7 @@ use GO\Core\AbstractModule;
 use GO\Modules\Email\Controller\AccountController;
 use GO\Modules\Email\Controller\AttachmentController;
 use GO\Modules\Email\Controller\FolderController;
+use GO\Modules\Email\Controller\MessageController;
 use GO\Modules\Email\Controller\ThreadController;
 
 class EmailModule extends AbstractModule {
@@ -30,10 +31,16 @@ class EmailModule extends AbstractModule {
 				->delete('email/accounts/:accountId/folders/:folderId', 'delete');
 
 		ThreadController::routes()
-				->get('email/accounts/:accountId/folders/:folderId/threads', 'store');
+				->get('email/accounts/:accountId/folders/:folderId/threads', 'store')
+				->get('email/accounts/:accountId/folders/:folderId/threads/:threadId', 'read');
+		
+//		MessageController::routes()
+//				->get('email/accounts/:accountId/folders/:folderId/messages', 'store')
+//				->get('email/accounts/:accountId/folders/:folderId/messages/:messageId', 'read');
 		
 		AttachmentController::routes()
-				->get('email/accounts/:accountId/folders/:folderId/threads/:threadId/attachment', 'read');
+				//->get('email/accounts/:accountId/folders/:folderId/threads/:threadId/attachments', 'store')
+				->get('email/accounts/:accountId/folders/:folderId/threads/:threadId/attachments/:attachmentId', 'read');
 
 //		return [
 //			'email' => [

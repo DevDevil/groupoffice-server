@@ -48,7 +48,7 @@ use GO\Modules\Timeline\Model\Item;
  * 
  * @property Item[] $timelineItems
  * @property Attachment[] $attachments
- * @property Message[] $references
+ * @property string[] $references
  * @property Account $account
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
@@ -76,8 +76,9 @@ class Message extends AbstractRecord {
 		self::hasMany('cc', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_CC]));
 		self::hasMany('bcc', Address::className(), 'messageId')->setQuery(Query::newInstance()->where(['type'=>  Address::TYPE_BCC]));
 
-		self::hasMany('addresses', Address::className(), 'messageId');
-
+		self::hasMany('addresses', Address::className(), 'messageId');		
+		self::belongsTo('thread', Thread::className(), 'threadId');
+		
 		self::hasMany('threadMessages', Message::className(), 'threadId', 'threadId');
 	
 	}
@@ -459,7 +460,7 @@ class Message extends AbstractRecord {
 		$this->inReplyTo = $imapMessage->inReplyTo;
 		
 		if(!empty($imapMessage->references)){
-			$this->references = str_replace(' ',',',$imapMessage->references);
+			$this->_references = preg_replace('/[\s]+/',',',$imapMessage->references);
 		}
 		
 		$this->imapUid = $imapMessage->uid;
@@ -506,10 +507,8 @@ class Message extends AbstractRecord {
 //		$this->hasAttachments = count($attachments);
 	}
 	
-	public function getReferences(){
-		$refs = empty($this->references) ? [] : explode(',', $this->references);
-		
-		return array_map('trim', $refs);
+	public function getReferences(){		
+		return empty($this->_references) ? [] : explode(',', $this->_references);		
 	}
 	
 	/**

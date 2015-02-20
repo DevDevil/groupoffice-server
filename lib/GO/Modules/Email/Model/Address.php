@@ -35,6 +35,11 @@ class Address extends AbstractRecord {
 		self::belongsTo('message', Message::className(), 'messageId');
 	}
 	
+	/**
+	 * Returns true if the address matches the e-mail account fromEmail address
+	 * 
+	 * @return boolean
+	 */
 	public function getIsMe(){		
 		return $this->email == $this->message(Query::newInstance()->select('id, accountId'))->account->fromEmail;
 	}

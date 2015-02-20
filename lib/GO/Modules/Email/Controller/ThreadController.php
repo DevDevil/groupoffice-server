@@ -29,6 +29,7 @@ class ThreadController extends AbstractController {
 //		$folder = Folder::find(['accountId' => $accountId, 'name' => 'INBOX'])->single();
 		
 		$accounts = Thread::find(Query::newInstance()
+								->select('t.*, count(*) AS messageCount')
 								->orderBy([$orderColumn => $orderDirection])
 								->limit($limit)
 								->offset($offset)
@@ -45,6 +46,7 @@ class ThreadController extends AbstractController {
 
 		$store = new Store($accounts);
 		$store->setReturnAttributes($returnAttributes);
+		$store->format('messageCount', function($model){return intval($model->messageCount);});
 
 		return $this->renderStore($store);
 	}
@@ -65,6 +67,9 @@ class ThreadController extends AbstractController {
 								->offset($offset)
 								->where(['threadId' => $threadId])							
 				);
+		
+		//$message = $accounts->single();		
+		//var_dump($message->toArray());
 								
 
 		$store = new Store($accounts);

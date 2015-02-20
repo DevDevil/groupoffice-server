@@ -118,22 +118,22 @@ class Account extends AbstractRecord {
 				if ($folder->uidValidity != $mailbox->getUidValidity()) {
 					//UID's not valid anymore! Set all uid's to null.	
 					//Also set folderId = null. This way we can also detect moves of mail because we search by messageId
-					App::dbConnection()->getPDO()->query('update emailMessage set imapUid=null, folderId=null where folderId=' . $folder->id);
-					App::dbConnection()->getPDO()->query('delete from emailThread where id IN (SELECT threadId FROM emailMessage WHERE folderId='.$folder->id.')');
+					
+					//App::dbConnection()->query('DELETE FROM emailThread WHERE id IN (SELECT threadId FROM emailMessage WHERE folderId='.$folder->id.')');
+					App::dbConnection()->query('UPDATE emailMessage SET imapUid=null, folderId=null WHERE folderId=' . $folder->id);
 
 					App::debug('UID\'s not valid anymore for folder: ' . $folder->name, 'imapsync');
 				}
 
 				$folder->uidValidity = $mailbox->getUidValidity();
 			}
-			
 
 			$folder->save();
 
 			$folders[] = $folder;
 			$imapCount = $mailbox->getMessagesCount();
 			
-			$this->syncResponse['folders'][$folder->name]=['imapCount' => $imapCount, 'dbCount' => $folder->getMessagesCount()];
+			$this->syncResponse['folders'][$folder->name]=['imapCount' => $imapCount, 'dbCount' => $folder->messagesCount()];
 			
 			$this->syncResponse['imapCount'] += $imapCount;
 		}
@@ -153,7 +153,7 @@ class Account extends AbstractRecord {
 //		App::dbConnection()->getPDO()->query('delete from emailMessage where accountId='.intval($this->id));
 		
 		//This uidValidity value is checked in _syncMailboxes
-		App::dbConnection()->getPDO()->query('update emailFolder set uidValidity = null where accountId='.$this->id);
+		App::dbConnection()->query('update emailFolder set uidValidity = null where accountId='.$this->id);
 	}
 	
 	public function getMessagesCount(){
@@ -180,7 +180,7 @@ class Account extends AbstractRecord {
 		$this->syncResponse = ['stage' => 'new', 'dbCount' => 0, 'imapCount' => 0, 'mailboxes' => []];
 
 		$folders = $this->_syncMailboxes();
-
+	
 		App::debugger()->debugTiming("Mailboxes synced");
 
 		if($this->_syncGetNew($folders)){
@@ -332,8 +332,7 @@ class Account extends AbstractRecord {
 	}
 
 	private function findThreadByReferences(Message $message) {
-		$refs = $message->getReferences();
-
+		$refs = $message->references;
 		if (!empty($refs)) {
 
 			$q = Query::newInstance()
@@ -390,6 +389,8 @@ class Account extends AbstractRecord {
 		foreach ($messages as $message) {
 
 			$orgMessage = $this->findThreadByReferences($message);
+			
+			
 
 //			if(!$orgMessage){
 //				$orgMessage = $this->findThreadBySubject($message);
@@ -397,10 +398,10 @@ class Account extends AbstractRecord {
 
 			if ($orgMessage) {
 				if ($orgMessage->threadId == null) {					
-					$thread = $orgMessage->createThread();
+					$orgMessage->createThread();
 				}
 
-				$message->threadId = $thread->id;
+				$message->threadId = $orgMessage->threadId;
 				$message->save();
 			}else
 			{
