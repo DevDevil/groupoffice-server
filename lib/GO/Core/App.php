@@ -2,6 +2,7 @@
 
 namespace GO\Core;
 
+use GO\Core\Auth\Browser\Model\Token;
 use GO\Core\Cache\Disk;
 use GO\Core\Db\Connection;
 use GO\Core\Http\Request;
@@ -200,17 +201,24 @@ class App {
 	/**
 	 * Get the access token
 	 * 
-	 * The current token the user identifies with. Can be used for a temporary folder:
+	 * The current token the user identifies with. It can also be used to verify
+	 * that there is a currently logged in user. At the moment in only uses the
+	 * {@see Auth\Browser\Model\Token} model to authenticate.
+	 * 
+	 * Can be used for a temporary folder:
 	 * 
 	 * <code>
 	 * $folder = App::accessToken()->temporaryFolder();
 	 * </code>
-	 *  
+	 * 
+	 * @todo Implemnt Oauth2
 	 * @return Token
 	 */
 	public static function accessToken() {
 		if (empty(self::$cache['accessToken'])) {
-			self::$cache['accessToken'] = Auth\Browser\Model\Token::findByCookie();
+			self::$cache['accessToken'] = Token::findByCookie();
+			
+			//Check oauth here second
 		}
 
 		return self::$cache['accessToken'];

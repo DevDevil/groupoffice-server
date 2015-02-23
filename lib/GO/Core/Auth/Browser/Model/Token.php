@@ -24,6 +24,17 @@ use GO\Core\Db\Column;
  * "XSRFToken". The header method is preferred but with images in the browser we 
  * can't use the header method. 
  * 
+ * Optionally you can disable the token checking in config.php:
+ * <code>
+ * 'GO\Core\Auth\Browser\Model\Token' => [
+			"checkXSRFToken" => false //Can be convenient to disable in development mode.
+		],
+ * </code>
+ * 
+ * Authentication starts in {@see \GO\Core\Controller\AbstractController::authenticate()}. 
+ * It calls the {@see App::accessToken()} function that tries to determine the 
+ * currently logged in user. This function uses this token model to authenticate.
+ * 
  * 
  * @link http://jaspan.com/improved_persistent_login_cookie_best_practice
  *

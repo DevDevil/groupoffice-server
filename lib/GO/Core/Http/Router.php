@@ -3,9 +3,10 @@
 namespace GO\Core\Http;
 
 use GO\Core\App;
-use GO\Core\Auth\Controller\AuthController;
+use GO\Core\Auth\Browser\Controller\AuthController;
 use GO\Core\Auth\Controller\RoleController;
 use GO\Core\Auth\Controller\UserController;
+use GO\Core\Auth\Oauth2\Controller\Oauth2Controller;
 use GO\Core\Exception\HttpException;
 use GO\Core\Install\Controller\SystemController;
 use GO\Core\Install\Model\System;
@@ -153,7 +154,7 @@ class Router {
 	 * 
 	 * Don't call this function yourself. Use {@see \GO\Core\Controller\AbstractController::routes()}.
 	 * 
-	 * @param \GO\Core\Http\RoutesCollection $routes
+	 * @param RoutesCollection $routes
 	 */
 	public function addRoutes(RoutesCollection $routes) {
 		$this->_routeCollections[] = $routes;
@@ -227,7 +228,7 @@ class Router {
 				->delete('auth', 'logout');
 		
 		
-		\GO\Core\Auth\Oauth2\Controller\Oauth2Controller::routes()
+		Oauth2Controller::routes()
 				->post('auth/oauth2/token', 'token');
 		
 		UserController::routes()				

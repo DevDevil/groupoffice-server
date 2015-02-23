@@ -114,9 +114,12 @@ abstract class AbstractController extends AbstractObject {
 	}
 	
 	/**
-	 * Authenticate the current user
+	 * Authenticate
 	 * 
-	 * Override this for special use cases.
+	 * Checks if there's a logged in user.
+	 * 
+	 * Override this for special use cases. By default it checks the presence
+	 * of {@see App::accessToken()}.
 	 * 
 	 * @return boolean
 	 */

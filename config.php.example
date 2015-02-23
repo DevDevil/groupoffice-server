@@ -19,6 +19,10 @@ return [
 			'enabled' => true
 		],
 	
+//		'GO\Core\Auth\Browser\Model\Token' => [
+//			"checkXSRFToken" => false //Can be convenient to disable in development mode.
+//		],
+	
 		'GO\Modules\Addressbook\Model\Contact' => [
 			'defaultCountry' => 'NL'
 		]

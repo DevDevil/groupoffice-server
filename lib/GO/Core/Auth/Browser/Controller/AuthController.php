@@ -1,6 +1,6 @@
 <?php
 
-namespace GO\Core\Auth\Controller;
+namespace GO\Core\Auth\Browser\Controller;
 
 use GO\Core\App;
 use GO\Core\Auth\Browser\Model\Token;
@@ -61,9 +61,13 @@ class AuthController extends AbstractController {
 			$token->setCookies();
 		}
 
-		$response = [
+		$response = [			
 			'success' => $user !== false
 		];
+		
+		if($response['success']) {
+			$response['XSRFToken'] = $token->XSRFToken;
+		}
 
 //		if ($response['success']) {
 //			//todo remember for different clients

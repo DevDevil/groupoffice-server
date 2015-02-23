@@ -10,6 +10,7 @@ use GO\Core\Db\SoftDeleteTrait;
 use GO\Core\Model\Session;
 use GO\Core\Validate\ValidatePassword;
 use GO\Modules\Contacts\Model\Contact;
+use GO\Modules\Contacts\Model\ContactRole;
 
 /**
  * User model
@@ -92,22 +93,16 @@ class User extends AbstractRecord {
 	/**
 	 * Get the current logged in user.
 	 * 
-	 * If no user is logged in authorization by a remember me authorization header is attempted.
+	 * It uses {@see App::accessToken()} to determine the user.
 	 *
 	 * @return self|boolean
 	 */
 	public static function current() {
-		if (!isset(self::$currentUser)) {		
-
-			
-			//$oauth2Provider = new \GO\Core\Auth\Oauth2\Provider();
-			//self::$currentUser = $oauth2Provider->getUser();
-			
+		if (!isset(self::$currentUser)) {
 			$token = App::accessToken();			
 			if($token) {			
 				self::$currentUser = $token->user;
 			}			
-			//self::$currentUser = Token::loginWithToken();			
 		}
 
 		return self::$currentUser;
@@ -222,6 +217,23 @@ class User extends AbstractRecord {
 			$ur->userId = $this->id;
 			$ur->roleId = Role::findEveryoneRole()->id;
 			$ur->save();
+			
+			
+			if($this->contact) {
+				
+				$contactRole = new ContactRole();
+				$contactRole->contactId = $this->contact->id;
+				$contactRole->roleId = $role->id;
+				$contactRole->permissionType = Contact::PERMISSION_READ;
+				$contactRole->save();
+				
+				$contactRole = new ContactRole();
+				$contactRole->contactId = $this->id;
+				$contactRole->roleId = $role->id;
+				$contactRole->permissionType = Contact::PERMISSION_WRITE;
+				$contactRole->save();
+				
+			}
 		}
 
 		return $success;

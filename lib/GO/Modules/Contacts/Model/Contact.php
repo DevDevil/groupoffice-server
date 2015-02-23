@@ -212,20 +212,6 @@ class Contact extends AbstractRecord {
 			$model->permissionType = Contact::PERMISSION_DELETE;
 			$model->save();
 			
-			if($this->userId > 0){
-				$contactRole = new ContactRole();
-				$contactRole->contactId = $this->id;
-				$contactRole->roleId = $this->user->role->id;
-				$contactRole->permissionType = Contact::PERMISSION_READ;
-				$contactRole->save();
-				
-				$contactRole = new ContactRole();
-				$contactRole->contactId = $this->id;
-				$contactRole->roleId = $this->user->role->id;
-				$contactRole->permissionType = Contact::PERMISSION_WRITE;
-				$contactRole->save();
-			}
-			
 			$autoRoles = Role::findAutoRoles();
 			
 			foreach($autoRoles as $role){

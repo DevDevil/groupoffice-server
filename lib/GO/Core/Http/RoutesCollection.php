@@ -32,7 +32,7 @@ class RoutesCollection {
 	 * Example:
 	 * 
 	 * <code>
-	 * AuthController::routes()
+	 * BrowserController::routes()
 	 *			->get('auth/users', 'store');
 	 * </code>
 	 * 
@@ -50,7 +50,7 @@ class RoutesCollection {
 	 * Example:
 	 * 
 	 * <code>
-	 * AuthController::routes()
+	 * BrowserController::routes()
 	 *			->get('auth/users', 'create');
 	 * </code>
 	 * 
