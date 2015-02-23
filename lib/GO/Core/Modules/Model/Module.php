@@ -71,7 +71,7 @@ class Module extends AbstractRecord{
 	
 	/**
 	 * 
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 * @todo Transaction on install
 	 */
 	public function save() {

@@ -160,7 +160,7 @@ class Token extends AbstractRecord {
 	}
 	
 	/**
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 */
 	public function delete() {
 

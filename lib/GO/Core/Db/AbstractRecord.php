@@ -575,7 +575,7 @@ abstract class AbstractRecord extends AbstractModel {
 
 	/**
 	 *
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 */
 	public function __isset($name) {
 		return isset($this->_attributes[$name]) ||

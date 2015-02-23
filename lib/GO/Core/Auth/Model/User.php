@@ -56,7 +56,7 @@ class User extends AbstractRecord {
 
 	/**
 	 *
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 */
 	protected static function defineValidationRules() {
 
@@ -69,7 +69,7 @@ class User extends AbstractRecord {
 
 	/**
 	 *
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 */
 	public static function defineRelations() {		
 		
@@ -191,7 +191,7 @@ class User extends AbstractRecord {
 
 	/**
 	 *
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 */
 	public function save() {
 
@@ -240,7 +240,7 @@ class User extends AbstractRecord {
 	}
 
 	/**
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 */
 	public function delete() {
 		if ($this->id === 1) {
