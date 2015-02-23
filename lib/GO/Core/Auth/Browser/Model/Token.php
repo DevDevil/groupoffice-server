@@ -32,7 +32,7 @@ use GO\Core\Db\Column;
  * </code>
  * 
  * Authentication starts in {@see \GO\Core\Controller\AbstractController::authenticate()}. 
- * It calls the {@see App::accessToken()} function that tries to determine the 
+ * It calls the {@see \GO\Core\App::accessToken()} function that tries to determine the 
  * currently logged in user. This function uses this token model to authenticate.
  * 
  * 

@@ -203,7 +203,7 @@ class App {
 	 * 
 	 * The current token the user identifies with. It can also be used to verify
 	 * that there is a currently logged in user. At the moment in only uses the
-	 * {@see Auth\Browser\Model\Token} model to authenticate.
+	 * {@see \GO\Core\Auth\Browser\Model\Token} model to authenticate.
 	 * 
 	 * Can be used for a temporary folder:
 	 * 
