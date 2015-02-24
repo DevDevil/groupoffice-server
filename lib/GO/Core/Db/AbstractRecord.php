@@ -141,6 +141,31 @@ use GO\Core\Validate\ValidateUnique;
  */
 abstract class AbstractRecord extends AbstractModel {
 	
+	
+//	use \GO\Core\ObservableTrait;
+	
+	/**
+	 * Event fired in the save function.
+	 * 
+	 * Save can be cancelled by returning false or setting validation errors.
+	 * 
+	 * Arguments:
+	 * - AbstractRecord $model
+	 */
+	const EVENT_SAVE = 0;
+	
+	
+	/**
+	 * Event fired in the delete function.
+	 * 
+	 * Delete can be cancelled by returning false.
+	 * 
+	 * Arguments:
+	 * - AbstractRecord $model
+	 */
+	const EVENT_DELETE = 1;
+
+
 	/**
 	 * When this is set to true the model will be deleted on save.
 	 * Useful for saving relations.
@@ -831,6 +856,11 @@ abstract class AbstractRecord extends AbstractModel {
 		if($this->markDeleted){
 			return $this->delete();
 		}
+		
+//		if(!$this->fireEvent(self::EVENT_SAVE)){
+//			$this->setValidationError('event', 'EVENT_SAVE');
+//			return false;
+//		}
 
 		if (!$this->validate()) {
 			return false;
@@ -1377,6 +1407,11 @@ abstract class AbstractRecord extends AbstractModel {
 			App::debug("Not deleting because this model is new");
 			return true;
 		}
+		
+//		if(!$this->fireEvent(self::EVENT_DELETE)){
+//			$this->setValidationError('event', 'EVENT_DELETE');
+//			return false;
+//		}
 		
 		$this->deleteCheckRestrictions();
 		

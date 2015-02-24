@@ -62,6 +62,15 @@ use ReflectionClass;
  */
 trait RecordPermissionTrait {
 	
+//	function init(){
+//		
+//		$this->on(self::EVENT_SAVE, function($record) {
+//			$record->permissions->has();
+//		});
+//		
+//		parent::init();
+//	}
+	
 	private $_permission;
 	
 	/**
