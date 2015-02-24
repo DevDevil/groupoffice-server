@@ -30,12 +30,13 @@ class ProposalController extends AbstractController{
 	 * @param array|JSON $returnAttributes The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see GO\Core\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 'id', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = [], $where = null) {
+	public function actionStore($projectId, $orderColumn = 'id', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnAttributes = [], $where = null) {
 
 		$query = Query::newInstance()
 				->orderBy([$orderColumn => $orderDirection])
 				->limit($limit)
-				->offset($offset);
+				->offset($offset)
+				->where(['id' => $projectId]);
 //
 //		if (!empty($searchQuery)) {
 //			$query->search($searchQuery, ['name']);

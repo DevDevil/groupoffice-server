@@ -35,6 +35,9 @@ CREATE TABLE IF NOT EXISTS `projectsProject` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+ALTER TABLE `projectsProject`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
 
 -- -----------------------------------------------------
 -- Table `projectsProposalItem`

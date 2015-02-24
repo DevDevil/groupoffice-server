@@ -4,6 +4,7 @@ namespace GO\Modules\Projects\Model;
 //use GO\Core\Auth\Model\RecordPermissionTrait;
 
 
+use GO\Core\Auth\Model\User;
 use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\SoftDeleteTrait;
 use GO\Modules\Contacts\Model\Contact;
@@ -44,6 +45,17 @@ class Project extends AbstractRecord{
 //		self::hasMany('roles', ProjectRole::className(), 'projectId');
 		self::hasOne('contact', Contact::className(), 'contactId');
 //		self::hasOne('company', Company::className(), 'companyId');
+	}
+	
+	public function save() {
+		
+		// Set the createdBy property by default to the current logged in user id.
+		// Only applied when the property isn't set already and if the model is new.
+		if($this->isNew() && empty($this->createdBy)){
+			$this->createdBy = User::current() ? User::current()->id : 1;
+		}
+		
+		return parent::save();
 	}
 	
 }

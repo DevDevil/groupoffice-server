@@ -53,8 +53,8 @@ class ProjectController extends AbstractController{
 			}
 		}
 
-		$projects = Project::findPermitted($query);
-
+//		$projects = Project::findPermitted($query);
+		$projects = Project::find($query);
 
 		$store = new Store($projects);
 		$store->setReturnAttributes($returnAttributes);
@@ -96,9 +96,9 @@ class ProjectController extends AbstractController{
 		}
 
 
-		if (!$project->checkPermission('readAccess')) {
-			throw new Forbidden();
-		}
+//		if (!$project->checkPermission('readAccess')) {
+//			throw new Forbidden();
+//		}
 
 		return $this->renderModel($project, $returnAttributes);
 
@@ -121,9 +121,9 @@ class ProjectController extends AbstractController{
 	public function actionCreate($returnAttributes = []) {
 		
 		
-		if (!ProjectsModule::model()>single()->checkPermission('createAccess')) {
-			throw new Forbidden();
-		}
+//		if (!ProjectsModule::model()>single()->checkPermission('createAccess')) {
+//			throw new Forbidden();
+//		}
 
 		$project = new Project();
 		$project->setAttributes(App::request()->payload['data']);
@@ -161,9 +161,9 @@ class ProjectController extends AbstractController{
 			throw new NotFound();
 		}
 		
-		if (!$project->checkPermission('editAccess')) {
-			throw new Forbidden();
-		}
+//		if (!$project->checkPermission('editAccess')) {
+//			throw new Forbidden();
+//		}
 
 		$project->setAttributes(App::request()->payload['data']);
 		$project->save();
@@ -184,9 +184,9 @@ class ProjectController extends AbstractController{
 			throw new NotFound();
 		}
 		
-		if (!$project->checkPermission('deleteAccess')) {
-			throw new Forbidden();
-		}
+//		if (!$project->checkPermission('deleteAccess')) {
+//			throw new Forbidden();
+//		}
 
 		$project->delete();
 
