@@ -80,11 +80,6 @@ class BandController extends AbstractController {
 		if (!$band) {
 			throw new NotFound();
 		}
-		
-		//Check read permission
-		if(!$band->permissions->has(Band::PERMISSION_READ)){
-			throw new Forbidden();
-		}
 
 		return $this->renderModel($band, $returnAttributes);
 	}
@@ -124,7 +119,7 @@ class BandController extends AbstractController {
 		
 		//Check edit permission
 		$band = new Band();	
-		if(BandsModule::newInstance()->permissions->has(BandsModule::PERMISSION_CREATE)){
+		if(BandsModule::model()->permissions->has(BandsModule::PERMISSION_CREATE)){
 			throw new Forbidden();
 		}		
 		
@@ -156,11 +151,6 @@ class BandController extends AbstractController {
 		if (!$band) {
 			throw new NotFound();
 		}
-		
-		//Check edit permission
-		if(!$band->permissions->has(Band::PERMISSION_WRITE)){
-			throw new Forbidden();
-		}
 
 		$band->setAttributes(App::request()->payload['data']);
 
@@ -181,10 +171,6 @@ class BandController extends AbstractController {
 
 		if (!$band) {
 			throw new NotFound();
-		}
-		
-		if(!$band->permissions->has(Band::PERMISSION_DELETE)){
-			throw new Forbidden();
 		}
 
 		$band->delete();

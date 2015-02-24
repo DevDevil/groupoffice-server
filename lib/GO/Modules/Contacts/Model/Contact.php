@@ -35,28 +35,12 @@ use GO\Modules\Timeline\Model\Item;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Contact extends AbstractRecord {
-	
-	use RecordPermissionTrait;
-	
+class Contact extends \GO\Core\Auth\Model\AbstractCRUDRecord {
+		
 	use SoftDeleteTrait;
 	
 	use RecordFolderTrait;
 	
-	/**
-	 * Allow read access to the role
-	 */
-	const PERMISSION_READ = 0;
-	
-	/**
-	 * Allow write access to the role
-	 */
-	const PERMISSION_WRITE = 1;	
-	
-	/**
-	 * Allow delete access to the role
-	 */
-	const PERMISSION_DELETE = 2;
 	
 	
 	

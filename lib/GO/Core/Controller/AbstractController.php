@@ -116,16 +116,36 @@ abstract class AbstractController extends AbstractObject {
 	/**
 	 * Authenticate
 	 * 
-	 * Checks if there's a logged in user.
+	 * Checks if there's a logged in user and if the user has access to the module
+	 * this controller belong too if applicable.
 	 * 
 	 * Override this for special use cases. By default it checks the presence
-	 * of {@see App::accessToken()}.
+	 * of {@see User::current()}.
 	 * 
 	 * @return boolean
 	 */
 	protected function authenticate(){
-		return App::accessToken() != false;
+		if(User::current() === false) {
+			return false;
+		}
+		
+		$module = $this->moduleName();
+		if(!$module){
+			//core class
+			return true;
+		}
+		
+		/* @var  $moduleModel \GO\Core\Modules\Model\Module */
+		
+		$moduleModel = $module::model();
+		
+		if(!$moduleModel->permissions->has($moduleModel::PERMISSION_USE)){
+			return false;
+		}
+		
+		return true;
 	}
+	
 	
 	private function jsonEncode($data){
 		$json = json_encode($data, JSON_PRETTY_PRINT);

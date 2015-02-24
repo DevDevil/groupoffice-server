@@ -2,8 +2,10 @@
 namespace GO\Core\Auth\Model;
 
 use Exception;
+use GO\Core\Db\AbstractRecord;
 use GO\Core\Db\Query;
 use GO\Core\Db\Relation;
+use GO\Core\Exception\Forbidden;
 use PDO;
 use ReflectionClass;
 
@@ -62,13 +64,44 @@ use ReflectionClass;
  */
 trait RecordPermissionTrait {
 	
-//	function init(){
+//
+//	private function _enableCRUDPermissions(){		
 //		
-//		$this->on(self::EVENT_SAVE, function($record) {
-//			$record->permissions->has();
+//		$this->on(self::EVENT_CONSTRUCT, function(AbstractRecord $record) {
+//
+//			if($record->isNew()) {
+//				return true;
+//			}
+//
+//			if(!$record->permissions->has(self::PERMISSION_READ)){
+//				throw new Forbidden();
+//			}
 //		});
 //		
-//		parent::init();
+//		
+//		$this->on(self::EVENT_BEFORE_SAVE, function(AbstractRecord $record) {
+//
+//			if($record->isNew()) {
+//				return true;
+//			}
+//
+//			if(!$record->permissions->has(self::PERMISSION_WRITE)){
+//				throw new Forbidden();
+//			}
+//		});
+//
+//		
+//		
+//		$this->on(self::EVENT_BEFORE_DELETE, function(AbstractRecord $record) {
+//
+//			if($record->isNew()) {
+//				return true;
+//			}
+//
+//			if(!$record->permissions->has(self::PERMISSION_DELETE)){
+//				throw new Forbidden();
+//			}
+//		});	
 //	}
 	
 	private $_permission;
@@ -168,9 +201,11 @@ trait RecordPermissionTrait {
 	 */
 	public static function findPermitted(Query $query = null, $accessName = null, $userId = null) {
 		
-		$permissionQuery = self::getPermissionsQuery($query, $accessName, $userId);
+		if($userId != null || !User::current() || !User::current()->isAdmin()){		
+			$query = self::_germissionsQuery($query, $accessName, $userId);
+		}
 
-		return static::find($permissionQuery);
+		return static::find($query);
 	}
 	
 	/**
@@ -199,7 +234,7 @@ trait RecordPermissionTrait {
 	 * 
 	 * @return Query
 	 */
-	public static function getPermissionsQuery(Query $query = null, $permissionType = null, $userId = null){
+	private static function _germissionsQuery(Query $query = null, $permissionType = null, $userId = null){
 		if(!isset($query)){
 			$query = new Query();
 		}

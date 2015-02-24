@@ -11,7 +11,7 @@ use PHPUnit_Framework_TestCase;
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class ActiveRecordTest extends PHPUnit_Framework_TestCase {
+class AbstractRecordTest extends PHPUnit_Framework_TestCase {
 
 	public function testTimezone() {
 
@@ -22,6 +22,11 @@ class ActiveRecordTest extends PHPUnit_Framework_TestCase {
 	
 	
 	public function testAll(){
+		
+		//login as admin
+		$admin = User::findByPk(1);
+		$admin->setCurrent();
+		
 		$this->_testCreateUser();
 		$this->_testHasMany();
 		$this->_testSetHasOne();

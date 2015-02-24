@@ -51,13 +51,20 @@ abstract class AbstractObject {
 	}
 	
 	/**
-	 * Get the name of the module this object belongs too. This is the 2rd
-	 * part of the namespace;
+	 * Get the name of the module this object belongs too. 
 	 * 
-	 * @return string
+	 * The name is the full class path of the module manager file:
+	 * 
+	 * eg. GO\Modules\Bands\BandsModule
+	 * 
+	 * @return string|false Returns false if it belongs to the core.
 	 */
 	public static function moduleName(){
 		$parts = explode("\\", static::className());
+		
+		if($parts[1] == 'Core') {
+			return false;
+		}
 		
 		//eg.  GO \    Modules \		Contacts  \\ ContactModule
 		$cls = $parts[0].'\\'.$parts[1].'\\'.$parts[2].'\\'.$parts[2].'Module';

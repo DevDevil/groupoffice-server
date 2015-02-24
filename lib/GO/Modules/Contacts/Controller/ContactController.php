@@ -153,11 +153,6 @@ class ContactController extends AbstractController {
 			throw new NotFound();
 		}
 
-
-		if (!$contact->permissions->has(Contact::PERMISSION_READ)) {
-			throw new Forbidden();
-		}
-
 		return $this->renderModel($contact, $returnAttributes);
 
 	}
@@ -218,10 +213,6 @@ class ContactController extends AbstractController {
 		if (!$contact) {
 			throw new NotFound();
 		}
-		
-		if (!$contact->permissions->has(Contact::PERMISSION_WRITE)) {
-			throw new Forbidden();
-		}
 
 		$contact->setAttributes(App::request()->payload['data']);
 		$contact->save();
@@ -240,10 +231,6 @@ class ContactController extends AbstractController {
 
 		if (!$contact) {
 			throw new NotFound();
-		}
-		
-		if (!$contact->permissions->has(Contact::PERMISSION_DELETE)) {
-			throw new Forbidden();
 		}
 
 		$contact->delete();
