@@ -75,7 +75,7 @@ class Permissions implements ArrayConvertableInterface {
 		$userId = $this->getUserId();
 			
 		
-		$relation = self::getRolesRelation();
+		$relation = $this->_record->getRolesRelation();
 		$roleModelName = $relation->getRelatedModelName();
 		
 		$query = Query::newInstance()
@@ -83,7 +83,7 @@ class Permissions implements ArrayConvertableInterface {
 
 		$query->where([
 			'permissionType' => $permissionType,
-			$roleModelName::resourceKey() => $this->_record->{$this->_record->primaryKeyColumn()},
+			$roleModelName::resource()->getKey() => $this->_record->{$this->_record->primaryKeyColumn()},
 			'users.userId' => $userId
 		]);
 

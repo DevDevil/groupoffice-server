@@ -141,8 +141,7 @@ use GO\Core\Validate\ValidateUnique;
  */
 abstract class AbstractRecord extends AbstractModel {
 	
-	
-//	use \GO\Core\ObservableTrait;
+	use \GO\Core\Event\ObservableTrait;
 	
 	/**
 	 * Event fired in the save function.
@@ -152,7 +151,7 @@ abstract class AbstractRecord extends AbstractModel {
 	 * Arguments:
 	 * - AbstractRecord $model
 	 */
-	const EVENT_SAVE = 0;
+	const EVENT_BEFORE_SAVE = 0;
 	
 	
 	/**
@@ -163,7 +162,13 @@ abstract class AbstractRecord extends AbstractModel {
 	 * Arguments:
 	 * - AbstractRecord $model
 	 */
-	const EVENT_DELETE = 1;
+	const EVENT_BEFORE_DELETE = 1;
+	
+	
+	
+	
+	const EVENT_CONSTRUCT = 2;
+	const EVENT_FIND = 3;
 
 
 	/**
@@ -280,6 +285,8 @@ abstract class AbstractRecord extends AbstractModel {
 		}
 
 		$this->loadingFromDatabase = false;
+		
+		$this->fireEvent(self::EVENT_CONSTRUCT, $this);
 	}
 
 	/**
@@ -857,10 +864,10 @@ abstract class AbstractRecord extends AbstractModel {
 			return $this->delete();
 		}
 		
-//		if(!$this->fireEvent(self::EVENT_SAVE)){
-//			$this->setValidationError('event', 'EVENT_SAVE');
-//			return false;
-//		}
+		if(!$this->fireEvent(self::EVENT_BEFORE_SAVE, $this)){
+			$this->setValidationError('event', 'EVENT_SAVE');
+			return false;
+		}
 
 		if (!$this->validate()) {
 			return false;
@@ -1232,6 +1239,8 @@ abstract class AbstractRecord extends AbstractModel {
 			$query = Query::newInstance()->where($query);
 		}
 		
+		static::fireEvent(self::EVENT_FIND, $query);
+		
 		return new Finder(get_called_class(), $query);
 	}
 
@@ -1408,10 +1417,10 @@ abstract class AbstractRecord extends AbstractModel {
 			return true;
 		}
 		
-//		if(!$this->fireEvent(self::EVENT_DELETE)){
-//			$this->setValidationError('event', 'EVENT_DELETE');
-//			return false;
-//		}
+		if(!$this->fireEvent(self::EVENT_BEFORE_DELETE, $this)){
+			$this->setValidationError('event', 'EVENT_BEFORE_DELETE');
+			return false;
+		}
 		
 		$this->deleteCheckRestrictions();
 		

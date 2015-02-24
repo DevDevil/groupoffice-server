@@ -32,9 +32,9 @@ use GO\Core\Db\Column;
  * </code>
  * 
  * Authentication starts in {@see \GO\Core\Controller\AbstractController::authenticate()}. 
- * It calls the {@see \GO\Core\App::accessToken()} function that tries to determine the 
- * currently logged in user. This function uses this token model to authenticate.
- * 
+ * It calls the {@see \GO\Core\Auth\User::current()} function that tries to 
+ * determine the currently logged in user. This function uses this token model 
+ * to authenticate.
  * 
  * @link http://jaspan.com/improved_persistent_login_cookie_best_practice
  *
@@ -104,6 +104,9 @@ class Token extends AbstractRecord {
 		throw new Exception("We need mcrypt or openssl support in PHP!");
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function save() {
 		
 		$ret = parent::save();

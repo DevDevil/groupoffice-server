@@ -271,6 +271,8 @@ class User extends AbstractRecord {
 		
 		return crypt($password, $currentPassword) === $currentPassword;
 	}
+	
+	private $_isAdmin;
 
 	/**
 	 * Check if this user is in the admins role
@@ -279,8 +281,11 @@ class User extends AbstractRecord {
 	 */
 	public function isAdmin() {
 
-		$ur = UserRole::findByPk(['userId' => $this->id, 'roleId' => Role::adminRoleId]);
+		if(!isset($this->_isAdmin)){
+			$ur = UserRole::findByPk(['userId' => $this->id, 'roleId' => Role::adminRoleId]);
+			$this->_isAdmin = $ur !== false;
+		}
 
-		return $ur !== false;
+		return $this->_isAdmin;
 	}
 }
