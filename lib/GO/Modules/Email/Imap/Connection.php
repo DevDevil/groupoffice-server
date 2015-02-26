@@ -92,8 +92,18 @@ class Connection {
 	private function getHandle() {
 
 		if (!isset($this->handle)) {
-			$server = $this->ssl ? 'ssl://' . $this->server : $this->server;
-			$this->handle = fsockopen($server, $this->port, $errorno, $errorstr, 10);
+			
+			$streamContext = stream_context_create(['ssl' => [
+					"verify_peer"=>false,
+					"verify_peer_name"=>false
+			]]);
+			
+			$errorno = null;
+			$errorstr = null;
+			$remote = $this->ssl ? 'ssl://' : '';			
+			$remote .=  $this->server.":".$this->port;
+			
+			$this->handle = stream_socket_client($remote, $errorno, $errorstr, 10, STREAM_CLIENT_CONNECT, $streamContext);
 		}
 
 		if (!is_resource($this->handle)) {

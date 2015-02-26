@@ -6,10 +6,10 @@ use GO\Core\Exception\Forbidden;
 
 
 /** 
- * CRUD record
+ * Proteced record
  * 
- * Extend this record class if you want to secure your model with READ, WRITE and
- * DELETE permissions.
+ * Extend this record class if you want to protect your model with READ, WRITE 
+ * and DELETE permissions.
  * 
  * Your record needs a roles relation. See {@see \GO\Core\Auth\Model\RecordPermissionTrait}.
  * 
@@ -17,7 +17,7 @@ use GO\Core\Exception\Forbidden;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-abstract class AbstractCRUDRecord extends AbstractRecord {
+abstract class AbstractProtectedRecord extends AbstractRecord {
 	
 	
 	use RecordPermissionTrait;

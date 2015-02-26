@@ -1,7 +1,7 @@
 <?php
 namespace GO\Modules\Bands\Model;
 
-use GO\Core\Auth\Model\AbstractCRUDRecord;
+use GO\Core\Auth\Model\AbstractProtectedRecord;
 use GO\Core\Auth\Model\User;
 
 /**
@@ -18,7 +18,7 @@ use GO\Core\Auth\Model\User;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Band extends AbstractCRUDRecord{	
+class Band extends AbstractProtectedRecord{	
 	
 	use \GO\Core\Db\SoftDeleteTrait;
 	

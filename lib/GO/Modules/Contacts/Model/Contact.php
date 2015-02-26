@@ -35,7 +35,7 @@ use GO\Modules\Timeline\Model\Item;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Contact extends \GO\Core\Auth\Model\AbstractCRUDRecord {
+class Contact extends \GO\Core\Auth\Model\AbstractProtectedRecord {
 		
 	use SoftDeleteTrait;
 	

@@ -97,11 +97,7 @@ class MessageController extends AbstractController {
 	 */
 	public function actionCreate($returnAttributes = []) {
 
-		$message = new Message();
-		$message->setAttributes(App::request()->payload['data']);
-		$message->save();		
-
-		return $this->renderModel($message, $returnAttributes);
+		$message = new \Swift_Message($subject, $body, $contentType, $charset);
 	}
 
 	/**

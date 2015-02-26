@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "51b95760b04e8335b092b12cd5f32f88",
+    "hash": "29285ee5e5cc1f3275409e50785a6c0d",
     "packages": [
         {
             "name": "bshaffer/oauth2-server-php",
@@ -60,12 +60,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/flowjs/flow-php-server.git",
-                "reference": "3a802cb0937a061453f48e18783c7f499f064817"
+                "reference": "84c928090c060238d15e89dd7e252acf8eff1140"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/flowjs/flow-php-server/zipball/3a802cb0937a061453f48e18783c7f499f064817",
-                "reference": "3a802cb0937a061453f48e18783c7f499f064817",
+                "url": "https://api.github.com/repos/flowjs/flow-php-server/zipball/84c928090c060238d15e89dd7e252acf8eff1140",
+                "reference": "84c928090c060238d15e89dd7e252acf8eff1140",
                 "shasum": ""
             },
             "require": {
@@ -104,7 +104,7 @@
                 "resumable.js",
                 "upload"
             ],
-            "time": "2015-02-03 11:17:10"
+            "time": "2014-11-15 11:33:50"
         },
         {
             "name": "sabre/dav",
@@ -112,12 +112,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fruux/sabre-dav.git",
-                "reference": "7ceac5a187f99c5d3ae6256ac0f519e40a43be65"
+                "reference": "9754cb36c02a7ffec3220f9a1dc06d87c8cd3490"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fruux/sabre-dav/zipball/7ceac5a187f99c5d3ae6256ac0f519e40a43be65",
-                "reference": "7ceac5a187f99c5d3ae6256ac0f519e40a43be65",
+                "url": "https://api.github.com/repos/fruux/sabre-dav/zipball/9754cb36c02a7ffec3220f9a1dc06d87c8cd3490",
+                "reference": "9754cb36c02a7ffec3220f9a1dc06d87c8cd3490",
                 "shasum": ""
             },
             "require": {
@@ -133,7 +133,7 @@
                 "php": ">=5.4.1",
                 "sabre/event": "~2.0.0",
                 "sabre/http": "~3.0.0",
-                "sabre/vobject": "~3.3.4"
+                "sabre/vobject": "~3.3"
             },
             "require-dev": {
                 "evert/phpdoc-md": "~0.1.0",
@@ -178,7 +178,7 @@
                 "framework",
                 "iCalendar"
             ],
-            "time": "2015-02-09 16:07:08"
+            "time": "2015-02-23 21:19:17"
         },
         {
             "name": "sabre/event",
@@ -280,16 +280,16 @@
         },
         {
             "name": "sabre/vobject",
-            "version": "3.3.x-dev",
+            "version": "3.4.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fruux/sabre-vobject.git",
-                "reference": "cc1950e51badec6503faeed7b3709b8cea7e289c"
+                "reference": "844deeb61c676b80621108a85043c17d0ba6d3ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fruux/sabre-vobject/zipball/cc1950e51badec6503faeed7b3709b8cea7e289c",
-                "reference": "cc1950e51badec6503faeed7b3709b8cea7e289c",
+                "url": "https://api.github.com/repos/fruux/sabre-vobject/zipball/844deeb61c676b80621108a85043c17d0ba6d3ba",
+                "reference": "844deeb61c676b80621108a85043c17d0ba6d3ba",
                 "shasum": ""
             },
             "require": {
@@ -342,7 +342,59 @@
                 "jCard",
                 "vCard"
             ],
-            "time": "2015-02-09 22:40:46"
+            "time": "2015-02-25 17:41:46"
+        },
+        {
+            "name": "swiftmailer/swiftmailer",
+            "version": "v5.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/swiftmailer/swiftmailer.git",
+                "reference": "c5f963e7f9d6f6438fda4f22d5cc2db296ec621a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/c5f963e7f9d6f6438fda4f22d5cc2db296ec621a",
+                "reference": "c5f963e7f9d6f6438fda4f22d5cc2db296ec621a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "mockery/mockery": "~0.9.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.3-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "lib/swift_required.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Chris Corbyn"
+                },
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                }
+            ],
+            "description": "Swiftmailer, free feature-rich PHP mailer",
+            "homepage": "http://swiftmailer.org",
+            "keywords": [
+                "mail",
+                "mailer"
+            ],
+            "time": "2014-12-05 14:17:14"
         }
     ],
     "packages-dev": [
@@ -352,12 +404,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "34cc484af1ca149188d0d9e91412191e398e0b67"
+                "reference": "5aaadd58aab6fd96200596820994641cb685f4aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/34cc484af1ca149188d0d9e91412191e398e0b67",
-                "reference": "34cc484af1ca149188d0d9e91412191e398e0b67",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/5aaadd58aab6fd96200596820994641cb685f4aa",
+                "reference": "5aaadd58aab6fd96200596820994641cb685f4aa",
                 "shasum": ""
             },
             "require": {
@@ -406,7 +458,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-01-24 10:06:35"
+            "time": "2015-01-15 05:45:24"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -596,12 +648,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "43914fa040d3bc85d316fac6ae15409c68bfa105"
+                "reference": "9790627cf8a703c5561e13dccae81387d3fd42bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/43914fa040d3bc85d316fac6ae15409c68bfa105",
-                "reference": "43914fa040d3bc85d316fac6ae15409c68bfa105",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/9790627cf8a703c5561e13dccae81387d3fd42bc",
+                "reference": "9790627cf8a703c5561e13dccae81387d3fd42bc",
                 "shasum": ""
             },
             "require": {
@@ -662,7 +714,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-02-09 06:33:19"
+            "time": "2014-11-22 10:30:19"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -727,21 +779,21 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/comparator.git",
-                "reference": "1dd8869519a225f7f2b9eb663e225298fade819e"
+                "reference": "6a1e846331bb3cc1a305168125d047fb86260e3d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/1dd8869519a225f7f2b9eb663e225298fade819e",
-                "reference": "1dd8869519a225f7f2b9eb663e225298fade819e",
+                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/6a1e846331bb3cc1a305168125d047fb86260e3d",
+                "reference": "6a1e846331bb3cc1a305168125d047fb86260e3d",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3",
-                "sebastian/diff": "~1.2",
-                "sebastian/exporter": "~1.2"
+                "sebastian/diff": "~1.1",
+                "sebastian/exporter": "~1.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.4"
+                "phpunit/phpunit": "~4.1"
             },
             "type": "library",
             "extra": {
@@ -783,7 +835,7 @@
                 "compare",
                 "equality"
             ],
-            "time": "2015-01-29 16:28:08"
+            "time": "2015-01-05 16:29:00"
         },
         {
             "name": "sebastian/diff",
@@ -1048,12 +1100,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "43aac3461a5679f486f7c96e4d7e780a59fec997"
+                "reference": "077ae1200d35a90947b80b4c64e022ddc81536d6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/43aac3461a5679f486f7c96e4d7e780a59fec997",
-                "reference": "43aac3461a5679f486f7c96e4d7e780a59fec997",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/077ae1200d35a90947b80b4c64e022ddc81536d6",
+                "reference": "077ae1200d35a90947b80b4c64e022ddc81536d6",
                 "shasum": ""
             },
             "require": {
@@ -1086,12 +1138,14 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2015-02-11 07:17:51"
+            "time": "2015-01-20 01:40:35"
         }
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "swiftmailer/swiftmailer": 0
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
