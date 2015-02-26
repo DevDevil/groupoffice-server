@@ -52,11 +52,12 @@ class MemoryFile extends File{
 		return true;
 	}
 	
-	public function move($destinationFolder, $newFileName = false, $isUploadedFile = false, $appendNumberToNameIfDestinationExists = false) {
+	public function move(File $destination) {
+					
 		throw Exception("move not implemented for memory file");
 	}
 	
-	public function copy(Folder $destinationFolder, $newFileName = false) {
+	public function copy(File $destinationFile) {
 		throw Exception("copy not implemented for memory file");
 	}
 	public function getParent() {

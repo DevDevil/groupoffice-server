@@ -256,6 +256,8 @@ class Router {
 				->get('modules', 'store')
 				->post('modules', 'create');
 
+		\GO\Core\Email\Controller\MessageController::routes()
+				->get('email/message/send', 'send');
 		
 		
 		if(System::isDatabaseInstalled()){

@@ -58,33 +58,4 @@ class ModuleUtils{
 		
 		return $managers;
 	}
-	
-	
-	/**
-	 * Get model classes of all modules.
-	 * 
-	 * @return string[] eg. ["GO\Core\Auth\Model\User", "etc.."]
-	 */
-	public static function getModelNames(){
-		
-		$modelNames = [];
-		$folders = ModuleUtils::getModuleFolders();
-		
-		foreach($folders as $prefix => $folder){
-			$modelFolder = $folder->createFolder('Model');
-			if($modelFolder->exists()){
-				$files = $modelFolder->getChildren();
-				
-				foreach($files as $file){
-					$className = $prefix.'Model\\'.$file->getNameWithoutExtension();
-					
-					if(class_exists($className)){
-						$modelNames[] = $className;
-					}
-				}						
-			}
-		}
-		
-		return $modelNames;
-	}
 }

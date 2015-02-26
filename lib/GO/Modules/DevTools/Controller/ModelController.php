@@ -17,7 +17,10 @@ class ModelController extends AbstractController {
 		
 		$this->setContentType('text/html');
 		
-		$models = \GO\Core\Modules\ModuleUtils::getModelNames();
+		//$models = \GO\Core\Modules\ModuleUtils::getModelNames();
+		
+		$classFinder = new \GO\Core\Util\ClassFinder(\GO\Core\Db\AbstractRecord::className());
+		$models = $classFinder->find();
 		
 		foreach($models as $model){
 			
